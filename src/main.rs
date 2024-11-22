@@ -1,89 +1,176 @@
-use clap::Parser;
-use std::io::{Read, Write};
-use tokio::{join, task};
-use wezterm_ssh::{Child, Config, MasterPty, PtySize, Session, SessionEvent};
+///
+/// Run this example with:
+/// cargo run --example client_exec_interactive -- -k <private key path> <host> <command>
+///
+use std::env;
+use std::path::{Path, PathBuf};
+use std::sync::Arc;
+use std::time::Duration;
 
-#[derive(Debug, Parser)]
-struct Args {
-    pub user: String,
-    pub pass: String,
-    pub host: String,
-}
+use anyhow::Result;
+use async_trait::async_trait;
+use clap::Parser;
+use russh::keys::*;
+use russh::*;
+use russh_keys::key::PublicKey;
+use termion::raw::IntoRawMode;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::net::ToSocketAddrs;
 
 #[tokio::main]
-async fn main() {
-    let args = Args::parse();
+async fn main() -> Result<()> {
+    // CLI options are defined later in this file
+    let cli = Cli::parse();
 
-    let mut cfg = Config::new();
-    cfg.add_default_config_files();
+    println!("Connecting to {}:{}", cli.host, 22);
 
-    let mut cfg = cfg.for_host(args.host);
-    cfg.insert("user".to_string(), args.user);
+    // Session is a wrapper around a russh client, defined down below
+    let mut ssh = Session::connect(
+        cli.user,
+        cli.pass,
+        (cli.host, 22),
+    )
+    .await?;
+    println!("Connected");
 
-    let task = task::spawn(async move {
-        let (sess, events) = Session::connect(cfg.clone()).unwrap();
+    let code = {
+        // We're using `termion` to put the terminal into raw mode, so that we can
+        // display the output of interactive applications correctly
+        let _raw_term = std::io::stdout().into_raw_mode()?;
+        ssh.call(&cli.command).await?
+    };
 
-        while let Ok(ev) = events.recv().await {
-            match ev {
-                SessionEvent::Banner(banner) => {
-                    if let Some(banner) = banner {
-                        println!("{}", banner);
+    println!("Exitcode: {:?}", code);
+    ssh.close().await?;
+    Ok(())
+}
+
+struct Client {}
+
+// More SSH event handlers
+// can be defined in this trait
+// In this example, we're only using Channel, so these aren't needed.
+#[async_trait]
+impl client::Handler for Client {
+    type Error = russh::Error;
+
+    async fn check_server_key(
+        &mut self,
+        _server_public_key: &PublicKey,
+    ) -> Result<bool, Self::Error> {
+        Ok(true)
+    }
+}
+
+/// This struct is a convenience wrapper
+/// around a russh client
+/// that handles the input/output event loop
+pub struct Session {
+    session: client::Handle<Client>,
+}
+
+impl Session {
+    async fn connect<A: ToSocketAddrs>(
+        user: impl Into<String>,
+        pass: impl Into<String>,
+        addrs: A,
+    ) -> Result<Self> {
+        let config = client::Config {
+            inactivity_timeout: Some(Duration::from_secs(5)),
+            ..<_>::default()
+        };
+
+        let config = Arc::new(config);
+        let sh = Client {};
+
+        let mut session = client::connect(config, addrs, sh).await?;
+
+        let auth_res = session.authenticate_password(user, pass).await?;
+        if !auth_res {
+            anyhow::bail!("Authentication (with password) failed");
+        }
+
+        // use publickey authentication, with or without certificate
+        Ok(Self { session })
+    }
+
+    async fn call(&mut self, command: &str) -> Result<u32> {
+        let mut channel = self.session.channel_open_session().await?;
+
+        // This example doesn't terminal resizing after the connection is established
+        let (w, h) = termion::terminal_size()?;
+
+        // Request an interactive PTY from the server
+        channel
+            .request_pty(
+                false,
+                &env::var("TERM").unwrap_or("xterm".into()),
+                w as u32,
+                h as u32,
+                0,
+                0,
+                &[], // ideally you want to pass the actual terminal modes here
+            )
+            .await?;
+        channel.exec(true, command).await?;
+
+        let code;
+        let mut stdin = tokio_fd::AsyncFd::try_from(0)?;
+        let mut stdout = tokio_fd::AsyncFd::try_from(1)?;
+        let mut buf = vec![0; 1024];
+        let mut stdin_closed = false;
+
+        loop {
+            // Handle one of the possible events:
+            tokio::select! {
+                // There's terminal input available from the user
+                r = stdin.read(&mut buf), if !stdin_closed => {
+                    match r {
+                        Ok(0) => {
+                            stdin_closed = true;
+                            channel.eof().await?;
+                        },
+                        // Send it to the server
+                        Ok(n) => channel.data(&buf[..n]).await?,
+                        Err(e) => return Err(e.into()),
+                    };
+                },
+                // There's an event available on the session channel
+                Some(msg) = channel.wait() => {
+                    match msg {
+                        // Write data to the terminal
+                        ChannelMsg::Data { ref data } => {
+                            stdout.write_all(data).await?;
+                            stdout.flush().await?;
+                        }
+                        // The command has returned an exit code
+                        ChannelMsg::ExitStatus { exit_status } => {
+                            code = exit_status;
+                            if !stdin_closed {
+                                channel.eof().await?;
+                            }
+                            break;
+                        }
+                        _ => {}
                     }
-                }
-                SessionEvent::HostVerify(verify) => {
-                    verify.answer(true).await.unwrap();
-                }
-                SessionEvent::Authenticate(auth) => {
-                    auth.answer(vec![args.pass.clone()]).await.unwrap();
-                }
-                SessionEvent::Error(err) => {
-                    panic!("{}", err);
-                }
-                SessionEvent::Authenticated => break,
+                },
             }
         }
+        Ok(code)
+    }
 
-        let (pty, mut child) = sess
-            .request_pty("xterm-256color", PtySize::default(), Some("ls -lA"), None)
-            .await
-            .unwrap();
+    async fn close(&mut self) -> Result<()> {
+        self.session
+            .disconnect(Disconnect::ByApplication, "", "English")
+            .await?;
+        Ok(())
+    }
+}
 
-        let mut reader = pty.try_clone_reader().unwrap();
-        let stdout = std::thread::spawn(move || {
-            let mut buf = [0u8; 8192];
-            let mut stdout = std::io::stdout();
-            while let Ok(len) = reader.read(&mut buf) {
-                if len == 0 {
-                    break;
-                }
-                if stdout.write_all(&buf[0..len]).is_err() {
-                    break;
-                }
-            }
-        });
-
-        // Need to separate out the writer so that we can drop
-        // the pty which would otherwise keep the ssh session
-        // thread alive
-        let mut writer = pty.try_clone_writer().unwrap();
-        std::thread::spawn(move || {
-            let mut buf = [0u8; 8192];
-            let mut stdin = std::io::stdin();
-            while let Ok(len) = stdin.read(&mut buf) {
-                if len == 0 {
-                    break;
-                }
-                if writer.write_all(&buf[0..len]).is_err() {
-                    break;
-                }
-            }
-        });
-
-        let status = child.wait().unwrap();
-        let _ = stdout.join();
-        if !status.success() {
-            std::process::exit(1);
-        }
-    });
-    join!(task);
+#[derive(clap::Parser)]
+pub struct Cli {
+    host: String,
+    user: String,
+    pass: String,
+    command: String,
 }

@@ -4,6 +4,11 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+anyhow = "1.0.93"
+async-trait = "0.1.83"
 clap = { version = "4.5.21", features = ["derive"] }
+russh = "0.46.0"
+russh-keys = "0.46.0"
+termion = "4.0.3"
 tokio = { version = "1.41.1", features = ["full"] }
-wezterm-ssh = "0.4.0"
+tokio-fd = "0.3.0"

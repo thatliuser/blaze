@@ -1,7 +1,3 @@
-///
-/// Run this example with:
-/// cargo run --example client_exec_interactive -- -k <private key path> <host> <command>
-///
 use std::env;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -25,12 +21,7 @@ async fn main() -> Result<()> {
     println!("Connecting to {}:{}", cli.host, 22);
 
     // Session is a wrapper around a russh client, defined down below
-    let mut ssh = Session::connect(
-        cli.user,
-        cli.pass,
-        (cli.host, 22),
-    )
-    .await?;
+    let mut ssh = Session::connect(cli.user, cli.pass, (cli.host, 22)).await?;
     println!("Connected");
 
     let code = {
@@ -76,7 +67,7 @@ impl Session {
         addrs: A,
     ) -> Result<Self> {
         let config = client::Config {
-            inactivity_timeout: Some(Duration::from_secs(5)),
+            inactivity_timeout: Some(Duration::from_secs(86400)),
             ..<_>::default()
         };
 
@@ -104,7 +95,7 @@ impl Session {
         channel
             .request_pty(
                 false,
-                &env::var("TERM").unwrap_or("xterm".into()),
+                "xterm".into(),
                 w as u32,
                 h as u32,
                 0,
@@ -112,7 +103,10 @@ impl Session {
                 &[], // ideally you want to pass the actual terminal modes here
             )
             .await?;
+        /*
         channel.exec(true, command).await?;
+        */
+        channel.request_shell(true).await?;
 
         let code;
         let mut stdin = tokio_fd::AsyncFd::try_from(0)?;

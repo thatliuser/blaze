@@ -1,17 +1,16 @@
-use std::env;
-use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Duration;
 
 use anyhow::Result;
 use async_trait::async_trait;
 use clap::Parser;
-use russh::keys::*;
 use russh::*;
 use russh_keys::key::PublicKey;
 use termion::raw::IntoRawMode;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::ToSocketAddrs;
+
+mod nmap;
 
 #[tokio::main]
 async fn main() -> Result<()> {

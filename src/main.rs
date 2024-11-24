@@ -123,10 +123,14 @@ async fn main() -> anyhow::Result<()> {
         }
         BlazeCommand::Script(cmd) => {
             println!("Executing script {} on {}", cmd.script.display(), cmd.host);
-            let ip = cmd.host.parse()?;
+            let ip = cmd.host.parse().or_else(|_| {
+                cfg.host_for_alias(&cmd.host)
+                    .map(|host| host.ip)
+                    .ok_or_else(|| anyhow::Error::msg("couldn't lookup host by alias"))
+            })?;
             let host = cfg
                 .host_for_ip(ip)
-                .ok_or_else(|| anyhow::Error::msg("Failed to get host for IP"))?;
+                .ok_or_else(|| anyhow::Error::msg("failed to get host for IP"))?;
             let mut session = Session::connect(&host.user, &host.pass, (ip, host.port)).await?;
             let (code, output) = session
                 .run_script(cmd.script.into_os_string().into_string().unwrap(), true)
@@ -135,8 +139,19 @@ async fn main() -> anyhow::Result<()> {
             println!("Output: {}", String::from_utf8_lossy(&output));
         }
         BlazeCommand::Shell(cmd) => {
-            println!("Host: {}", cmd.host);
-            anyhow::bail!("Not implemented yet");
+            let ip = cmd.host.parse().or_else(|_| {
+                cfg.host_for_alias(&cmd.host)
+                    .map(|host| host.ip)
+                    .ok_or_else(|| anyhow::Error::msg("couldn't lookup host by alias"))
+            })?;
+            let host = cfg
+                .host_for_ip(ip)
+                .ok_or_else(|| anyhow::Error::msg("failed to get host for IP"))?;
+            let mut session = Session::connect(&host.user, &host.pass, (ip, host.port)).await?;
+            let code = session.shell().await?;
+            if code != 0 {
+                anyhow::bail!("shell returned nonzero code {}", code);
+            }
         }
     }
     Ok(())

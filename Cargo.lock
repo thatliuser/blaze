@@ -216,6 +216,7 @@ dependencies = [
  "ratatui",
  "russh",
  "russh-keys",
+ "russh-sftp",
  "serde",
  "serde_json",
  "serde_yaml",

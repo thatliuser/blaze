@@ -54,6 +54,19 @@ impl Config {
         self.hosts.get(&ip)
     }
 
+    pub fn host_for_alias(&self, alias: &String) -> Option<&Host> {
+        self.hosts()
+            .iter()
+            .filter_map(|(_, host)| {
+                if host.aliases.iter().any(|a| &a.to_lowercase() == alias) {
+                    Some(host)
+                } else {
+                    None
+                }
+            })
+            .next()
+    }
+
     pub fn add_host(&mut self, host: &Host) {
         self.hosts.insert(host.ip, host.clone());
     }

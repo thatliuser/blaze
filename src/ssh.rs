@@ -6,17 +6,12 @@ use anyhow::Result;
 use async_trait::async_trait;
 use russh::*;
 use russh_keys::key::PublicKey;
+use termion::raw::IntoRawMode;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::ToSocketAddrs;
 
 // TODO: Snippet for interactive shell
 /*
-let code = {
-    // We're using `termion` to put the terminal into raw mode, so that we can
-    // display the output of interactive applications correctly
-    let _raw_term = std::io::stdout().into_raw_mode()?;
-    ssh.call(&cli.command).await?
-};
 */
 
 struct Handler {}
@@ -93,7 +88,7 @@ impl Session {
         Ok((code, buffer))
     }
 
-    pub async fn call(&mut self, command: &str) -> Result<u32> {
+    pub async fn shell(&mut self) -> Result<u32> {
         let mut channel = self.session.channel_open_session().await?;
 
         // This example doesn't terminal resizing after the connection is established
@@ -111,9 +106,7 @@ impl Session {
                 &[], // ideally you want to pass the actual terminal modes here
             )
             .await?;
-        /*
-        channel.exec(true, command).await?;
-        */
+
         channel.request_shell(true).await?;
 
         let code;
@@ -121,6 +114,8 @@ impl Session {
         let mut stdout = tokio_fd::AsyncFd::try_from(1)?;
         let mut buf = vec![0; 1024];
         let mut stdin_closed = false;
+
+        let _raw_term = std::io::stdout().into_raw_mode()?;
 
         loop {
             // Handle one of the possible events:

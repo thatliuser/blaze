@@ -7,6 +7,7 @@ mod ssh;
 use clap::{Args, Parser};
 use config::Config;
 use config::Host;
+use ssh::Runnable;
 use ssh::Session;
 use std::{collections::HashMap, net::IpAddr, path::PathBuf};
 use tokio::task::JoinSet;
@@ -97,7 +98,10 @@ async fn main() -> anyhow::Result<()> {
                     let mut session =
                         Session::connect(&host.user, &host.pass, (ip, host.port)).await?;
                     let result = session
-                        .run_script("echo $(hostname || cat /etc/hostname)".into(), true)
+                        .exec(
+                            Runnable::Command("echo $(hostname || cat /etc/hostname)".into()),
+                            true,
+                        )
                         .await?;
                     if result.0 != 0 {
                         anyhow::bail!("script returned nonzero code");
@@ -132,9 +136,7 @@ async fn main() -> anyhow::Result<()> {
                 .host_for_ip(ip)
                 .ok_or_else(|| anyhow::Error::msg("failed to get host for IP"))?;
             let mut session = Session::connect(&host.user, &host.pass, (ip, host.port)).await?;
-            let (code, output) = session
-                .run_script(cmd.script.into_os_string().into_string().unwrap(), true)
-                .await?;
+            let (code, output) = session.exec(Runnable::Script(cmd.script), true).await?;
             println!("Program returned code {}", code);
             println!("Output: {}", String::from_utf8_lossy(&output));
         }

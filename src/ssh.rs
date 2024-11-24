@@ -1,12 +1,14 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Duration;
 
-use anyhow::Result;
+use anyhow::Context;
 use async_trait::async_trait;
 use russh::*;
 use russh_keys::key::PublicKey;
+use russh_sftp::client::SftpSession;
 use termion::raw::IntoRawMode;
+use tokio::fs::File;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::ToSocketAddrs;
 
@@ -23,6 +25,8 @@ struct Handler {}
 impl client::Handler for Handler {
     type Error = russh::Error;
 
+    // We don't care about the server key being recognized
+    // Need as little interactive input as possible
     async fn check_server_key(
         &mut self,
         _server_public_key: &PublicKey,
@@ -38,8 +42,17 @@ pub struct Session {
     session: client::Handle<Handler>,
 }
 
+pub enum Runnable {
+    Script(PathBuf),
+    Command(String),
+}
+
 impl Session {
-    pub async fn connect<A: ToSocketAddrs>(user: &str, pass: &str, addrs: A) -> Result<Self> {
+    pub async fn connect<A: ToSocketAddrs>(
+        user: &str,
+        pass: &str,
+        addrs: A,
+    ) -> anyhow::Result<Self> {
         let config = client::Config {
             inactivity_timeout: Some(Duration::from_secs(86400)),
             ..<_>::default()
@@ -58,13 +71,38 @@ impl Session {
         Ok(Self { session })
     }
 
-    pub async fn run_script(&mut self, command: String, capture: bool) -> Result<(u32, Vec<u8>)> {
+    pub async fn upload(&mut self, file: &Path) -> anyhow::Result<String> {
+        let mut src = File::open(file).await?;
+        let filename = file
+            .file_name()
+            .ok_or_else(|| anyhow::Error::msg("couldn't find filename for script path"))?
+            .to_str()
+            .ok_or_else(|| anyhow::Error::msg("couldn't convert filename to string"))?;
+        let sftp_channel = self.session.channel_open_session().await?;
+        sftp_channel
+            .request_subsystem(true, "sftp")
+            .await
+            .context("couldn't request sftp subsystem")?;
+        let sftp = SftpSession::new(sftp_channel.into_stream()).await?;
+        let mut dst = sftp.create(filename).await?;
+        tokio::io::copy(&mut src, &mut dst)
+            .await
+            .context("couldn't copy file to remote location")?;
+        Ok(filename.into())
+    }
+
+    pub async fn exec(&mut self, run: Runnable, capture: bool) -> anyhow::Result<(u32, Vec<u8>)> {
+        let cmd = match run {
+            Runnable::Script(file) => {
+                format!("sh {}", self.upload(&file).await?)
+            }
+            Runnable::Command(cmd) => cmd,
+        };
         let mut channel = self.session.channel_open_session().await?;
-        channel.exec(true, command).await?;
+        channel.exec(true, cmd).await?;
 
         let mut code = 0;
         let mut buffer: Vec<u8> = Vec::new();
-        let mut stdout = tokio::io::stdout();
 
         loop {
             // There's an event available on the session channel
@@ -74,7 +112,9 @@ impl Session {
             match msg {
                 // Write data to the terminal
                 ChannelMsg::Data { ref data } => {
-                    buffer.extend_from_slice(data);
+                    if capture {
+                        buffer.extend_from_slice(data);
+                    }
                 }
                 // The command has returned an exit code
                 ChannelMsg::ExitStatus { exit_status } => {
@@ -88,7 +128,7 @@ impl Session {
         Ok((code, buffer))
     }
 
-    pub async fn shell(&mut self) -> Result<u32> {
+    pub async fn shell(&mut self) -> anyhow::Result<u32> {
         let mut channel = self.session.channel_open_session().await?;
 
         // This example doesn't terminal resizing after the connection is established
@@ -156,7 +196,7 @@ impl Session {
         Ok(code)
     }
 
-    async fn close(&mut self) -> Result<()> {
+    async fn close(&mut self) -> anyhow::Result<()> {
         self.session
             .disconnect(Disconnect::ByApplication, "", "English")
             .await?;

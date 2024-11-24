@@ -4,7 +4,12 @@ use anyhow::Context;
 use nmap_xml_parser::host::Address;
 use serde::{Deserialize, Serialize};
 use std::{
-    collections::HashMap, fs::File, io::BufReader, io::BufWriter, net::IpAddr, path::PathBuf,
+    collections::{HashMap, HashSet},
+    fs::File,
+    io::BufReader,
+    io::BufWriter,
+    net::IpAddr,
+    path::PathBuf,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -13,7 +18,7 @@ pub struct Host {
     pub user: String,
     pub pass: String,
     pub port: u16,
-    pub aliases: Vec<String>,
+    pub aliases: HashSet<String>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -75,7 +80,7 @@ impl Config {
             user,
             pass,
             port,
-            aliases: Vec::new(),
+            aliases: HashSet::new(),
         };
         self.hosts.insert(ip, host);
         Ok(())

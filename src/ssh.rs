@@ -44,7 +44,7 @@ pub struct Session {
 }
 
 impl Session {
-    pub async fn connect<A: ToSocketAddrs>(user: String, pass: String, addrs: A) -> Result<Self> {
+    pub async fn connect<A: ToSocketAddrs>(user: &str, pass: &str, addrs: A) -> Result<Self> {
         let config = client::Config {
             inactivity_timeout: Some(Duration::from_secs(86400)),
             ..<_>::default()

@@ -1,47 +1,31 @@
+use std::path::Path;
 use std::sync::Arc;
 use std::time::Duration;
 
 use anyhow::Result;
 use async_trait::async_trait;
-use clap::Parser;
 use russh::*;
 use russh_keys::key::PublicKey;
-use termion::raw::IntoRawMode;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::ToSocketAddrs;
 
-mod nmap;
+// TODO: Snippet for interactive shell
+/*
+let code = {
+    // We're using `termion` to put the terminal into raw mode, so that we can
+    // display the output of interactive applications correctly
+    let _raw_term = std::io::stdout().into_raw_mode()?;
+    ssh.call(&cli.command).await?
+};
+*/
 
-#[tokio::main]
-async fn main() -> Result<()> {
-    // CLI options are defined later in this file
-    let cli = Cli::parse();
-
-    println!("Connecting to {}:{}", cli.host, 22);
-
-    // Session is a wrapper around a russh client, defined down below
-    let mut ssh = Session::connect(cli.user, cli.pass, (cli.host, 22)).await?;
-    println!("Connected");
-
-    let code = {
-        // We're using `termion` to put the terminal into raw mode, so that we can
-        // display the output of interactive applications correctly
-        let _raw_term = std::io::stdout().into_raw_mode()?;
-        ssh.call(&cli.command).await?
-    };
-
-    println!("Exitcode: {:?}", code);
-    ssh.close().await?;
-    Ok(())
-}
-
-struct Client {}
+struct Handler {}
 
 // More SSH event handlers
 // can be defined in this trait
 // In this example, we're only using Channel, so these aren't needed.
 #[async_trait]
-impl client::Handler for Client {
+impl client::Handler for Handler {
     type Error = russh::Error;
 
     async fn check_server_key(
@@ -56,35 +40,60 @@ impl client::Handler for Client {
 /// around a russh client
 /// that handles the input/output event loop
 pub struct Session {
-    session: client::Handle<Client>,
+    session: client::Handle<Handler>,
 }
 
 impl Session {
-    async fn connect<A: ToSocketAddrs>(
-        user: impl Into<String>,
-        pass: impl Into<String>,
-        addrs: A,
-    ) -> Result<Self> {
+    pub async fn connect<A: ToSocketAddrs>(user: String, pass: String, addrs: A) -> Result<Self> {
         let config = client::Config {
             inactivity_timeout: Some(Duration::from_secs(86400)),
             ..<_>::default()
         };
 
         let config = Arc::new(config);
-        let sh = Client {};
+        let handler = Handler {};
 
-        let mut session = client::connect(config, addrs, sh).await?;
+        let mut session = client::connect(config, addrs, handler).await?;
 
         let auth_res = session.authenticate_password(user, pass).await?;
         if !auth_res {
             anyhow::bail!("Authentication (with password) failed");
         }
 
-        // use publickey authentication, with or without certificate
         Ok(Self { session })
     }
 
-    async fn call(&mut self, command: &str) -> Result<u32> {
+    pub async fn run_script(&mut self, command: String, capture: bool) -> Result<(u32, Vec<u8>)> {
+        let mut channel = self.session.channel_open_session().await?;
+        channel.exec(true, command).await?;
+
+        let mut code = 0;
+        let mut buffer: Vec<u8> = Vec::new();
+        let mut stdout = tokio::io::stdout();
+
+        loop {
+            // There's an event available on the session channel
+            let Some(msg) = channel.wait().await else {
+                break;
+            };
+            match msg {
+                // Write data to the terminal
+                ChannelMsg::Data { ref data } => {
+                    buffer.extend_from_slice(data);
+                }
+                // The command has returned an exit code
+                ChannelMsg::ExitStatus { exit_status } => {
+                    code = exit_status;
+                    // cannot leave the loop immediately, there might still be more data to receive
+                }
+                _ => {}
+            }
+        }
+
+        Ok((code, buffer))
+    }
+
+    pub async fn call(&mut self, command: &str) -> Result<u32> {
         let mut channel = self.session.channel_open_session().await?;
 
         // This example doesn't terminal resizing after the connection is established
@@ -158,12 +167,4 @@ impl Session {
             .await?;
         Ok(())
     }
-}
-
-#[derive(clap::Parser)]
-pub struct Cli {
-    host: String,
-    user: String,
-    pass: String,
-    command: String,
 }

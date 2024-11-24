@@ -1,5 +1,7 @@
+// Nmap scanning.
+
 use anyhow::Context;
-use nmap_xml_parser::{host::Host, NmapResults};
+use nmap_xml_parser::{host::Host as NmapHost, NmapResults};
 use serde::Deserialize;
 use std::{
     fs::read_to_string,
@@ -18,8 +20,8 @@ pub enum OsType {
 }
 
 #[derive(Clone, Debug)]
-pub struct CategorizedHost {
-    pub host: Host,
+pub struct Host {
+    pub host: NmapHost,
     pub os: OsType,
 }
 
@@ -52,7 +54,7 @@ impl Scan {
         Ok(Scan { results: scan })
     }
 
-    pub fn get_categorized_hosts(&self) -> Vec<CategorizedHost> {
+    pub fn get_hosts(&self) -> Vec<Host> {
         // Hosts with RDP are most likely windows
         self.results
             .hosts()
@@ -60,13 +62,13 @@ impl Scan {
                 let mut ports = host.port_info.ports();
                 if ports.any(|port| port.port_number == 3389) {
                     // Hosts with RDP are almost definitely Windows
-                    CategorizedHost {
+                    Host {
                         host: host.clone(),
                         os: OsType::Windows,
                     }
                 } else {
                     // There's like, no other options so just assume Linux/BSD/whatever
-                    CategorizedHost {
+                    Host {
                         host: host.clone(),
                         os: OsType::UnixLike,
                     }
@@ -83,7 +85,7 @@ mod tests {
     #[test]
     fn test_scan_fast() -> anyhow::Result<()> {
         let scan = Scan::new("10.100.3.0/24")?;
-        let hosts = scan.get_categorized_hosts();
+        let hosts = scan.get_hosts();
         for host in hosts.iter() {
             println!("{:?}: {:?}", host.host.addresses(), host.os);
         }

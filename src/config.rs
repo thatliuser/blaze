@@ -7,7 +7,7 @@ use std::{
     collections::HashMap, fs::File, io::BufReader, io::BufWriter, net::IpAddr, path::PathBuf,
 };
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Host {
     pub ip: IpAddr,
     pub user: String,
@@ -47,6 +47,10 @@ impl Config {
 
     pub fn host_for_ip(&self, ip: IpAddr) -> Option<&Host> {
         self.hosts.get(&ip)
+    }
+
+    pub fn add_host(&mut self, host: &Host) {
+        self.hosts.insert(host.ip, host.clone());
     }
 
     pub fn add_host_from(

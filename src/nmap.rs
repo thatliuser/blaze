@@ -7,24 +7,24 @@ use std::{
 };
 
 #[derive(Clone, Debug)]
-struct Scan {
+pub struct Scan {
     results: NmapResults,
 }
 
 #[derive(Clone, Debug)]
-enum OsType {
+pub enum OsType {
     UnixLike,
     Windows,
 }
 
 #[derive(Clone, Debug)]
-struct CategorizedHost {
+pub struct CategorizedHost {
     pub host: Host,
     pub os: OsType,
 }
 
 impl Scan {
-    fn new(subnet: impl Into<String>) -> anyhow::Result<Scan> {
+    pub fn new(subnet: impl Into<String>) -> anyhow::Result<Scan> {
         let args = vec![
             "--min-rate",
             "3000",
@@ -52,7 +52,7 @@ impl Scan {
         Ok(Scan { results: scan })
     }
 
-    fn get_categorized_hosts(&self) -> Vec<CategorizedHost> {
+    pub fn get_categorized_hosts(&self) -> Vec<CategorizedHost> {
         // Hosts with RDP are most likely windows
         self.results
             .hosts()

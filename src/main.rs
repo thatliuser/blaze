@@ -1,12 +1,13 @@
 // Entrypoint
 
 mod config;
-mod nmap;
+mod scan;
 mod ssh;
 
+use cidr::IpCidr;
 use clap::{Args, Parser};
 use config::Config;
-use config::Host;
+use scan::{Backend, Scan};
 use ssh::Runnable;
 use ssh::Session;
 use std::{collections::HashMap, net::IpAddr, path::PathBuf};
@@ -33,12 +34,14 @@ enum BlazeCommand {
 #[derive(Args)]
 #[command(about = "Run an nmap scan on a specified subnet.")]
 struct ScanCommand {
-    pub subnet: String,
+    pub subnet: IpCidr,
     #[arg(short, long, default_value_t = String::from("root"))]
     pub user: String,
     pub pass: String,
     #[arg(short, long, default_value_t = 22)]
     pub port: u16,
+    #[arg(short, long, default_value_t = Backend::RustScan)]
+    pub backend: Backend,
 }
 
 #[derive(Args)]
@@ -73,11 +76,10 @@ async fn main() -> anyhow::Result<()> {
     });
     match BlazeCommand::parse() {
         BlazeCommand::Scan(cmd) => {
-            println!("Subnet: {}", cmd.subnet);
-            let scan = nmap::Scan::new(cmd.subnet)?;
-            let hosts = scan.get_hosts();
-            for host in hosts.iter() {
-                println!("{:?}: {:?}", host.host.addresses(), host.os);
+            println!("Subnet: {:?}", cmd.subnet);
+            let scan = Scan::new(&cmd.subnet, cmd.backend).await?;
+            for host in scan.hosts.iter() {
+                println!("{:?}: {:?}", host.addr, host.os);
                 cfg.add_host_from(host, cmd.user.clone(), cmd.pass.clone(), cmd.port)?;
             }
         }

@@ -1,7 +1,6 @@
 // Configuration file shenanigans
 
 use anyhow::Context;
-use nmap_xml_parser::host::Address;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::{HashMap, HashSet},
@@ -73,29 +72,19 @@ impl Config {
 
     pub fn add_host_from(
         &mut self,
-        host: &crate::nmap::Host,
+        scan_host: &crate::scan::Host,
         user: String,
         pass: String,
         port: u16,
     ) -> anyhow::Result<()> {
-        let ip = host
-            .host
-            .addresses()
-            .filter_map(|addr| match addr {
-                Address::IpAddr(ip) => Some(ip),
-                _ => None,
-            })
-            .next()
-            .ok_or_else(|| anyhow::Error::msg("no IP addresses for host"))?
-            .clone();
         let host = Host {
-            ip,
+            ip: scan_host.addr,
             user,
             pass,
             port,
             aliases: HashSet::new(),
         };
-        self.hosts.insert(ip, host);
+        self.hosts.insert(host.ip, host);
         Ok(())
     }
 

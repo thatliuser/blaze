@@ -11,7 +11,7 @@ use config::{Config, Host};
 use scan::{Backend, Scan};
 use ssh::Runnable;
 use ssh::Session;
-use std::{collections::HashMap, net::IpAddr, path::PathBuf};
+use std::{net::IpAddr, path::PathBuf};
 use tokio::task::JoinSet;
 
 #[derive(Parser)]
@@ -26,6 +26,8 @@ enum BlazeCommand {
     #[clap(alias = "r")]
     #[command(about = "Detect the hostnames of all detected hosts.")]
     Resolve,
+    #[command(about = "Change the login credentials of all detected hosts.")]
+    Chpass,
     #[clap(alias = "sc")]
     Script(ScriptCommand),
     #[clap(alias = "sh")]
@@ -128,7 +130,14 @@ async fn main() -> anyhow::Result<()> {
         }
         BlazeCommand::List => {
             for host in cfg.hosts().values() {
-                println!("{:?}", host);
+                let aliases: Vec<String> = host.aliases.iter().cloned().collect();
+                let aliases = if aliases.len() == 0 {
+                    "<none>".into()
+                } else {
+                    aliases.join(", ")
+                };
+                let hoststr = format!("{}@{}:{}", host.user, host.ip, host.port);
+                println!("{:<25} (aliases {})", hoststr, aliases);
             }
         }
         BlazeCommand::Resolve => {
@@ -154,6 +163,7 @@ async fn main() -> anyhow::Result<()> {
                 }
             }
         }
+        BlazeCommand::Chpass => for host in cfg.hosts().values() {},
         BlazeCommand::Script(cmd) => {
             let mut set = run_script_all(&mut cfg, Runnable::Script(cmd.script)).await?;
             while let Some(joined) = set.join_next().await {

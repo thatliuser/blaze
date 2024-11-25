@@ -42,12 +42,6 @@ pub struct Session {
     session: client::Handle<Handler>,
 }
 
-#[derive(Debug, Clone)]
-pub enum Runnable {
-    Script(PathBuf),
-    Command(String),
-}
-
 impl Session {
     pub async fn connect<A: ToSocketAddrs>(
         user: &str,
@@ -92,15 +86,9 @@ impl Session {
         Ok(filename.into())
     }
 
-    pub async fn exec(&mut self, run: Runnable, capture: bool) -> anyhow::Result<(u32, Vec<u8>)> {
-        let cmd = match run {
-            Runnable::Script(file) => {
-                format!("sh {}", self.upload(&file).await?)
-            }
-            Runnable::Command(cmd) => cmd,
-        };
+    pub async fn exec(&mut self, command: String, capture: bool) -> anyhow::Result<(u32, Vec<u8>)> {
         let mut channel = self.session.channel_open_session().await?;
-        channel.exec(true, cmd).await?;
+        channel.exec(true, command).await?;
 
         let mut code = 0;
         let mut buffer: Vec<u8> = Vec::new();
@@ -127,6 +115,22 @@ impl Session {
         }
 
         Ok((code, buffer))
+    }
+
+    // WARNING: This does NOT handle shell escaping!!! Be careful!!!
+    pub async fn run_script(
+        &mut self,
+        script: PathBuf,
+        args: Vec<String>,
+        capture: bool,
+    ) -> anyhow::Result<(u32, Vec<u8>)> {
+        let script = self.upload(&script).await?;
+        let args = if args.len() == 0 {
+            "".into()
+        } else {
+            " ".to_owned() + &args.join(" ")
+        };
+        self.exec(format!("sh {}{}", script, args), capture).await
     }
 
     pub async fn shell(&mut self) -> anyhow::Result<u32> {

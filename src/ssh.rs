@@ -42,6 +42,7 @@ pub struct Session {
     session: client::Handle<Handler>,
 }
 
+#[derive(Debug, Clone)]
 pub enum Runnable {
     Script(PathBuf),
     Command(String),

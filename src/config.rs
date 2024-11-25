@@ -53,7 +53,7 @@ impl Config {
         self.hosts.get(&ip)
     }
 
-    pub fn host_for_alias(&self, alias: &String) -> Option<&Host> {
+    pub fn host_for_alias(&self, alias: &str) -> Option<&Host> {
         self.hosts()
             .iter()
             .filter_map(|(_, host)| {

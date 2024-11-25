@@ -4,9 +4,10 @@ mod config;
 mod scan;
 mod ssh;
 
+use anyhow::Context;
 use cidr::IpCidr;
 use clap::{Args, Parser};
-use config::Config;
+use config::{Config, Host};
 use scan::{Backend, Scan};
 use ssh::Runnable;
 use ssh::Session;
@@ -56,9 +57,10 @@ struct AddCommand {
 }
 
 #[derive(Args)]
-#[command(about = "Run a script on all detected hosts.")]
+#[command(about = "Run a script on all hosts, or a single host if specified.")]
 struct ScriptCommand {
-    pub host: String,
+    #[arg(long)]
+    pub host: Option<String>,
     pub script: PathBuf,
 }
 
@@ -66,6 +68,44 @@ struct ScriptCommand {
 #[command(about = "Start an augmented remote shell to a specified host.")]
 struct ShellCommand {
     pub host: String,
+}
+
+fn lookup_host<'a>(cfg: &'a Config, host: &str) -> anyhow::Result<&'a Host> {
+    host.parse()
+        .context("couldn't parse ip address")
+        .and_then(|ip| {
+            cfg.host_for_ip(ip)
+                .with_context(|| format!("no host found for ip {}", ip))
+        })
+        .or_else(|_| {
+            cfg.host_for_alias(host)
+                .with_context(|| format!("no host found for alias {}", host))
+        })
+}
+
+async fn run_script(host: &Host, script: Runnable) -> anyhow::Result<String> {
+    let mut session = Session::connect(&host.user, &host.pass, (host.ip, host.port)).await?;
+    let (code, output) = session.exec(script, true).await?;
+    let output = String::from_utf8_lossy(&output);
+    if code != 0 {
+        anyhow::bail!("script returned nonzero code");
+    } else {
+        Ok(output.into())
+    }
+}
+
+async fn run_script_all(
+    cfg: &Config,
+    script: Runnable,
+) -> anyhow::Result<JoinSet<(Host, anyhow::Result<String>)>> {
+    println!("Executing script on all hosts");
+    let mut set = JoinSet::new();
+    for (_, host) in cfg.hosts() {
+        let mut host = host.clone();
+        let script = script.clone();
+        set.spawn(async move { (host.clone(), run_script(&host, script).await) });
+    }
+    Ok(set)
 }
 
 #[tokio::main]
@@ -92,55 +132,43 @@ async fn main() -> anyhow::Result<()> {
             }
         }
         BlazeCommand::Resolve => {
-            let mut set = JoinSet::new();
-            for (ip, host) in cfg.hosts() {
-                let mut host = host.clone();
-                let ip = ip.clone();
-                set.spawn(async move {
-                    let mut session =
-                        Session::connect(&host.user, &host.pass, (ip, host.port)).await?;
-                    let result = session
-                        .exec(
-                            Runnable::Command("echo $(hostname || cat /etc/hostname)".into()),
-                            true,
-                        )
-                        .await?;
-                    if result.0 != 0 {
-                        anyhow::bail!("script returned nonzero code");
-                    } else {
-                        let alias = String::from_utf8(result.1)?.trim().into();
-                        host.aliases.insert(alias);
-                        Ok(host)
-                    }
-                });
-            }
+            let mut set = run_script_all(
+                &mut cfg,
+                Runnable::Command("echo $(hostname || cat /etc/hostname)".into()),
+            )
+            .await?;
             while let Some(joined) = set.join_next().await {
-                let res = joined?;
-                match res {
-                    Ok(host) => {
-                        println!("Got alias for host {}: {:?}", host.ip, host.aliases);
-                        cfg.add_host(&host);
-                    }
-                    Err(err) => {
-                        println!("Script failed: {}", err);
-                    }
+                match joined {
+                    Err(err) => println!("Error running script: {}", err),
+                    Ok((mut host, output)) => match output {
+                        Ok(output) => {
+                            let alias = output.trim();
+                            println!("Got alias {} for host {}", alias, host.ip);
+                            host.aliases.insert(alias.into());
+                            cfg.add_host(&host);
+                        }
+                        Err(err) => {
+                            println!("Error running script on host {}: {}", host.ip, err)
+                        }
+                    },
                 }
             }
         }
         BlazeCommand::Script(cmd) => {
-            println!("Executing script {} on {}", cmd.script.display(), cmd.host);
-            let ip = cmd.host.parse().or_else(|_| {
-                cfg.host_for_alias(&cmd.host)
-                    .map(|host| host.ip)
-                    .ok_or_else(|| anyhow::Error::msg("couldn't lookup host by alias"))
-            })?;
-            let host = cfg
-                .host_for_ip(ip)
-                .ok_or_else(|| anyhow::Error::msg("failed to get host for IP"))?;
-            let mut session = Session::connect(&host.user, &host.pass, (ip, host.port)).await?;
-            let (code, output) = session.exec(Runnable::Script(cmd.script), true).await?;
-            println!("Program returned code {}", code);
-            println!("Output: {}", String::from_utf8_lossy(&output));
+            let mut set = run_script_all(&mut cfg, Runnable::Script(cmd.script)).await?;
+            while let Some(joined) = set.join_next().await {
+                match joined {
+                    Err(err) => println!("Error running script: {}", err),
+                    Ok((host, output)) => match output {
+                        Ok(output) => {
+                            println!("Script on host {} outputted: {}", host.ip, output)
+                        }
+                        Err(err) => {
+                            println!("Error running script on host {}: {}", host.ip, err)
+                        }
+                    },
+                }
+            }
         }
         BlazeCommand::Shell(cmd) => {
             let ip = cmd.host.parse().or_else(|_| {

@@ -4,10 +4,10 @@ use std::time::Duration;
 
 use anyhow::Context;
 use async_trait::async_trait;
+use crossterm::terminal;
 use russh::*;
 use russh_keys::key::PublicKey;
 use russh_sftp::client::SftpSession;
-use termion::raw::IntoRawMode;
 use tokio::fs::File;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::ToSocketAddrs;
@@ -132,7 +132,7 @@ impl Session {
         let mut channel = self.session.channel_open_session().await?;
 
         // This example doesn't terminal resizing after the connection is established
-        let (w, h) = termion::terminal_size()?;
+        let (w, h) = terminal::size()?;
 
         // Request an interactive PTY from the server
         channel
@@ -150,17 +150,49 @@ impl Session {
         channel.request_shell(true).await?;
 
         let code;
-        let mut stdin = tokio_fd::AsyncFd::try_from(0)?;
-        let mut stdout = tokio_fd::AsyncFd::try_from(1)?;
-        let mut buf = vec![0; 1024];
+        // let mut events = EventStream::new();
+        let mut stdin = tokio::io::stdin();
+        let mut stdout = tokio::io::stdout();
         let mut stdin_closed = false;
+        let mut buf = [0; 1000];
 
-        let _raw_term = std::io::stdout().into_raw_mode()?;
+        terminal::enable_raw_mode()?;
 
         loop {
+            // let next = events.next().fuse();
             // Handle one of the possible events:
             tokio::select! {
                 // There's terminal input available from the user
+                /*
+                update = next => {
+                    match update {
+                        Some(Ok(event)) => {
+                            match event {
+                                Event::Key(key) => {
+                                    match key.code {
+                                        KeyCode::Char(c) => {
+                                            let mut buf = [0; 4];
+                                            c.encode_utf8(&mut buf);
+                                            channel.data(&buf[..]).await?;
+                                        },
+                                        KeyCode::Backspace => {
+                                        },
+                                        // IDRC
+                                        _ => {}
+                                    }
+                                }
+                                // IDRC
+                                _ => continue,
+                            }
+                        },
+                        Some(Err(err)) => return Err(err.into()),
+                        None => {
+                            stdin_closed = true;
+                            channel.eof().await?;
+                        },
+                    }
+                }
+                */
                 r = stdin.read(&mut buf), if !stdin_closed => {
                     match r {
                         Ok(0) => {
@@ -193,6 +225,9 @@ impl Session {
                 },
             }
         }
+
+        terminal::disable_raw_mode()?;
+
         Ok(code)
     }
 

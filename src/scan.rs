@@ -10,6 +10,7 @@ use nmap_xml_parser::{
 use rustscan::input::ScanOrder;
 use rustscan::port_strategy::PortStrategy;
 use rustscan::scanner::Scanner;
+use serde::{Deserialize, Serialize};
 use std::{
     collections::{HashMap, HashSet},
     fmt::{Display, Formatter},
@@ -24,7 +25,7 @@ pub struct Scan {
     pub hosts: Vec<Host>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Copy, Debug)]
 pub enum OsType {
     UnixLike,
     Windows,

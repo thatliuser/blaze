@@ -1,5 +1,6 @@
 // Configuration file shenanigans
 
+use crate::scan::OsType;
 use anyhow::Context;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -16,8 +17,10 @@ pub struct Host {
     pub ip: IpAddr,
     pub user: String,
     pub pass: String,
+    // For Unix, this is the SSH port, and for Windows, this is the SMB port
     pub port: u16,
     pub aliases: HashSet<String>,
+    pub os: OsType,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -83,6 +86,7 @@ impl Config {
             pass,
             port,
             aliases: HashSet::new(),
+            os: scan_host.os,
         };
         self.hosts.insert(host.ip, host);
         Ok(())

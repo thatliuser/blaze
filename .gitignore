@@ -1,3 +1,4 @@
 target/
 scan.xml
 blaze.yaml
+passwords.db

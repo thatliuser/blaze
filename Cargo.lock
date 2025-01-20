@@ -351,6 +351,7 @@ dependencies = [
  "async-trait",
  "cidr 0.3.0",
  "clap",
+ "clap_complete",
  "crossterm",
  "csv",
  "nmap_xml_parser",
@@ -534,6 +535,18 @@ dependencies = [
  "clap_lex",
  "strsim",
  "terminal_size",
+]
+
+[[package]]
+name = "clap_complete"
+version = "4.5.42"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "33a7e468e750fa4b6be660e8b5651ad47372e8fb114030b594c2d75d48c5ffd0"
+dependencies = [
+ "clap",
+ "clap_lex",
+ "is_executable",
+ "shlex",
 ]
 
 [[package]]
@@ -1584,6 +1597,15 @@ name = "ipnet"
 version = "2.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ddc24109865250148c2e0f3d25d4f0f479571723792d3802153c60922a4fb708"
+
+[[package]]
+name = "is_executable"
+version = "1.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d4a1b5bad6f9072935961dfbf1cced2f3d129963d091b6f69f007fe04e758ae2"
+dependencies = [
+ "winapi",
+]
 
 [[package]]
 name = "is_terminal_polyfill"

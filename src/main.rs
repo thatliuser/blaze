@@ -6,9 +6,10 @@ mod ssh;
 
 use anyhow::Context;
 use cidr::IpCidr;
-use clap::{Args, Parser};
+use clap::{Args, CommandFactory, Parser};
 use config::{Config, Host};
 use rand::Rng;
+use rustyline::{error::ReadlineError, DefaultEditor};
 use scan::{Backend, Scan};
 use serde::Deserialize;
 use ssh::Session;
@@ -145,18 +146,166 @@ fn get_passwords() -> anyhow::Result<Vec<Password>> {
     Ok(passwords)
 }
 
-fn readline() -> Option<String> {
-    print!("> ");
-    std::io::stdout().flush().ok()?;
-    let mut line = String::new();
-    _ = std::io::stdin().read_line(&mut line).ok()?;
-    Some(line)
+async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
+    match cmd {
+        BlazeCommand::Scan(cmd) => {
+            println!("Subnet: {:?}", cmd.subnet);
+            let scan = Scan::new(&cmd.subnet, cmd.backend).await?;
+            for host in scan.hosts.iter() {
+                println!("{:?}: {:?}", host.addr, host.os);
+                cfg.add_host_from(host, cmd.user.clone(), cmd.pass.clone(), cmd.port)?;
+            }
+        }
+        BlazeCommand::Add(cmd) => {
+            anyhow::bail!("Not implemented yet");
+        }
+        BlazeCommand::List => {
+            for host in cfg.hosts().values() {
+                let aliases: Vec<String> = host.aliases.iter().cloned().collect();
+                let aliases = if aliases.len() == 0 {
+                    "<none>".into()
+                } else {
+                    aliases.join(", ")
+                };
+                let hoststr = format!("{}@{}:{}", host.user, host.ip, host.port);
+                println!("{:<25} (aliases {})", hoststr, aliases);
+            }
+        }
+        BlazeCommand::Resolve => {
+            let script = Path::new("scripts/hostname.sh");
+            if !script.exists() {
+                anyhow::bail!("hostname script does not exist");
+            }
+            let mut set = run_script_all(cfg, script.into()).await?;
+            while let Some(joined) = set.join_next().await {
+                let (mut host, output) = joined.context("Error running hostname script")?;
+                match output {
+                    Ok(output) => {
+                        let alias = output.trim();
+                        println!("Got alias {} for host {}", alias, host.ip);
+                        host.aliases.insert(alias.into());
+                        cfg.add_host(&host);
+                    }
+                    Err(err) => {
+                        println!("Error running script on host {}: {}", host.ip, err);
+                    }
+                }
+            }
+        }
+        BlazeCommand::Chpass => {
+            let script = Path::new("scripts/chpass.sh");
+            if !script.exists() {
+                anyhow::bail!("chpass script does not exist");
+            }
+            let mut passwords = get_passwords()?;
+            let mut rng = rand::thread_rng();
+            let mut set = run_script_all_args(cfg, script.into(), |host| {
+                let rand = rng.gen_range(0..passwords.len());
+                let pass = passwords.remove(rand);
+                println!("Using password {} for host {}", pass.id, host.ip);
+                vec![host.user.clone(), pass.password]
+            })
+            .await?;
+            let mut failed = Vec::<String>::new();
+            while let Some(joined) = set.join_next().await {
+                let (mut host, output) = joined.context("Error running password script")?;
+                match output {
+                    Ok(pass) => {
+                        let pass = pass.trim();
+                        println!(
+                            "Ran password script on host {}, now checking password {}",
+                            host.ip, pass
+                        );
+                        let session =
+                            Session::connect(&host.user, pass, (host.ip, host.port)).await;
+                        if let Err(err) = session {
+                            println!("Password change seems to have failed, error: {}", err);
+                            failed.push(format!("{}", host.ip));
+                        } else {
+                            println!("Success, writing config file");
+                            host.pass = pass.into();
+                            cfg.add_host(&host);
+                        }
+                    }
+                    Err(err) => {
+                        println!("Error running script on host {}: {}", host.ip, err);
+                        failed.push(format!("{}", host.ip));
+                    }
+                }
+            }
+            println!(
+                "Total: {} failed password changes (hosts {:?})",
+                failed.len(),
+                failed.join(" "),
+            );
+        }
+        BlazeCommand::Script(cmd) => match cmd.host {
+            Some(host) => {
+                let host = lookup_host(&cfg, &host)?;
+                println!("Running script on host {}", host.ip);
+                let output = run_script(host, cmd.script).await?;
+                println!("Script outputted: {}", output);
+            }
+            None => {
+                let mut set = run_script_all(cfg, cmd.script).await?;
+                while let Some(joined) = set.join_next().await {
+                    joined
+                        .context("Error running script")
+                        .map(|(host, output)| match output {
+                            Ok(output) => {
+                                println!("Script on host {} outputted: {}", host.ip, output);
+                            }
+                            Err(err) => {
+                                println!("Error running script on host {}: {}", host.ip, err);
+                            }
+                        })?;
+                }
+            }
+        },
+        BlazeCommand::Shell(cmd) => {
+            let ip = cmd.host.parse().or_else(|_| {
+                cfg.host_for_alias(&cmd.host)
+                    .map(|host| host.ip)
+                    .ok_or_else(|| anyhow::Error::msg("couldn't lookup host by alias"))
+            })?;
+            let host = cfg
+                .host_for_ip(ip)
+                .ok_or_else(|| anyhow::Error::msg("failed to get host for IP"))?;
+            let mut session = Session::connect(&host.user, &host.pass, (ip, host.port)).await?;
+            let code = session.shell().await?;
+            if code != 0 {
+                anyhow::bail!("shell returned nonzero code {}", code);
+            }
+        }
+    }
+    Ok(())
 }
 
-fn repl() {
-    while let Some(line) = readline() {
-        print!("{}", line);
+async fn repl(cfg: &mut Config) -> anyhow::Result<()> {
+    let mut cmd = BlazeCommand::command();
+    let mut reader = DefaultEditor::new().context("couldn't initialze rustyline")?;
+    loop {
+        match reader.readline(">> ") {
+            Ok(line) => match line.as_str() {
+                "help" => {
+                    cmd.print_long_help().context("couldn't print help")?;
+                }
+                "exit" => break,
+                _ => {
+                    let cmd = BlazeCommand::try_parse_from(
+                        std::iter::once("blaze").chain(line.split_whitespace()),
+                    );
+                    match cmd {
+                        Err(err) => println!("{}", err),
+                        Ok(cmd) => run(cmd, cfg).await?,
+                    }
+                }
+            },
+            Err(ReadlineError::Eof) => break,
+            Err(err) => println!("{:?}", err),
+        }
     }
+    Ok(())
 }
 
 #[tokio::main]
@@ -167,140 +316,9 @@ async fn main() -> anyhow::Result<()> {
     });
     let command = BlazeCommand::try_parse();
     match command {
-        Err(err) => {
-            repl();
-        }
-        Ok(command) => match command {
-            BlazeCommand::Scan(cmd) => {
-                println!("Subnet: {:?}", cmd.subnet);
-                let scan = Scan::new(&cmd.subnet, cmd.backend).await?;
-                for host in scan.hosts.iter() {
-                    println!("{:?}: {:?}", host.addr, host.os);
-                    cfg.add_host_from(host, cmd.user.clone(), cmd.pass.clone(), cmd.port)?;
-                }
-            }
-            BlazeCommand::Add(cmd) => {
-                anyhow::bail!("Not implemented yet");
-            }
-            BlazeCommand::List => {
-                for host in cfg.hosts().values() {
-                    let aliases: Vec<String> = host.aliases.iter().cloned().collect();
-                    let aliases = if aliases.len() == 0 {
-                        "<none>".into()
-                    } else {
-                        aliases.join(", ")
-                    };
-                    let hoststr = format!("{}@{}:{}", host.user, host.ip, host.port);
-                    println!("{:<25} (aliases {})", hoststr, aliases);
-                }
-            }
-            BlazeCommand::Resolve => {
-                let script = Path::new("scripts/hostname.sh");
-                if !script.exists() {
-                    anyhow::bail!("hostname script does not exist");
-                }
-                let mut set = run_script_all(&mut cfg, script.into()).await?;
-                while let Some(joined) = set.join_next().await {
-                    let (mut host, output) = joined.context("Error running hostname script")?;
-                    match output {
-                        Ok(output) => {
-                            let alias = output.trim();
-                            println!("Got alias {} for host {}", alias, host.ip);
-                            host.aliases.insert(alias.into());
-                            cfg.add_host(&host);
-                        }
-                        Err(err) => {
-                            println!("Error running script on host {}: {}", host.ip, err);
-                        }
-                    }
-                }
-            }
-            BlazeCommand::Chpass => {
-                let script = Path::new("scripts/chpass.sh");
-                if !script.exists() {
-                    anyhow::bail!("chpass script does not exist");
-                }
-                let mut passwords = get_passwords()?;
-                let mut rng = rand::thread_rng();
-                let mut set = run_script_all_args(&mut cfg, script.into(), |host| {
-                    let rand = rng.gen_range(0..passwords.len());
-                    let pass = passwords.remove(rand);
-                    println!("Using password {} for host {}", pass.id, host.ip);
-                    vec![host.user.clone(), pass.password]
-                })
-                .await?;
-                let mut failed = Vec::<String>::new();
-                while let Some(joined) = set.join_next().await {
-                    let (mut host, output) = joined.context("Error running password script")?;
-                    match output {
-                        Ok(pass) => {
-                            let pass = pass.trim();
-                            println!(
-                                "Ran password script on host {}, now checking password {}",
-                                host.ip, pass
-                            );
-                            let session =
-                                Session::connect(&host.user, pass, (host.ip, host.port)).await;
-                            if let Err(err) = session {
-                                println!("Password change seems to have failed, error: {}", err);
-                                failed.push(format!("{}", host.ip));
-                            } else {
-                                println!("Success, writing config file");
-                                host.pass = pass.into();
-                                cfg.add_host(&host);
-                            }
-                        }
-                        Err(err) => {
-                            println!("Error running script on host {}: {}", host.ip, err);
-                            failed.push(format!("{}", host.ip));
-                        }
-                    }
-                }
-                println!(
-                    "Total: {} failed password changes (hosts {:?})",
-                    failed.len(),
-                    failed.join(" "),
-                );
-            }
-            BlazeCommand::Script(cmd) => match cmd.host {
-                Some(host) => {
-                    let host = lookup_host(&cfg, &host)?;
-                    println!("Running script on host {}", host.ip);
-                    let output = run_script(host, cmd.script).await?;
-                    println!("Script outputted: {}", output);
-                }
-                None => {
-                    let mut set = run_script_all(&mut cfg, cmd.script).await?;
-                    while let Some(joined) = set.join_next().await {
-                        joined.context("Error running script").map(
-                            |(host, output)| match output {
-                                Ok(output) => {
-                                    println!("Script on host {} outputted: {}", host.ip, output);
-                                }
-                                Err(err) => {
-                                    println!("Error running script on host {}: {}", host.ip, err);
-                                }
-                            },
-                        )?;
-                    }
-                }
-            },
-            BlazeCommand::Shell(cmd) => {
-                let ip = cmd.host.parse().or_else(|_| {
-                    cfg.host_for_alias(&cmd.host)
-                        .map(|host| host.ip)
-                        .ok_or_else(|| anyhow::Error::msg("couldn't lookup host by alias"))
-                })?;
-                let host = cfg
-                    .host_for_ip(ip)
-                    .ok_or_else(|| anyhow::Error::msg("failed to get host for IP"))?;
-                let mut session = Session::connect(&host.user, &host.pass, (ip, host.port)).await?;
-                let code = session.shell().await?;
-                if code != 0 {
-                    anyhow::bail!("shell returned nonzero code {}", code);
-                }
-            }
-        },
+        // TODO: Check if the error is something useful
+        Err(_) => repl(&mut cfg).await?,
+        Ok(command) => run(command, &mut cfg).await?,
     }
     Ok(())
 }

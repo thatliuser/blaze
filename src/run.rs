@@ -14,11 +14,12 @@ use tokio::task::JoinSet;
 
 #[derive(Parser)]
 pub enum BlazeCommand {
-    #[clap(alias = "n")]
     Scan(ScanCommand),
     #[clap(alias = "a")]
     Add(AddCommand),
-    #[clap(alias = "l")]
+    #[clap(alias = "pw")]
+    Password(PasswordCommand),
+    #[clap(alias = "ls")]
     #[command(about = "List all existing hosts in the config.")]
     List,
     #[clap(alias = "r")]
@@ -67,6 +68,13 @@ pub struct ScriptCommand {
 #[command(about = "Start an augmented remote shell to a specified host.")]
 pub struct ShellCommand {
     pub host: String,
+}
+
+#[derive(Args)]
+#[command(about = "Change the password of a host.")]
+pub struct PasswordCommand {
+    pub host: String,
+    pub pass: String,
 }
 
 #[derive(Deserialize)]
@@ -151,6 +159,13 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
         BlazeCommand::Add(cmd) => {
             anyhow::bail!("Not implemented yet");
         }
+        BlazeCommand::Password(cmd) => {
+            // TODO: Implement
+            /*
+            let host = lookup_host(cfg, &cmd.host).context("Couldn't find host")?;
+            host.pass = cmd.pass;
+            */
+        }
         BlazeCommand::List => {
             for host in cfg.hosts().values() {
                 let aliases: Vec<String> = host.aliases.iter().cloned().collect();
@@ -214,8 +229,11 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
                             println!("Password change seems to have failed, error: {}", err);
                             failed.push(format!("{}", host.ip));
                         } else {
+                            // TODO: Implement
+                            /*
                             println!("Success, writing config file");
                             host.pass = pass.into();
+                            */
                             cfg.add_host(&host);
                         }
                     }
@@ -266,7 +284,8 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
             let mut session = Session::connect(&host.user, &host.pass, (ip, host.port)).await?;
             let code = session.shell().await?;
             if code != 0 {
-                anyhow::bail!("shell returned nonzero code {}", code);
+                // anyhow::bail!("shell returned nonzero code {}", code);
+                println!("Warning: shell returned nonzero code {}", code);
             }
         }
     }

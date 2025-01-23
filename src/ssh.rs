@@ -49,7 +49,11 @@ impl Session {
         addrs: A,
     ) -> anyhow::Result<Self> {
         let config = client::Config {
+            // Don't want the inactivity to kill the session from our side
             inactivity_timeout: Some(Duration::from_secs(86400)),
+            keepalive_interval: Some(Duration::from_secs(1)),
+            // Tolerate only 10 seconds of frozen terminal before failing
+            keepalive_max: 10,
             ..<_>::default()
         };
 
@@ -205,7 +209,14 @@ impl Session {
                             channel.eof().await?;
                         },
                         // Send it to the server
-                        Ok(n) => channel.data(&buf[..n]).await?,
+                        Ok(n) => {
+                            // Ctrl+Q pressed, escape all further output until esc is pressed
+                            if buf[..n].contains(&17u8) {
+                                // TODO: Enter readline mode to let user enter a command
+                                println!("Ctrl+Q pressed");
+                            }
+                            channel.data(&buf[..n]).await?
+                        },
                         Err(e) => return Err(e.into()),
                     };
                 },

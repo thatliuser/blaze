@@ -69,7 +69,12 @@ pub async fn repl(cfg: &mut BlazeConfig) -> anyhow::Result<()> {
                     );
                     match cmd {
                         Err(err) => println!("{}", err),
-                        Ok(cmd) => run(cmd, cfg).await?,
+                        Ok(cmd) => {
+                            let res = run(cmd, cfg).await;
+                            if let Err(err) = res {
+                                println!("{}", err);
+                            }
+                        }
                     }
                 }
             },

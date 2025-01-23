@@ -43,6 +43,14 @@ impl Completer for ClapCompleter {
 // I don't actually need this guy to do anything other than the default
 impl Highlighter for ClapCompleter {}
 
+// Wrapper for run to not exit when Ctrl + C is pressed
+async fn do_run(cmd: BlazeCommand, cfg: &mut BlazeConfig) -> anyhow::Result<()> {
+    tokio::select! {
+        signal = tokio::signal::ctrl_c() => signal.context("couldn't read ctrl+c handler"),
+        result = run(cmd, cfg) => result,
+    }
+}
+
 pub async fn repl(cfg: &mut BlazeConfig) -> anyhow::Result<()> {
     let mut cmd = BlazeCommand::command();
     let config = Config::builder()
@@ -70,7 +78,7 @@ pub async fn repl(cfg: &mut BlazeConfig) -> anyhow::Result<()> {
                     match cmd {
                         Err(err) => println!("{}", err),
                         Ok(cmd) => {
-                            let res = run(cmd, cfg).await;
+                            let res = do_run(cmd, cfg).await;
                             if let Err(err) = res {
                                 println!("{}", err);
                             }

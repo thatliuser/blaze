@@ -2,9 +2,11 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Duration;
 
-use anyhow::Context;
+use crate::scripts::Scripts;
+use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use crossterm::terminal;
+use russh::client::Msg;
 use russh::*;
 use russh_keys::key::PublicKey;
 use russh_sftp::client::SftpSession;
@@ -12,11 +14,7 @@ use tokio::fs::File;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::ToSocketAddrs;
 
-// TODO: Snippet for interactive shell
-/*
-*/
-
-struct Handler {}
+struct Handler;
 
 // More SSH event handlers
 // can be defined in this trait
@@ -50,7 +48,7 @@ impl Session {
     ) -> anyhow::Result<Self> {
         let config = client::Config {
             // Don't want the inactivity to kill the session from our side
-            inactivity_timeout: Some(Duration::from_secs(86400)),
+            // inactivity_timeout: Some(Duration::from_secs(86400)),
             keepalive_interval: Some(Duration::from_secs(1)),
             // Tolerate only 10 seconds of frozen terminal before failing
             keepalive_max: 10,
@@ -70,33 +68,35 @@ impl Session {
         Ok(Self { session })
     }
 
-    pub async fn upload(&mut self, file: &Path) -> anyhow::Result<String> {
-        let mut src = File::open(file).await?;
-        let filename = file
+    pub async fn upload(&mut self, file: &str) -> anyhow::Result<String> {
+        let filename = PathBuf::from(file)
             .file_name()
-            .ok_or_else(|| anyhow::Error::msg("couldn't find filename for script path"))?
-            .to_str()
-            .ok_or_else(|| anyhow::Error::msg("couldn't convert filename to string"))?;
+            .ok_or(anyhow!("couldn't find filename for script"))?
+            .to_string_lossy()
+            .into_owned();
+        let src = Scripts::find(file)
+            .await
+            .ok_or(anyhow!("couldn't find script"))?;
+        let mut src = std::io::Cursor::new(src);
         let sftp_channel = self.session.channel_open_session().await?;
         sftp_channel
             .request_subsystem(true, "sftp")
             .await
             .context("couldn't request sftp subsystem")?;
         let sftp = SftpSession::new(sftp_channel.into_stream()).await?;
-        let mut dst = sftp.create(filename).await?;
+        let mut dst = sftp.create(&filename).await?;
         tokio::io::copy(&mut src, &mut dst)
             .await
             .context("couldn't copy file to remote location")?;
+        sftp.close().await?;
         Ok(filename.into())
     }
 
     pub async fn exec(&mut self, command: String, capture: bool) -> anyhow::Result<(u32, Vec<u8>)> {
         let mut channel = self.session.channel_open_session().await?;
         channel.exec(true, command).await?;
-
         let mut code = 0;
         let mut buffer: Vec<u8> = Vec::new();
-
         loop {
             // There's an event available on the session channel
             let Some(msg) = channel.wait().await else {
@@ -117,14 +117,13 @@ impl Session {
                 _ => {}
             }
         }
-
         Ok((code, buffer))
     }
 
     // WARNING: This does NOT handle shell escaping!!! Be careful!!!
     pub async fn run_script(
         &mut self,
-        script: PathBuf,
+        script: &str,
         args: Vec<String>,
         capture: bool,
     ) -> anyhow::Result<(u32, Vec<u8>)> {
@@ -212,8 +211,6 @@ impl Session {
                         Ok(n) => {
                             // Ctrl+Q pressed, escape all further output until esc is pressed
                             if buf[..n].contains(&17u8) {
-                                // TODO: Enter readline mode to let user enter a command
-                                println!("Ctrl+Q pressed");
                             }
                             channel.data(&buf[..n]).await?
                         },

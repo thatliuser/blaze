@@ -4,6 +4,7 @@ mod config;
 mod repl;
 mod run;
 mod scan;
+mod scripts;
 mod ssh;
 
 use clap::Parser;

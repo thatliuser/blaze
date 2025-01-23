@@ -6,10 +6,8 @@ use cidr::IpCidr;
 use clap::{Args, CommandFactory, Parser};
 use rand::Rng;
 use serde::Deserialize;
-use std::{
-    net::IpAddr,
-    path::{Path, PathBuf},
-};
+use std::net::IpAddr;
+use std::time::Duration;
 use tokio::task::JoinSet;
 
 #[derive(Parser)]
@@ -60,7 +58,7 @@ pub struct AddCommand {
 #[derive(Args)]
 #[command(about = "Run a script on all hosts, or a single host if specified.")]
 pub struct ScriptCommand {
-    pub script: PathBuf,
+    pub script: String,
     pub host: Option<String>,
 }
 
@@ -105,9 +103,9 @@ fn lookup_host<'a>(cfg: &'a Config, host: &str) -> anyhow::Result<&'a Host> {
         })
 }
 
-async fn run_script_args(
+async fn do_run_script_args(
     host: &Host,
-    script: PathBuf,
+    script: &str,
     args: Vec<String>,
 ) -> anyhow::Result<String> {
     let mut session = Session::connect(&host.user, &host.pass, (host.ip, host.port)).await?;
@@ -120,28 +118,37 @@ async fn run_script_args(
     }
 }
 
-async fn run_script(host: &Host, script: PathBuf) -> anyhow::Result<String> {
+async fn run_script_args(host: &Host, script: &str, args: Vec<String>) -> anyhow::Result<String> {
+    tokio::time::timeout(
+        Duration::from_secs(15),
+        do_run_script_args(host, script, args),
+    )
+    .await
+    .unwrap_or_else(|_| Err(anyhow::Error::msg("run_script_args timed out")))
+}
+
+async fn run_script(host: &Host, script: &str) -> anyhow::Result<String> {
     run_script_args(host, script, vec![]).await
 }
 
 async fn run_script_all_args<F: FnMut(&Host) -> Vec<String>>(
     cfg: &Config,
-    script: PathBuf,
+    script: &str,
     mut gen_args: F,
 ) -> anyhow::Result<JoinSet<(Host, anyhow::Result<String>)>> {
     println!("Executing script on all hosts");
     let mut set = JoinSet::new();
     for (_, host) in cfg.hosts() {
         let host = host.clone();
-        let script = script.clone();
+        let script = script.to_owned();
         let args = gen_args(&host);
-        set.spawn(async move { (host.clone(), run_script_args(&host, script, args).await) });
+        set.spawn(async move { (host.clone(), run_script_args(&host, &script, args).await) });
     }
     Ok(set)
 }
 async fn run_script_all(
     cfg: &Config,
-    script: PathBuf,
+    script: &str,
 ) -> anyhow::Result<JoinSet<(Host, anyhow::Result<String>)>> {
     run_script_all_args(cfg, script, |_| vec![]).await
 }
@@ -179,11 +186,8 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
             }
         }
         BlazeCommand::Resolve => {
-            let script = Path::new("scripts/hostname.sh");
-            if !script.exists() {
-                anyhow::bail!("hostname script does not exist");
-            }
-            let mut set = run_script_all(cfg, script.into()).await?;
+            let script = "hostname.sh";
+            let mut set = run_script_all(cfg, script).await?;
             while let Some(joined) = set.join_next().await {
                 let (mut host, output) = joined.context("Error running hostname script")?;
                 match output {
@@ -200,13 +204,10 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
             }
         }
         BlazeCommand::Chpass => {
-            let script = Path::new("scripts/chpass.sh");
-            if !script.exists() {
-                anyhow::bail!("chpass script does not exist");
-            }
+            let script = "chpass.sh";
             let mut passwords = get_passwords()?;
             let mut rng = rand::thread_rng();
-            let mut set = run_script_all_args(cfg, script.into(), |host| {
+            let mut set = run_script_all_args(cfg, script, |host| {
                 let rand = rng.gen_range(0..passwords.len());
                 let pass = passwords.remove(rand);
                 println!("Using password {} for host {}", pass.id, host.ip);
@@ -215,7 +216,7 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
             .await?;
             let mut failed = Vec::<String>::new();
             while let Some(joined) = set.join_next().await {
-                let (mut host, output) = joined.context("Error running password script")?;
+                let (host, output) = joined.context("Error running password script")?;
                 match output {
                     Ok(pass) => {
                         let pass = pass.trim();
@@ -253,11 +254,11 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
             Some(host) => {
                 let host = lookup_host(&cfg, &host)?;
                 println!("Running script on host {}", host.ip);
-                let output = run_script(host, cmd.script).await?;
+                let output = run_script(host, &cmd.script).await?;
                 println!("Script outputted: {}", output);
             }
             None => {
-                let mut set = run_script_all(cfg, cmd.script).await?;
+                let mut set = run_script_all(cfg, &cmd.script).await?;
                 while let Some(joined) = set.join_next().await {
                     joined
                         .context("Error running script")

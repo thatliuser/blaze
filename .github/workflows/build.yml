@@ -9,15 +9,32 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Compile
+      id: compile
       uses: rust-build/rust-build.action@v1.4.5
       with:
         TOOLCHAIN_VERSION: 1.83.0
         RUSTTARGET: x86_64-unknown-linux-musl
         UPLOAD_MODE: none
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: Binary
         path: |
           ${{ steps.compile.outputs.BUILT_ARCHIVE }}
           ${{ steps.compile.outputs.BUILT_CHECKSUM }}
+  build:
+    name: Build ${{ matrix.runner }} binary
+    strategy:
+      matrix:
+        runner: [windows-latest, macos-latest, macos-13]
+    runs-on: ${{ matrix.runner }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Compile
+      run: cargo build --release
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Binary
+        path: target/release/blaze
+

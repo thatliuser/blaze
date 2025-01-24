@@ -56,9 +56,34 @@ impl Config {
         self.hosts.get(&ip)
     }
 
+    pub fn host_for_ip_mut(&mut self, ip: IpAddr) -> Option<&mut Host> {
+        self.hosts.get_mut(&ip)
+    }
+
     // Allows infering an alias by short name (if no conflicts)
     pub fn host_for_alias(&self, alias: &str) -> Option<&Host> {
         let mut iter = self.hosts().iter().filter_map(|(_, host)| {
+            if host
+                .aliases
+                .iter()
+                .any(|a| a.to_lowercase().starts_with(&alias.to_lowercase()))
+            {
+                Some(host)
+            } else {
+                None
+            }
+        });
+        iter.next().and_then(|host| {
+            if let Some(_) = iter.next() {
+                None
+            } else {
+                Some(host)
+            }
+        })
+    }
+
+    pub fn host_for_alias_mut(&mut self, alias: &str) -> Option<&mut Host> {
+        let mut iter = self.hosts_mut().iter_mut().filter_map(|(_, host)| {
             if host
                 .aliases
                 .iter()
@@ -103,6 +128,10 @@ impl Config {
 
     pub fn hosts(&self) -> &HashMap<IpAddr, Host> {
         &self.hosts
+    }
+
+    pub fn hosts_mut(&mut self) -> &mut HashMap<IpAddr, Host> {
+        &mut self.hosts
     }
 }
 

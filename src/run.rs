@@ -1,9 +1,9 @@
 use crate::config::{Config, Host};
-use crate::scan::{Backend, Scan};
+use crate::scan::{Backend, OsType, Scan};
 use crate::ssh::Session;
 use anyhow::Context;
 use cidr::IpCidr;
-use clap::{Args, CommandFactory, Parser};
+use clap::{Args, Parser, Subcommand};
 use rand::Rng;
 use serde::Deserialize;
 use std::net::IpAddr;
@@ -15,11 +15,8 @@ pub enum BlazeCommand {
     Scan(ScanCommand),
     #[clap(alias = "a")]
     Add(AddCommand),
-    #[clap(alias = "pw")]
-    Password(PasswordCommand),
     #[clap(alias = "ls")]
-    #[command(about = "List all existing hosts in the config.")]
-    List,
+    List(ListCommand),
     #[clap(alias = "r")]
     #[command(about = "Detect the hostnames of all detected hosts.")]
     Resolve,
@@ -29,6 +26,7 @@ pub enum BlazeCommand {
     Script(ScriptCommand),
     #[clap(alias = "sh")]
     Shell(ShellCommand),
+    Edit(EditCommand),
 }
 
 #[derive(Args)]
@@ -56,6 +54,12 @@ pub struct AddCommand {
 }
 
 #[derive(Args)]
+#[command(about = "List all existing hosts in the config.")]
+pub struct ListCommand {
+    pub os: Option<OsType>,
+}
+
+#[derive(Args)]
 #[command(about = "Run a script on all hosts, or a single host if specified.")]
 pub struct ScriptCommand {
     pub script: String,
@@ -69,10 +73,44 @@ pub struct ShellCommand {
 }
 
 #[derive(Args)]
-#[command(about = "Change the password of a host.")]
-pub struct PasswordCommand {
+pub struct EditCommand {
     pub host: String,
+    #[command(subcommand)]
+    pub cmd: EditCommandEnum,
+}
+
+#[derive(Subcommand)]
+#[command(about = "Manually edit properties of a host.")]
+pub enum EditCommandEnum {
+    User(EditUserCommand),
+    #[clap(alias = "pw")]
+    Pass(EditPassCommand),
+    Os(EditOsCommand),
+    Alias(EditAliasCommand),
+}
+
+#[derive(Args)]
+#[command(about = "Change the login user of a host.")]
+pub struct EditUserCommand {
+    pub user: String,
+}
+
+#[derive(Args)]
+#[command(about = "Change the login password of a host.")]
+pub struct EditPassCommand {
     pub pass: String,
+}
+
+#[derive(Args)]
+#[command(about = "Change the OS of a host.")]
+pub struct EditOsCommand {
+    pub os: OsType,
+}
+
+#[derive(Args)]
+#[command(about = "Add an alias to a host.")]
+pub struct EditAliasCommand {
+    pub alias: String,
 }
 
 #[derive(Deserialize)]
@@ -91,16 +129,25 @@ fn get_passwords() -> anyhow::Result<Vec<Password>> {
 }
 
 fn lookup_host<'a>(cfg: &'a Config, host: &str) -> anyhow::Result<&'a Host> {
-    host.parse()
-        .context("couldn't parse ip address")
-        .and_then(|ip| {
-            cfg.host_for_ip(ip)
-                .with_context(|| format!("no host found for ip {}", ip))
-        })
-        .or_else(|_| {
-            cfg.host_for_alias(host)
-                .with_context(|| format!("no host found for alias {}", host))
-        })
+    match host.parse() {
+        Ok(ip) => cfg
+            .host_for_ip(ip)
+            .with_context(|| format!("no host for ip {}", ip)),
+        Err(_) => cfg
+            .host_for_alias(host)
+            .with_context(|| format!("no host for alias {}", host)),
+    }
+}
+
+fn lookup_host_mut<'a>(cfg: &'a mut Config, host: &str) -> anyhow::Result<&'a mut Host> {
+    match host.parse() {
+        Ok(ip) => cfg
+            .host_for_ip_mut(ip)
+            .with_context(|| format!("no host for ip {}", ip)),
+        Err(_) => cfg
+            .host_for_alias_mut(host)
+            .with_context(|| format!("no host for alias {}", host)),
+    }
 }
 
 async fn do_run_script_args(
@@ -171,15 +218,21 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
         BlazeCommand::Add(cmd) => {
             anyhow::bail!("Not implemented yet");
         }
-        BlazeCommand::Password(cmd) => {
-            // TODO: Implement
-            /*
-            let host = lookup_host(cfg, &cmd.host).context("Couldn't find host")?;
-            host.pass = cmd.pass;
-            */
+        BlazeCommand::Edit(cmd) => {
+            let host = lookup_host_mut(cfg, &cmd.host)?;
+            match cmd.cmd {
+                EditCommandEnum::User(cmd) => host.user = cmd.user,
+                EditCommandEnum::Pass(cmd) => host.pass = cmd.pass,
+                EditCommandEnum::Os(cmd) => host.os = cmd.os,
+                EditCommandEnum::Alias(cmd) => _ = host.aliases.insert(cmd.alias),
+            }
         }
-        BlazeCommand::List => {
-            for host in cfg.hosts().values() {
+        BlazeCommand::List(cmd) => {
+            for host in cfg
+                .hosts()
+                .values()
+                .filter(|host| cmd.os.is_none() || Some(host.os) == cmd.os)
+            {
                 let aliases: Vec<String> = host.aliases.iter().cloned().collect();
                 let aliases = if aliases.len() == 0 {
                     "<none>".into()

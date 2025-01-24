@@ -26,9 +26,11 @@ pub struct Scan {
     pub hosts: Vec<Host>,
 }
 
-#[derive(Serialize, Deserialize, Clone, Copy, Debug)]
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, ValueEnum, PartialEq, Eq)]
 pub enum OsType {
+    #[value(alias("unix"))]
     UnixLike,
+    #[value(alias("win"))]
     Windows,
 }
 

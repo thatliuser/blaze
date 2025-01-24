@@ -6,13 +6,11 @@ use crate::scripts::Scripts;
 use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use crossterm::terminal;
-use russh::client::Msg;
 use russh::*;
 use russh_keys::key::PublicKey;
 use russh_sftp::client::SftpSession;
-use tokio::fs::File;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
-use tokio::net::ToSocketAddrs;
+use tokio::net::{TcpStream, ToSocketAddrs};
 
 struct Handler;
 
@@ -66,6 +64,19 @@ impl Session {
         }
 
         Ok(Self { session })
+    }
+
+    // Read the first line of the server, which prints the ID
+    async fn do_read_server_id<A: ToSocketAddrs>(addrs: A) -> anyhow::Result<String> {
+        let stream = TcpStream::connect(addrs).await?;
+        stream.readable().await?;
+        let mut data = vec![0; 1024];
+        let count = stream.try_read(&mut data)?;
+        Ok(String::from_utf8_lossy(&data[..count]).into())
+    }
+
+    pub async fn get_server_id<A: ToSocketAddrs>(addrs: A) -> anyhow::Result<String> {
+        tokio::time::timeout(Duration::from_secs(5), Self::do_read_server_id(addrs)).await?
     }
 
     pub async fn upload(&mut self, file: &str) -> anyhow::Result<String> {

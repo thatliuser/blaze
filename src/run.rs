@@ -160,6 +160,11 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
             let scan = Scan::new(&cmd.subnet, cmd.backend).await?;
             for host in scan.hosts.iter() {
                 println!("{:?}: {:?}", host.addr, host.os);
+                let os = host.try_detect_ssh().await;
+                match os {
+                    Err(err) => println!("{}", err),
+                    Ok(os) => println!("Detected OS {:?} from SSH", os),
+                }
                 cfg.add_host_from(host, cmd.user.clone(), cmd.pass.clone(), cmd.port)?;
             }
         }

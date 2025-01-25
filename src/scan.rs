@@ -137,17 +137,28 @@ impl Scan {
         // Copied from rustscan::address::parse_address
         let ips: Vec<IpAddr> = subnet.iter().map(|c| c.address()).collect();
         let ports = vec![22u16, 88, 135, 389, 445, 3389, 5985];
-        let strategy = PortStrategy::pick(&None, Some(ports), ScanOrder::Serial);
+        let strategy = PortStrategy::pick(&None, Some(ports.clone()), ScanOrder::Serial);
+        let timeout_ms = 100;
         let scanner = Scanner::new(
             &ips,
             100,
-            Duration::from_millis(100),
+            Duration::from_millis(timeout_ms),
             1,
             true,
             strategy,
             true,
             vec![],
             false,
+        );
+        log::info!(
+            "rustscan -a {} -g -t {} -p {}",
+            subnet,
+            timeout_ms,
+            ports
+                .iter()
+                .map(|port| port.to_string())
+                .collect::<Vec<String>>()
+                .join(","),
         );
         let mut hosts = HashMap::<IpAddr, HashSet<u16>>::new();
         scanner.run().await.iter().for_each(|addr| {

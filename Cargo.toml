@@ -17,7 +17,7 @@ rand = "0.8.5"
 russh = "0.46.0"
 russh-keys = "0.46.0"
 russh-sftp = "2.0.6"
-rust-embed = "8.5.0"
+rust-embed = { version = "8.5.0", features = ["debug-embed"] }
 rustscan = "2.3.0"
 rustyline = { version = "15.0.0", features = ["derive"] }
 serde = { version = "1.0.215", features = ["derive"] }

@@ -79,16 +79,15 @@ impl Session {
         tokio::time::timeout(Duration::from_secs(5), Self::do_read_server_id(addrs)).await?
     }
 
-    pub async fn upload(&mut self, file: &str) -> anyhow::Result<String> {
+    pub async fn upload(&mut self, file: &Path) -> anyhow::Result<String> {
         let filename = PathBuf::from(file)
             .file_name()
             .ok_or(anyhow!("couldn't find filename for script"))?
             .to_string_lossy()
             .into_owned();
-        let src = Scripts::find(file)
+        let mut src = Scripts::find(file)
             .await
             .ok_or(anyhow!("couldn't find script"))?;
-        let mut src = std::io::Cursor::new(src);
         let sftp_channel = self.session.channel_open_session().await?;
         sftp_channel
             .request_subsystem(true, "sftp")
@@ -134,7 +133,7 @@ impl Session {
     // WARNING: This does NOT handle shell escaping!!! Be careful!!!
     pub async fn run_script(
         &mut self,
-        script: &str,
+        script: &Path,
         args: Vec<String>,
         capture: bool,
     ) -> anyhow::Result<(u32, Vec<u8>)> {

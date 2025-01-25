@@ -6,6 +6,7 @@ use cidr::IpCidr;
 use clap::{Args, Parser, Subcommand};
 use rand::Rng;
 use serde::Deserialize;
+use std::collections::HashSet;
 use std::net::IpAddr;
 use std::time::Duration;
 use tokio::task::JoinSet;
@@ -15,6 +16,8 @@ pub enum BlazeCommand {
     Scan(ScanCommand),
     #[clap(alias = "a")]
     Add(AddCommand),
+    #[clap(alias = "rm")]
+    Remove(RemoveCommand),
     #[clap(alias = "ls")]
     List(ListCommand),
     #[clap(alias = "r")]
@@ -51,6 +54,14 @@ pub struct AddCommand {
     pub pass: String,
     #[arg(short, long, default_value_t = 22)]
     pub port: u16,
+    #[arg(short, long, default_value = "unix-like")]
+    pub os: OsType,
+}
+
+#[derive(Args)]
+#[command(about = "Manually remove a host.")]
+pub struct RemoveCommand {
+    pub host: String,
 }
 
 #[derive(Args)]
@@ -215,8 +226,20 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
                 cfg.add_host_from(host, cmd.user.clone(), cmd.pass.clone(), cmd.port)?;
             }
         }
-        BlazeCommand::Add(cmd) => {
-            anyhow::bail!("Not implemented yet");
+        BlazeCommand::Add(cmd) => cfg.add_host(&Host {
+            ip: cmd.ip,
+            user: cmd.user,
+            pass: cmd.pass,
+            port: cmd.port,
+            aliases: HashSet::new(),
+            os: cmd.os,
+        }),
+        BlazeCommand::Remove(cmd) => {
+            let ip = {
+                let host = lookup_host(&cfg, &cmd.host)?;
+                host.ip.clone()
+            };
+            cfg.remove_host(&ip);
         }
         BlazeCommand::Edit(cmd) => {
             let host = lookup_host_mut(cfg, &cmd.host)?;

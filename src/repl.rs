@@ -86,7 +86,10 @@ pub async fn repl(cfg: &mut BlazeConfig) -> anyhow::Result<()> {
                     }
                 }
             },
+            // If EOF is reached, exit
             Err(ReadlineError::Eof) => break,
+            // Ctrl+C is fine just ignore it
+            Err(ReadlineError::Interrupted) => continue,
             Err(err) => println!("{:?}", err),
         }
     }

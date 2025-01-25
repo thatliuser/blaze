@@ -107,6 +107,10 @@ impl Config {
         self.hosts.insert(host.ip, host.clone());
     }
 
+    pub fn remove_host(&mut self, ip: &IpAddr) -> Option<Host> {
+        self.hosts.remove(ip)
+    }
+
     pub fn add_host_from(
         &mut self,
         scan_host: &crate::scan::Host,

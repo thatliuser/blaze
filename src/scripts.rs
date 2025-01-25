@@ -22,7 +22,7 @@ impl Scripts {
         let result = tokio::fs::create_dir(path).await;
         if let Err(err) = result {
             if err.kind() == io::ErrorKind::AlreadyExists {
-                println!("Directory already exists, skipping unpack step");
+                log::info!("Directory already exists, skipping unpack step");
                 Ok(true)
             } else {
                 Err(err.into())
@@ -48,7 +48,7 @@ impl Scripts {
         if !existed {
             for file in Self::iter() {
                 if let Err(err) = Self::copy_file(&file).await {
-                    println!("Failed to copy file {}: {}", file, err);
+                    log::warn!("Failed to copy file {}: {}", file, err);
                 }
             }
         }

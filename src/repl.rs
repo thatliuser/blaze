@@ -62,7 +62,7 @@ pub async fn repl(cfg: &mut BlazeConfig) -> anyhow::Result<()> {
     let mut reader: Editor<ClapCompleter, _> = Editor::with_config(config)?;
     reader.set_helper(Some(ClapCompleter));
     reader.load_history(HISTORY_FILE).unwrap_or_else(|e| {
-        println!("Failed to load REPL history: {}", e);
+        log::info!("Failed to load REPL history: {}, continuing", e);
     });
     loop {
         match reader.readline(">> ") {
@@ -80,7 +80,7 @@ pub async fn repl(cfg: &mut BlazeConfig) -> anyhow::Result<()> {
                         Ok(cmd) => {
                             let res = do_run(cmd, cfg).await;
                             if let Err(err) = res {
-                                println!("{}", err);
+                                log::error!("{}", err);
                             }
                         }
                     }
@@ -90,7 +90,7 @@ pub async fn repl(cfg: &mut BlazeConfig) -> anyhow::Result<()> {
             Err(ReadlineError::Eof) => break,
             // Ctrl+C is fine just ignore it
             Err(ReadlineError::Interrupted) => continue,
-            Err(err) => println!("{:?}", err),
+            Err(err) => log::error!("Couldn't read input: {}", err),
         }
     }
     reader.append_history(HISTORY_FILE)?;

@@ -4,6 +4,7 @@ use crate::scan::OsType;
 use anyhow::Context;
 use serde::{Deserialize, Serialize};
 use std::io::Write;
+use std::time::Duration;
 use std::{
     collections::{HashMap, HashSet},
     fs::File,
@@ -25,15 +26,29 @@ pub struct Host {
 }
 
 #[derive(Serialize, Deserialize)]
+struct ConfigFile {
+    pub hosts: HashMap<IpAddr, Host>,
+    pub timeout: Duration,
+}
+
+impl ConfigFile {
+    pub fn new() -> Self {
+        Self {
+            hosts: HashMap::new(),
+            timeout: Duration::from_secs(15),
+        }
+    }
+}
+
 pub struct Config {
-    hosts: HashMap<IpAddr, Host>,
+    file: ConfigFile,
     path: PathBuf,
 }
 
 impl Config {
     pub fn new() -> Config {
         Config {
-            hosts: HashMap::new(),
+            file: ConfigFile::new(),
             path: PathBuf::from("blaze.yaml"),
         }
     }
@@ -42,7 +57,7 @@ impl Config {
         let file = File::open(path)?;
         let reader = BufReader::new(file);
         Ok(Config {
-            hosts: serde_yaml::from_reader(reader).context("couldn't parse config file")?,
+            file: serde_yaml::from_reader(reader).context("couldn't parse config file")?,
             path: path.clone(),
         })
     }
@@ -50,15 +65,15 @@ impl Config {
     pub fn save(&self) -> anyhow::Result<()> {
         let file = File::create(&self.path)?;
         let writer = BufWriter::new(file);
-        Ok(serde_yaml::to_writer(writer, &self.hosts)?)
+        Ok(serde_yaml::to_writer(writer, &self.file)?)
     }
 
     pub fn host_for_ip(&self, ip: IpAddr) -> Option<&Host> {
-        self.hosts.get(&ip)
+        self.file.hosts.get(&ip)
     }
 
     pub fn host_for_ip_mut(&mut self, ip: IpAddr) -> Option<&mut Host> {
-        self.hosts.get_mut(&ip)
+        self.file.hosts.get_mut(&ip)
     }
 
     // Allows infering an alias by short name (if no conflicts)
@@ -105,11 +120,11 @@ impl Config {
     }
 
     pub fn add_host(&mut self, host: &Host) {
-        self.hosts.insert(host.ip, host.clone());
+        self.file.hosts.insert(host.ip, host.clone());
     }
 
     pub fn remove_host(&mut self, ip: &IpAddr) -> Option<Host> {
-        self.hosts.remove(ip)
+        self.file.hosts.remove(ip)
     }
 
     pub fn add_host_from(
@@ -127,22 +142,23 @@ impl Config {
             aliases: HashSet::new(),
             os: scan_host.os,
         };
-        self.hosts.insert(host.ip, host);
+        self.file.hosts.insert(host.ip, host);
         Ok(())
     }
 
     pub fn hosts(&self) -> &HashMap<IpAddr, Host> {
-        &self.hosts
+        &self.file.hosts
     }
 
     pub fn hosts_mut(&mut self) -> &mut HashMap<IpAddr, Host> {
-        &mut self.hosts
+        &mut self.file.hosts
     }
 
     pub fn export_compat(&self, filename: &Path) -> anyhow::Result<()> {
         let file = File::create(filename)?;
         let mut writer = BufWriter::new(file);
         for (_, host) in self
+            .file
             .hosts
             .iter()
             .filter(|(_, host)| host.os == OsType::UnixLike)
@@ -156,6 +172,14 @@ impl Config {
             writeln!(writer, "{}", line.trim())?;
         }
         Ok(())
+    }
+
+    pub fn get_timeout(&self) -> Duration {
+        self.file.timeout
+    }
+
+    pub fn set_timeout(&mut self, timeout: Duration) {
+        self.file.timeout = timeout;
     }
 }
 

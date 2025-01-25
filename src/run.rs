@@ -30,8 +30,9 @@ pub enum BlazeCommand {
     Script(ScriptCommand),
     #[clap(alias = "sh")]
     Shell(ShellCommand),
-    Edit(EditCommand),
+    Timeout(TimeoutCommand),
     Export(ExportCommand),
+    Edit(EditCommand),
 }
 
 #[derive(Args)]
@@ -83,6 +84,13 @@ pub struct ScriptCommand {
 #[command(about = "Start an augmented remote shell to a specified host.")]
 pub struct ShellCommand {
     pub host: String,
+}
+
+#[derive(Args)]
+#[command(about = "Set global script timeout.")]
+pub struct TimeoutCommand {
+    #[clap(value_parser = humantime::parse_duration)]
+    pub timeout: Duration,
 }
 
 #[derive(Args)]
@@ -184,17 +192,19 @@ async fn do_run_script_args(
     }
 }
 
-async fn run_script_args(host: &Host, script: &Path, args: Vec<String>) -> anyhow::Result<String> {
-    tokio::time::timeout(
-        Duration::from_secs(15),
-        do_run_script_args(host, script, args),
-    )
-    .await
-    .unwrap_or_else(|_| Err(anyhow::Error::msg("run_script_args timed out")))
+async fn run_script_args(
+    timeout: Duration,
+    host: &Host,
+    script: &Path,
+    args: Vec<String>,
+) -> anyhow::Result<String> {
+    tokio::time::timeout(timeout, do_run_script_args(host, script, args))
+        .await
+        .unwrap_or_else(|_| Err(anyhow::Error::msg("run_script_args timed out")))
 }
 
-async fn run_script(host: &Host, script: &Path) -> anyhow::Result<String> {
-    run_script_args(host, script, vec![]).await
+async fn run_script(timeout: Duration, host: &Host, script: &Path) -> anyhow::Result<String> {
+    run_script_args(timeout, host, script, vec![]).await
 }
 
 async fn run_script_all_args<F: FnMut(&Host) -> Vec<String>>(
@@ -208,7 +218,13 @@ async fn run_script_all_args<F: FnMut(&Host) -> Vec<String>>(
         let host = host.clone();
         let script = script.to_owned();
         let args = gen_args(&host);
-        set.spawn(async move { (host.clone(), run_script_args(&host, &script, args).await) });
+        let timeout = cfg.get_timeout();
+        set.spawn(async move {
+            (
+                host.clone(),
+                run_script_args(timeout, &host, &script, args).await,
+            )
+        });
     }
     Ok(set)
 }
@@ -224,14 +240,29 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
         BlazeCommand::Scan(cmd) => {
             println!("Subnet: {:?}", cmd.subnet);
             let scan = Scan::new(&cmd.subnet, cmd.backend).await?;
+            let mut set = JoinSet::new();
             for host in scan.hosts.iter() {
-                println!("{:?}: {:?}", host.addr, host.os);
-                let os = host.try_detect_ssh().await;
-                match os {
-                    Err(err) => println!("{}", err),
-                    Ok(os) => println!("Detected OS {:?} from SSH", os),
+                let host = host.clone();
+                let timeout = cfg.get_timeout();
+                set.spawn(async move { (host.clone(), host.try_detect_ssh(timeout).await) });
+            }
+            while let Some(joined) = set.join_next().await {
+                let (mut host, result) = joined.context("Failed to spawn host ID detector")?;
+                match result {
+                    Ok(os) => {
+                        if os != host.os {
+                            println!(
+                                "Host {} OS changed from {:?} to {:?}",
+                                host.addr, host.os, os
+                            );
+                            host.os = os;
+                        }
+                    }
+                    Err(err) => {
+                        println!("Failed to detect host {} ID from SSH: {}", host.addr, err);
+                    }
                 }
-                cfg.add_host_from(host, cmd.user.clone(), cmd.pass.clone(), cmd.port)?;
+                cfg.add_host_from(&host, cmd.user.clone(), cmd.pass.clone(), cmd.port)?;
             }
         }
         BlazeCommand::Add(cmd) => cfg.add_host(&Host {
@@ -305,7 +336,7 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
             .await?;
             let mut failed = Vec::<String>::new();
             while let Some(joined) = set.join_next().await {
-                let (host, output) = joined.context("Error running password script")?;
+                let (mut host, output) = joined.context("Error running password script")?;
                 match output {
                     Ok(pass) => {
                         let pass = pass.trim();
@@ -319,11 +350,8 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
                             println!("Password change seems to have failed, error: {}", err);
                             failed.push(format!("{}", host.ip));
                         } else {
-                            // TODO: Implement
-                            /*
                             println!("Success, writing config file");
                             host.pass = pass.into();
-                            */
                             cfg.add_host(&host);
                         }
                     }
@@ -343,7 +371,7 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
             Some(host) => {
                 let host = lookup_host(&cfg, &host)?;
                 println!("Running script on host {}", host.ip);
-                let output = run_script(host, &cmd.script).await?;
+                let output = run_script(cfg.get_timeout(), host, &cmd.script).await?;
                 println!("Script outputted: {}", output);
             }
             None => {
@@ -379,6 +407,7 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
             }
         }
         BlazeCommand::Export(cmd) => cfg.export_compat(&cmd.filename)?,
+        BlazeCommand::Timeout(cmd) => cfg.set_timeout(cmd.timeout),
     }
     Ok(())
 }

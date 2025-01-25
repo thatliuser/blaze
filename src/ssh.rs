@@ -75,8 +75,11 @@ impl Session {
         Ok(String::from_utf8_lossy(&data[..count]).into())
     }
 
-    pub async fn get_server_id<A: ToSocketAddrs>(addrs: A) -> anyhow::Result<String> {
-        tokio::time::timeout(Duration::from_secs(5), Self::do_read_server_id(addrs)).await?
+    pub async fn get_server_id<A: ToSocketAddrs>(
+        addrs: A,
+        timeout: Duration,
+    ) -> anyhow::Result<String> {
+        tokio::time::timeout(timeout, Self::do_read_server_id(addrs)).await?
     }
 
     pub async fn upload(&mut self, file: &Path) -> anyhow::Result<String> {

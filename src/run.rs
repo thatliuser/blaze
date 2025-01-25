@@ -78,6 +78,8 @@ pub struct ListCommand {
 pub struct ScriptCommand {
     pub script: PathBuf,
     pub host: Option<String>,
+    #[arg(short, long, default_value_t = false)]
+    pub upload: bool,
 }
 
 #[derive(Args)]
@@ -181,9 +183,10 @@ async fn do_run_script_args(
     host: &Host,
     script: &Path,
     args: Vec<String>,
+    upload: bool,
 ) -> anyhow::Result<String> {
     let mut session = Session::connect(&host.user, &host.pass, (host.ip, host.port)).await?;
-    let (code, output) = session.run_script(script, args, true).await?;
+    let (code, output) = session.run_script(script, args, true, upload).await?;
     let output = String::from_utf8_lossy(&output);
     if code != 0 {
         anyhow::bail!("script returned nonzero code {}", code);
@@ -197,20 +200,27 @@ async fn run_script_args(
     host: &Host,
     script: &Path,
     args: Vec<String>,
+    upload: bool,
 ) -> anyhow::Result<String> {
-    tokio::time::timeout(timeout, do_run_script_args(host, script, args))
+    tokio::time::timeout(timeout, do_run_script_args(host, script, args, upload))
         .await
         .unwrap_or_else(|_| Err(anyhow::Error::msg("run_script_args timed out")))
 }
 
-async fn run_script(timeout: Duration, host: &Host, script: &Path) -> anyhow::Result<String> {
-    run_script_args(timeout, host, script, vec![]).await
+async fn run_script(
+    timeout: Duration,
+    host: &Host,
+    script: &Path,
+    upload: bool,
+) -> anyhow::Result<String> {
+    run_script_args(timeout, host, script, vec![], upload).await
 }
 
 async fn run_script_all_args<F: FnMut(&Host) -> Vec<String>>(
     cfg: &Config,
     script: &Path,
     mut gen_args: F,
+    upload: bool,
 ) -> anyhow::Result<JoinSet<(Host, anyhow::Result<String>)>> {
     log::info!("Executing script on all hosts");
     let mut set = JoinSet::new();
@@ -222,7 +232,7 @@ async fn run_script_all_args<F: FnMut(&Host) -> Vec<String>>(
         set.spawn(async move {
             (
                 host.clone(),
-                run_script_args(timeout, &host, &script, args).await,
+                run_script_args(timeout, &host, &script, args, upload).await,
             )
         });
     }
@@ -231,8 +241,9 @@ async fn run_script_all_args<F: FnMut(&Host) -> Vec<String>>(
 async fn run_script_all(
     cfg: &Config,
     script: &Path,
+    upload: bool,
 ) -> anyhow::Result<JoinSet<(Host, anyhow::Result<String>)>> {
-    run_script_all_args(cfg, script, |_| vec![]).await
+    run_script_all_args(cfg, script, |_| vec![], upload).await
 }
 
 pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
@@ -311,7 +322,7 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
         }
         BlazeCommand::Resolve => {
             let script = PathBuf::from("hostname.sh");
-            let mut set = run_script_all(cfg, &script).await?;
+            let mut set = run_script_all(cfg, &script, false).await?;
             while let Some(joined) = set.join_next().await {
                 let (mut host, output) = joined.context("Error running hostname script")?;
                 match output {
@@ -331,12 +342,17 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
             let script = PathBuf::from("chpass.sh");
             let mut passwords = get_passwords()?;
             let mut rng = rand::thread_rng();
-            let mut set = run_script_all_args(cfg, &script, |host| {
-                let rand = rng.gen_range(0..passwords.len());
-                let pass = passwords.remove(rand);
-                log::info!("Using password {} for host {}", pass.id, host.ip);
-                vec![host.user.clone(), pass.password]
-            })
+            let mut set = run_script_all_args(
+                cfg,
+                &script,
+                |host| {
+                    let rand = rng.gen_range(0..passwords.len());
+                    let pass = passwords.remove(rand);
+                    log::info!("Using password {} for host {}", pass.id, host.ip);
+                    vec![host.user.clone(), pass.password]
+                },
+                false,
+            )
             .await?;
             let mut failed = Vec::<String>::new();
             while let Some(joined) = set.join_next().await {
@@ -376,11 +392,11 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
             Some(host) => {
                 let host = lookup_host(&cfg, &host)?;
                 log::info!("Running script on host {}", host.ip);
-                let output = run_script(cfg.get_timeout(), host, &cmd.script).await?;
+                let output = run_script(cfg.get_timeout(), host, &cmd.script, cmd.upload).await?;
                 log::info!("Script outputted: {}", output);
             }
             None => {
-                let mut set = run_script_all(cfg, &cmd.script).await?;
+                let mut set = run_script_all(cfg, &cmd.script, cmd.upload).await?;
                 while let Some(joined) = set.join_next().await {
                     joined
                         .context("Error running script")

@@ -28,6 +28,7 @@ A remote automation tool.
 ## Roadmap
 - Tmux-like escape shell
 - Passgen?
+- Job queue
 - Colored autocompletion
 - Zellij / tmux-like integration
 - Scripting integration maybe? (Deno, Lua, QuickJS, Python)

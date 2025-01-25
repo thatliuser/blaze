@@ -139,6 +139,7 @@ impl Session {
         script: &Path,
         args: Vec<String>,
         capture: bool,
+        upload: bool,
     ) -> anyhow::Result<(u32, Vec<u8>)> {
         let script = self.upload(&script).await?;
         let args = if args.len() == 0 {
@@ -146,7 +147,11 @@ impl Session {
         } else {
             " ".to_owned() + &args.join(" ")
         };
-        self.exec(format!("sh {}{}", script, args), capture).await
+        let (code, output) = self.exec(format!("sh {}{}", script, args), capture).await?;
+        if !upload {
+            self.exec(format!("rm {}", script), false).await?;
+        }
+        Ok((code, output))
     }
 
     pub async fn shell(&mut self) -> anyhow::Result<u32> {

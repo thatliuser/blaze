@@ -249,11 +249,11 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
             while let Some(joined) = set.join_next().await {
                 let (mut host, result) = joined.context("Failed to spawn host ID detector")?;
                 match result {
-                    Ok(os) => {
+                    Ok((id, os)) => {
                         if os != host.os {
                             println!(
-                                "Host {} OS changed from {:?} to {:?}",
-                                host.addr, host.os, os
+                                "Host {} OS changed from {:?} to {:?} (SSH ID {})",
+                                host.addr, host.os, os, id
                             );
                             host.os = os;
                         }

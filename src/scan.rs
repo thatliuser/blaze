@@ -51,18 +51,14 @@ impl Host {
         Host { addr, ports, os }
     }
     // Check the SSH server ID to get the OS type
-    pub async fn try_detect_ssh(&self, timeout: Duration) -> anyhow::Result<OsType> {
-        let os = Session::get_server_id((self.addr, 22), timeout)
-            .await
-            .map(|id| {
-                println!("{}", id);
-                if id.to_lowercase().contains("windows") {
-                    OsType::Windows
-                } else {
-                    OsType::UnixLike
-                }
-            })?;
-        Ok(os)
+    pub async fn try_detect_ssh(&self, timeout: Duration) -> anyhow::Result<(String, OsType)> {
+        let id = Session::get_server_id((self.addr, 22), timeout).await?;
+        let os = if id.to_lowercase().contains("windows") {
+            OsType::Windows
+        } else {
+            OsType::UnixLike
+        };
+        Ok((id, os))
     }
 }
 

@@ -3,13 +3,14 @@
 use crate::scan::OsType;
 use anyhow::Context;
 use serde::{Deserialize, Serialize};
+use std::io::Write;
 use std::{
     collections::{HashMap, HashSet},
     fs::File,
     io::BufReader,
     io::BufWriter,
     net::IpAddr,
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -136,6 +137,25 @@ impl Config {
 
     pub fn hosts_mut(&mut self) -> &mut HashMap<IpAddr, Host> {
         &mut self.hosts
+    }
+
+    pub fn export_compat(&self, filename: &Path) -> anyhow::Result<()> {
+        let file = File::create(filename)?;
+        let mut writer = BufWriter::new(file);
+        for (_, host) in self
+            .hosts
+            .iter()
+            .filter(|(_, host)| host.os == OsType::UnixLike)
+        {
+            let aliases: Vec<_> = host.aliases.iter().cloned().collect();
+            let aliases = aliases.join(" ");
+            let line = format!(
+                "{} {} {} {} {}",
+                host.ip, host.user, host.pass, host.port, aliases
+            );
+            writeln!(writer, "{}", line.trim())?;
+        }
+        Ok(())
     }
 }
 

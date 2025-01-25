@@ -31,6 +31,7 @@ pub enum BlazeCommand {
     #[clap(alias = "sh")]
     Shell(ShellCommand),
     Edit(EditCommand),
+    Export(ExportCommand),
 }
 
 #[derive(Args)]
@@ -82,6 +83,12 @@ pub struct ScriptCommand {
 #[command(about = "Start an augmented remote shell to a specified host.")]
 pub struct ShellCommand {
     pub host: String,
+}
+
+#[derive(Args)]
+#[command(about = "Export config in compatibility mode.")]
+pub struct ExportCommand {
+    pub filename: PathBuf,
 }
 
 #[derive(Args)]
@@ -371,6 +378,7 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
                 println!("Warning: shell returned nonzero code {}", code);
             }
         }
+        BlazeCommand::Export(cmd) => cfg.export_compat(&cmd.filename)?,
     }
     Ok(())
 }

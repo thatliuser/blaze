@@ -1,3 +1,4 @@
+use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Duration;
@@ -9,8 +10,9 @@ use crossterm::terminal;
 use russh::*;
 use russh_keys::key::PublicKey;
 use russh_sftp::client::SftpSession;
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::io::AsyncWriteExt;
 use tokio::net::{TcpStream, ToSocketAddrs};
+use tokio::sync::mpsc;
 
 struct Handler;
 
@@ -177,10 +179,23 @@ impl Session {
 
         let code;
         // let mut events = EventStream::new();
-        let mut stdin = tokio::io::stdin();
+        let (stdin_sender, mut stdin) = mpsc::channel(25);
+        // stdin events are handled on another thread
+        std::thread::spawn(move || {
+            let mut buf = [0; 1000];
+            loop {
+                let mut lock = std::io::stdin().lock();
+                match lock.read(&mut buf) {
+                    Ok(n) => match stdin_sender.blocking_send(buf[0..n].to_vec()) {
+                        Ok(()) => continue,
+                        Err(_) => return,
+                    },
+                    Err(_) => return,
+                };
+            }
+        });
         let mut stdout = tokio::io::stdout();
         let mut stdin_closed = false;
-        let mut buf = [0; 1000];
 
         terminal::enable_raw_mode()?;
 
@@ -219,20 +234,19 @@ impl Session {
                     }
                 }
                 */
-                r = stdin.read(&mut buf), if !stdin_closed => {
+                r = stdin.recv(), if !stdin_closed => {
                     match r {
-                        Ok(0) => {
+                        None => {
                             stdin_closed = true;
                             channel.eof().await?;
                         },
                         // Send it to the server
-                        Ok(n) => {
+                        Some(buf) => {
                             // Ctrl+Q pressed, escape all further output until esc is pressed
-                            if buf[..n].contains(&17u8) {
+                            if buf.contains(&17u8) {
                             }
-                            channel.data(&buf[..n]).await?
+                            channel.data(buf.as_slice()).await?;
                         },
-                        Err(e) => return Err(e.into()),
                     };
                 },
                 // There's an event available on the session channel

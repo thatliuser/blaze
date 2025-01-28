@@ -1,4 +1,5 @@
 use crate::config::{Config, Host};
+use crate::ldap;
 use crate::scan::{Backend, OsType, Scan};
 use crate::ssh::Session;
 use anyhow::Context;
@@ -33,6 +34,7 @@ pub enum BlazeCommand {
     Timeout(TimeoutCommand),
     Export(ExportCommand),
     Edit(EditCommand),
+    Ldap(LdapCommand),
 }
 
 #[derive(Args)]
@@ -140,6 +142,13 @@ pub struct EditOsCommand {
 #[command(about = "Add an alias to a host.")]
 pub struct EditAliasCommand {
     pub alias: String,
+}
+
+#[derive(Args)]
+pub struct LdapCommand {
+    pub ip: IpAddr,
+    pub domain: String,
+    pub pass: String,
 }
 
 #[derive(Deserialize)]
@@ -285,6 +294,7 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
             user: cmd.user,
             pass: cmd.pass,
             port: cmd.port,
+            open_ports: HashSet::new(),
             aliases: HashSet::new(),
             os: cmd.os,
         }),
@@ -428,6 +438,7 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
         }
         BlazeCommand::Export(cmd) => cfg.export_compat(&cmd.filename)?,
         BlazeCommand::Timeout(cmd) => cfg.set_timeout(cmd.timeout),
+        BlazeCommand::Ldap(cmd) => ldap::list_computers(cmd.ip, &cmd.domain, &cmd.pass).await?,
     }
     Ok(())
 }

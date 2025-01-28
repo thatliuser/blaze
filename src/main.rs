@@ -1,6 +1,7 @@
 // Entrypoint
 
 mod config;
+mod ldap;
 mod repl;
 mod run;
 mod scan;

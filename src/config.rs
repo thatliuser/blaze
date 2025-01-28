@@ -21,6 +21,7 @@ pub struct Host {
     pub pass: String,
     // For Unix, this is the SSH port, and for Windows, this is the SMB port
     pub port: u16,
+    pub open_ports: HashSet<u16>,
     pub aliases: HashSet<String>,
     pub os: OsType,
 }
@@ -139,6 +140,7 @@ impl Config {
             user,
             pass,
             port,
+            open_ports: scan_host.ports.clone(),
             aliases: HashSet::new(),
             os: scan_host.os,
         };

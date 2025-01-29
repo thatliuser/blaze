@@ -100,6 +100,12 @@ impl Session {
             .context("couldn't request sftp subsystem")?;
         let sftp = SftpSession::new(sftp_channel.into_stream()).await?;
         let mut dst = sftp.create(&filename).await?;
+        let mut meta = dst.metadata().await?;
+        // rwx------
+        meta.permissions = Some(0o700);
+        dst.set_metadata(meta)
+            .await
+            .context("couldn't change file permissions")?;
         tokio::io::copy(&mut src, &mut dst)
             .await
             .context("couldn't copy file to remote location")?;
@@ -144,12 +150,14 @@ impl Session {
         upload: bool,
     ) -> anyhow::Result<(u32, Vec<u8>)> {
         let script = self.upload(&script).await?;
-        let args = if args.len() == 0 {
-            "".into()
-        } else {
-            " ".to_owned() + &args.join(" ")
-        };
-        let (code, output) = self.exec(format!("sh {}{}", script, args), capture).await?;
+        let script = format!("./{}", script);
+        let cmd = shlex::try_join(
+            std::iter::once(&script)
+                .chain(args.iter())
+                .map(String::as_str),
+        )?;
+        log::info!("{}", cmd);
+        let (code, output) = self.exec(cmd, capture).await?;
         if !upload {
             self.exec(format!("rm {}", script), false).await?;
         }

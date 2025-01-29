@@ -28,6 +28,7 @@ A remote automation tool.
 ## Roadmap
 - Tmux-like escape shell
 - Passgen?
+- LDAP enumeration and integration
 - Job queue
 - Colored autocompletion
 - Zellij / tmux-like integration

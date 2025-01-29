@@ -431,6 +431,8 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
                 .host_for_ip(ip)
                 .ok_or_else(|| anyhow::Error::msg("failed to get host for IP"))?;
             let mut session = Session::connect(&host.user, &host.pass, (ip, host.port)).await?;
+            log::info!("ssh {}@{} -p {}", host.user, host.ip, host.port);
+            log::info!("Using password '{}'", host.pass);
             let code = session.shell().await?;
             if code != 0 {
                 log::warn!("Shell returned nonzero code {}", code);

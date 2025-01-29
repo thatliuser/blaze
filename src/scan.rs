@@ -104,7 +104,7 @@ impl Scan {
             "--min-rate",
             "3000",
             "-p",
-            "22,88,135,389,445,3389,5985",
+            "22,53,88,135,389,445,3389,5985",
             "--open",
             "-oX",
             "scan.xml",
@@ -136,7 +136,7 @@ impl Scan {
     async fn rustscan(subnet: &IpCidr) -> anyhow::Result<Vec<Host>> {
         // Copied from rustscan::address::parse_address
         let ips: Vec<IpAddr> = subnet.iter().map(|c| c.address()).collect();
-        let ports = vec![22u16, 88, 135, 389, 445, 3389, 5985];
+        let ports = vec![22u16, 53, 88, 135, 389, 445, 3389, 5985];
         let strategy = PortStrategy::pick(&None, Some(ports.clone()), ScanOrder::Serial);
         let timeout_ms = 100;
         let scanner = Scanner::new(

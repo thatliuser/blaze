@@ -39,11 +39,12 @@ pub enum BlazeCommand {
 }
 
 #[derive(Args)]
-#[command(about = "Run an nmap scan on a specified subnet.")]
+#[command(about = "Run a network scan on a specified subnet.")]
 pub struct ScanCommand {
     pub subnet: IpCidr,
     #[arg(short, long, default_value_t = String::from("root"))]
     pub user: String,
+    pub pass: String,
     #[arg(short, long, default_value_t = 22)]
     pub port: u16,
     #[arg(short, long, default_value_t = Backend::RustScan)]
@@ -301,8 +302,9 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
                         log::error!("Failed to detect host {} ID from SSH: {}", host.addr, err);
                     }
                 }
-                cfg.add_host_from(&host, cmd.user.clone(), None, cmd.port)?;
+                cfg.add_host_from(&host, cmd.user.clone(), Some(cmd.pass.clone()), cmd.port)?;
             }
+            for host in cfg.hosts() {}
         }
         BlazeCommand::Add(cmd) => cfg.add_host(&Host {
             ip: cmd.ip,

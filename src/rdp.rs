@@ -37,7 +37,6 @@ impl ServerCertVerifier for CertGrabber {
             for attr in rdn.iter() {
                 if attr.attr_type() == &common_name_oid {
                     if let Ok(value) = attr.as_str() {
-                        println!("{}", value);
                         _ = self.send.send(value.to_owned())
                     }
                 }

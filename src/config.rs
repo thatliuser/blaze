@@ -18,7 +18,7 @@ use std::{
 pub struct Host {
     pub ip: IpAddr,
     pub user: String,
-    pub pass: String,
+    pub pass: Option<String>,
     // For Unix, this is the SSH port, and for Windows, this is the SMB port
     pub port: u16,
     pub open_ports: HashSet<u16>,
@@ -132,7 +132,7 @@ impl Config {
         &mut self,
         scan_host: &crate::scan::Host,
         user: String,
-        pass: String,
+        pass: Option<String>,
         port: u16,
     ) -> anyhow::Result<()> {
         let host = Host {
@@ -163,13 +163,17 @@ impl Config {
             .file
             .hosts
             .iter()
-            .filter(|(_, host)| host.os == OsType::UnixLike)
+            .filter(|(_, host)| host.os == OsType::UnixLike && host.pass.is_some())
         {
             let aliases: Vec<_> = host.aliases.iter().cloned().collect();
             let aliases = aliases.join(" ");
             let line = format!(
                 "{} {} {} {} {}",
-                host.ip, host.user, host.pass, host.port, aliases
+                host.ip,
+                host.user,
+                host.pass.as_ref().unwrap(),
+                host.port,
+                aliases
             );
             writeln!(writer, "{}", line.trim())?;
         }

@@ -2,6 +2,7 @@
 
 mod config;
 mod ldap;
+mod rdp;
 mod repl;
 mod run;
 mod scan;

@@ -1,7 +1,7 @@
 use crate::config::{Config, Host};
-use crate::ldap;
 use crate::scan::{Backend, OsType, Scan};
 use crate::ssh::Session;
+use crate::{ldap, rdp};
 use anyhow::Context;
 use cidr::IpCidr;
 use clap::{Args, Parser, Subcommand};
@@ -35,6 +35,7 @@ pub enum BlazeCommand {
     Export(ExportCommand),
     Edit(EditCommand),
     Ldap(LdapCommand),
+    Rdp,
 }
 
 #[derive(Args)]
@@ -43,7 +44,6 @@ pub struct ScanCommand {
     pub subnet: IpCidr,
     #[arg(short, long, default_value_t = String::from("root"))]
     pub user: String,
-    pub pass: String,
     #[arg(short, long, default_value_t = 22)]
     pub port: u16,
     #[arg(short, long, default_value_t = Backend::RustScan)]
@@ -82,6 +82,7 @@ pub struct ScriptCommand {
     pub host: Option<String>,
     #[arg(short, long, default_value_t = false)]
     pub upload: bool,
+    pub args: Vec<String>,
 }
 
 #[derive(Args)]
@@ -157,6 +158,28 @@ struct Password {
     password: String,
 }
 
+#[derive(Clone)]
+struct RunScriptArgs {
+    script: PathBuf,
+    args: Vec<String>,
+    upload: bool,
+}
+
+impl RunScriptArgs {
+    fn new(script: PathBuf) -> Self {
+        Self {
+            script: script,
+            args: Vec::new(),
+            upload: false,
+        }
+    }
+
+    fn set_upload(mut self, upload: bool) -> Self {
+        self.upload = upload;
+        self
+    }
+}
+
 fn get_passwords() -> anyhow::Result<Vec<Password>> {
     let mut passwords = Vec::new();
     let mut reader = csv::Reader::from_path("passwords.db")?;
@@ -188,60 +211,53 @@ fn lookup_host_mut<'a>(cfg: &'a mut Config, host: &str) -> anyhow::Result<&'a mu
     }
 }
 
-async fn do_run_script_args(
-    host: &Host,
-    script: &Path,
-    args: Vec<String>,
-    upload: bool,
-) -> anyhow::Result<String> {
-    let mut session = Session::connect(&host.user, &host.pass, (host.ip, host.port)).await?;
-    let (code, output) = session.run_script(script, args, true, upload).await?;
-    let output = String::from_utf8_lossy(&output);
-    if code != 0 {
-        anyhow::bail!("script returned nonzero code {}", code);
+async fn do_run_script_args(host: &Host, args: RunScriptArgs) -> anyhow::Result<String> {
+    if let Some(pass) = &host.pass {
+        let mut session = Session::connect(&host.user, pass, (host.ip, host.port)).await?;
+        let (code, output) = session
+            .run_script(&args.script, args.args, true, args.upload)
+            .await?;
+        let output = String::from_utf8_lossy(&output);
+        if code != 0 {
+            anyhow::bail!("script returned nonzero code {}", code);
+        } else {
+            Ok(output.into())
+        }
     } else {
-        Ok(output.into())
+        anyhow::bail!("No password for host set")
     }
 }
 
 async fn run_script_args(
     timeout: Duration,
     host: &Host,
-    script: &Path,
-    args: Vec<String>,
-    upload: bool,
+    args: RunScriptArgs,
 ) -> anyhow::Result<String> {
-    tokio::time::timeout(timeout, do_run_script_args(host, script, args, upload))
+    tokio::time::timeout(timeout, do_run_script_args(host, args))
         .await
         .unwrap_or_else(|_| Err(anyhow::Error::msg("run_script_args timed out")))
 }
 
-async fn run_script(
-    timeout: Duration,
-    host: &Host,
-    script: &Path,
-    upload: bool,
-) -> anyhow::Result<String> {
-    run_script_args(timeout, host, script, vec![], upload).await
+async fn run_script(timeout: Duration, host: &Host, args: RunScriptArgs) -> anyhow::Result<String> {
+    run_script_args(timeout, host, args).await
 }
 
 async fn run_script_all_args<F: FnMut(&Host) -> Vec<String>>(
     cfg: &Config,
-    script: &Path,
     mut gen_args: F,
-    upload: bool,
+    args: RunScriptArgs,
 ) -> anyhow::Result<JoinSet<(Host, anyhow::Result<String>)>> {
     log::info!("Executing script on all hosts");
     let mut set = JoinSet::new();
     for (_, host) in cfg.hosts() {
-        let host = host.clone();
-        let script = script.to_owned();
-        let args = gen_args(&host);
         let timeout = cfg.get_timeout();
+        let host = host.clone();
+        let mut args = args.clone();
+        args.args = gen_args(&host);
         set.spawn(async move {
             (
                 host.clone(),
-                run_script_args(timeout, &host, &script, args, upload).await,
+                run_script_args(timeout, &host, args.clone()).await,
             )
         });
     }
@@ -249,10 +265,9 @@ async fn run_script_all_args<F: FnMut(&Host) -> Vec<String>>(
 }
 async fn run_script_all(
     cfg: &Config,
-    script: &Path,
-    upload: bool,
+    args: RunScriptArgs,
 ) -> anyhow::Result<JoinSet<(Host, anyhow::Result<String>)>> {
-    run_script_all_args(cfg, script, |_| vec![], upload).await
+    run_script_all_args(cfg, |_| vec![], args).await
 }
 
 pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
@@ -286,13 +301,13 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
                         log::error!("Failed to detect host {} ID from SSH: {}", host.addr, err);
                     }
                 }
-                cfg.add_host_from(&host, cmd.user.clone(), cmd.pass.clone(), cmd.port)?;
+                cfg.add_host_from(&host, cmd.user.clone(), None, cmd.port)?;
             }
         }
         BlazeCommand::Add(cmd) => cfg.add_host(&Host {
             ip: cmd.ip,
             user: cmd.user,
-            pass: cmd.pass,
+            pass: Some(cmd.pass),
             port: cmd.port,
             open_ports: HashSet::new(),
             aliases: HashSet::new(),
@@ -309,7 +324,7 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
             let host = lookup_host_mut(cfg, &cmd.host)?;
             match cmd.cmd {
                 EditCommandEnum::User(cmd) => host.user = cmd.user,
-                EditCommandEnum::Pass(cmd) => host.pass = cmd.pass,
+                EditCommandEnum::Pass(cmd) => host.pass = Some(cmd.pass),
                 EditCommandEnum::Os(cmd) => host.os = cmd.os,
                 EditCommandEnum::Alias(cmd) => _ = host.aliases.insert(cmd.alias),
             }
@@ -332,7 +347,7 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
         }
         BlazeCommand::Resolve => {
             let script = PathBuf::from("hostname.sh");
-            let mut set = run_script_all(cfg, &script, false).await?;
+            let mut set = run_script_all(cfg, RunScriptArgs::new(script)).await?;
             while let Some(joined) = set.join_next().await {
                 let (mut host, output) = joined.context("Error running hostname script")?;
                 match output {
@@ -354,14 +369,13 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
             let mut rng = rand::thread_rng();
             let mut set = run_script_all_args(
                 cfg,
-                &script,
                 |host| {
                     let rand = rng.gen_range(0..passwords.len());
                     let pass = passwords.remove(rand);
                     log::info!("Using password {} for host {}", pass.id, host.ip);
                     vec![host.user.clone(), pass.password]
                 },
-                false,
+                RunScriptArgs::new(script),
             )
             .await?;
             let mut failed = Vec::<String>::new();
@@ -382,7 +396,7 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
                             failed.push(format!("{}", host.ip));
                         } else {
                             log::info!("Success, writing config file");
-                            host.pass = pass.into();
+                            host.pass = Some(pass.into());
                             cfg.add_host(&host);
                         }
                     }
@@ -402,11 +416,18 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
             Some(host) => {
                 let host = lookup_host(&cfg, &host)?;
                 log::info!("Running script on host {}", host.ip);
-                let output = run_script(cfg.get_timeout(), host, &cmd.script, cmd.upload).await?;
+                let output = run_script(
+                    cfg.get_timeout(),
+                    host,
+                    RunScriptArgs::new(cmd.script).set_upload(cmd.upload),
+                )
+                .await?;
                 log::info!("Script outputted: {}", output);
             }
             None => {
-                let mut set = run_script_all(cfg, &cmd.script, cmd.upload).await?;
+                let mut set =
+                    run_script_all(cfg, RunScriptArgs::new(cmd.script).set_upload(cmd.upload))
+                        .await?;
                 while let Some(joined) = set.join_next().await {
                     joined
                         .context("Error running script")
@@ -430,17 +451,48 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
             let host = cfg
                 .host_for_ip(ip)
                 .ok_or_else(|| anyhow::Error::msg("failed to get host for IP"))?;
-            let mut session = Session::connect(&host.user, &host.pass, (ip, host.port)).await?;
-            log::info!("ssh {}@{} -p {}", host.user, host.ip, host.port);
-            log::info!("Using password '{}'", host.pass);
-            let code = session.shell().await?;
-            if code != 0 {
-                log::warn!("Shell returned nonzero code {}", code);
+            if let Some(pass) = &host.pass {
+                let mut session = Session::connect(&host.user, &pass, (ip, host.port)).await?;
+                log::info!("ssh {}@{} -p {}", host.user, host.ip, host.port);
+                log::info!("Using password '{}'", &pass);
+                let code = session.shell().await?;
+                if code != 0 {
+                    log::warn!("Shell returned nonzero code {}", code);
+                }
+            } else {
+                log::error!("Host does not have a password set! Please set it first.");
             }
         }
         BlazeCommand::Export(cmd) => cfg.export_compat(&cmd.filename)?,
         BlazeCommand::Timeout(cmd) => cfg.set_timeout(cmd.timeout),
         BlazeCommand::Ldap(cmd) => ldap::list_computers(cmd.ip, &cmd.domain, &cmd.pass).await?,
+        BlazeCommand::Rdp => {
+            let timeout = cfg.get_timeout();
+            let mut set = JoinSet::new();
+            for (_, host) in cfg
+                .hosts()
+                .iter()
+                .filter(|(_, host)| host.open_ports.contains(&3389))
+            {
+                let host = host.clone();
+                set.spawn(
+                    async move { (host.clone(), rdp::grab_rdp_hostname(host.ip, timeout).await) },
+                );
+            }
+            while let Some(joined) = set.join_next().await {
+                let (mut host, result) = joined.context("Error running rdp command")?;
+                match result {
+                    Ok(name) => {
+                        log::info!("Got name {} for host {}", name, host.ip);
+                        host.aliases.insert(name);
+                        cfg.add_host(&host);
+                    }
+                    Err(err) => {
+                        log::error!("Failed to get rdp hostname for host {}: {}", host.ip, err);
+                    }
+                }
+            }
+        }
     }
     Ok(())
 }

@@ -80,6 +80,7 @@ pub struct ListCommand {
 #[command(about = "Run a script on all hosts, or a single host if specified.")]
 pub struct ScriptCommand {
     pub script: PathBuf,
+    #[arg(short('H'), long)]
     pub host: Option<String>,
     #[arg(short, long, default_value_t = false)]
     pub upload: bool,
@@ -179,6 +180,11 @@ impl RunScriptArgs {
         self.upload = upload;
         self
     }
+
+    fn set_args(mut self, args: Vec<String>) -> Self {
+        self.args = args;
+        self
+    }
 }
 
 fn get_passwords() -> anyhow::Result<Vec<Password>> {
@@ -268,7 +274,8 @@ async fn run_script_all(
     cfg: &Config,
     args: RunScriptArgs,
 ) -> anyhow::Result<JoinSet<(Host, anyhow::Result<String>)>> {
-    run_script_all_args(cfg, |_| vec![], args).await
+    let arg_list = args.args.clone();
+    run_script_all_args(cfg, |_| arg_list.clone(), args).await
 }
 
 pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
@@ -427,9 +434,13 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
                 log::info!("Script outputted: {}", output);
             }
             None => {
-                let mut set =
-                    run_script_all(cfg, RunScriptArgs::new(cmd.script).set_upload(cmd.upload))
-                        .await?;
+                let mut set = run_script_all(
+                    cfg,
+                    RunScriptArgs::new(cmd.script)
+                        .set_upload(cmd.upload)
+                        .set_args(cmd.args),
+                )
+                .await?;
                 while let Some(joined) = set.join_next().await {
                     joined
                         .context("Error running script")

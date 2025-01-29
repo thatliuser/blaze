@@ -2,6 +2,7 @@
 
 use crate::scan::OsType;
 use anyhow::Context;
+use cidr::IpCidr;
 use serde::{Deserialize, Serialize};
 use std::io::Write;
 use std::time::Duration;
@@ -29,6 +30,7 @@ pub struct Host {
 #[derive(Serialize, Deserialize)]
 struct ConfigFile {
     pub hosts: HashMap<IpAddr, Host>,
+    pub cidr: Option<IpCidr>,
     pub timeout: Duration,
 }
 
@@ -36,6 +38,7 @@ impl ConfigFile {
     pub fn new() -> Self {
         Self {
             hosts: HashMap::new(),
+            cidr: None,
             timeout: Duration::from_secs(15),
         }
     }
@@ -52,6 +55,14 @@ impl Config {
             file: ConfigFile::new(),
             path: PathBuf::from("blaze.yaml"),
         }
+    }
+
+    pub fn set_cidr(&mut self, cidr: IpCidr) {
+        self.file.cidr = Some(cidr);
+    }
+
+    pub fn get_cidr(&self) -> Option<IpCidr> {
+        self.file.cidr
     }
 
     pub fn from(path: &PathBuf) -> anyhow::Result<Config> {

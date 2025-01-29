@@ -20,6 +20,7 @@ pub struct ScanCommand {
 
 pub async fn scan(cmd: ScanCommand, cfg: &mut Config) -> anyhow::Result<()> {
     log::debug!("Subnet: {:?}", cmd.subnet);
+    cfg.set_cidr(cmd.subnet);
     let scan = Scan::new(&cmd.subnet, cmd.backend).await?;
     let mut set = JoinSet::new();
     for host in scan.hosts.iter() {

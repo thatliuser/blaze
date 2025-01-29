@@ -52,7 +52,6 @@ async fn do_run(cmd: BlazeCommand, cfg: &mut BlazeConfig) -> anyhow::Result<()> 
 }
 
 pub async fn repl(cfg: &mut BlazeConfig) -> anyhow::Result<()> {
-    let mut cmd = BlazeCommand::command();
     let config = Config::builder()
         .history_ignore_dups(true)?
         .history_ignore_space(false)
@@ -67,9 +66,6 @@ pub async fn repl(cfg: &mut BlazeConfig) -> anyhow::Result<()> {
     loop {
         match reader.readline(">> ") {
             Ok(line) => match line.as_str() {
-                "help" => {
-                    cmd.print_long_help().context("couldn't print help")?;
-                }
                 "exit" => break,
                 _ => {
                     let cmd = BlazeCommand::try_parse_from(

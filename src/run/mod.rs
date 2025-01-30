@@ -21,6 +21,7 @@ pub enum BlazeCommand {
     Export(config::ExportCommand),
     Import(config::ImportCommand),
     Edit(config::EditCommand),
+    Exclude(config::ExcludeCommand),
     #[clap(alias = "r")]
     #[command(about = "Detect the hostnames of all detected hosts.")]
     Resolve,
@@ -46,6 +47,7 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
         BlazeCommand::Timeout(cmd) => config::set_timeout(cmd, cfg).await?,
         BlazeCommand::Export(cmd) => config::export(cmd, cfg).await?,
         BlazeCommand::Import(cmd) => config::import(cmd, cfg).await?,
+        BlazeCommand::Exclude(cmd) => config::exclude(cmd, cfg).await?,
         BlazeCommand::Resolve => profile::hostname((), cfg).await?,
         BlazeCommand::Chpass => chpass::chpass((), cfg).await?,
         BlazeCommand::Script(cmd) => script::script(cmd, cfg).await?,

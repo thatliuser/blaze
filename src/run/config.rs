@@ -153,6 +153,14 @@ pub async fn list_hosts(cmd: ListCommand, cfg: &mut Config) -> anyhow::Result<()
         let hoststr = format!("{}@{}:{}", host.user, host.ip, host.port);
         println!("{:<25} (aliases {})", hoststr, aliases);
     }
+    println!(
+        "Octets excluded from scripts: {}",
+        cfg.get_excluded_octets()
+            .iter()
+            .map(|octet| octet.to_string())
+            .collect::<Vec<_>>()
+            .join(", ")
+    );
     Ok(())
 }
 
@@ -197,6 +205,17 @@ pub struct ExportCommand {
 
 pub async fn export(cmd: ExportCommand, cfg: &mut Config) -> anyhow::Result<()> {
     cfg.export_compat(&cmd.filename)
+}
+
+#[derive(Args)]
+#[command(about = "Octets to exclude when running scripts.")]
+pub struct ExcludeCommand {
+    pub octets: Vec<u8>,
+}
+
+pub async fn exclude(cmd: ExcludeCommand, cfg: &mut Config) -> anyhow::Result<()> {
+    cfg.set_excluded_octets(&cmd.octets);
+    Ok(())
 }
 
 #[derive(Args)]

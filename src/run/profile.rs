@@ -103,6 +103,7 @@ pub async fn ssh(cfg: &mut Config) -> anyhow::Result<()> {
         match result {
             Ok((id, os)) => {
                 log::info!("Got ssh ID {} for host {}", id.trim(), host);
+                host.desc.push(id.trim().to_string());
                 if os != host.os {
                     host.os = os;
                 }
@@ -188,6 +189,9 @@ async fn lookup_domain_on<'a>(
 
 async fn do_ldap(dc: &Host, domain: &str, cidr: IpCidr, cfg: &mut Config) -> anyhow::Result<()> {
     if let Some(pass) = &dc.pass {
+        let mut dc = dc.clone();
+        dc.desc.push(format!("Domain controller for {}", domain));
+        cfg.add_host(&dc);
         let timeout = cfg.get_short_timeout();
         let mut session = tokio::time::timeout(timeout, LdapSession::new(dc.ip, domain, pass))
             .await
@@ -229,9 +233,11 @@ async fn do_ldap(dc: &Host, domain: &str, cidr: IpCidr, cfg: &mut Config) -> any
                         } else if os.to_lowercase().contains("linux") {
                             host.os = OsType::UnixLike;
                         }
-                    }
-                    if let Some(os_version) = computer.os_version {
-                        host.desc = os_version;
+                        host.desc.push(
+                            format!("{} {}", os, computer.os_version.unwrap_or("".into()))
+                                .trim()
+                                .to_string(),
+                        )
                     }
                     cfg.add_host(&host);
                 }

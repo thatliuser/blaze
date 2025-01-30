@@ -62,7 +62,7 @@ pub async fn add_host(cmd: AddCommand, cfg: &mut Config) -> anyhow::Result<()> {
         open_ports: HashSet::new(),
         aliases: HashSet::new(),
         os: cmd.os,
-        desc: "".into(),
+        desc: Vec::new(),
     });
     Ok(())
 }
@@ -153,7 +153,7 @@ pub async fn list_hosts(cmd: ListCommand, cfg: &mut Config) -> anyhow::Result<()
             aliases.join(", ")
         };
         let hoststr = format!("{}@{}:{}", host.user, host.ip, host.port);
-        println!("{:<25} (aliases {})", hoststr, aliases);
+        println!("{:<55} (aliases {})", hoststr, aliases);
     }
     println!(
         "Octets excluded from scripts: {}",
@@ -196,6 +196,7 @@ pub async fn host_info(cmd: InfoCommand, cfg: &mut Config) -> anyhow::Result<()>
         host.pass.as_ref().unwrap_or(&"<none>".into())
     );
     println!("Operating system: {:?}", host.os);
+    println!("Description: {}", host.desc.join("\n           "));
     Ok(())
 }
 

@@ -188,7 +188,11 @@ async fn lookup_domain_on<'a>(
 
 async fn do_ldap(dc: &Host, domain: &str, cidr: IpCidr, cfg: &mut Config) -> anyhow::Result<()> {
     if let Some(pass) = &dc.pass {
-        let mut session = LdapSession::new(dc.ip, domain, pass).await?;
+        let timeout = cfg.get_short_timeout();
+        let mut session = tokio::time::timeout(timeout, LdapSession::new(dc.ip, domain, pass))
+            .await
+            .context("ldap connection timed out")?
+            .context("error connecting to ldap")?;
         let mut config = ResolverConfig::new();
         config.add_name_server(NameServerConfig::new((dc.ip, 53).into(), Protocol::Tcp));
         config.set_domain(
@@ -198,7 +202,7 @@ async fn do_ldap(dc: &Host, domain: &str, cidr: IpCidr, cfg: &mut Config) -> any
         );
         // Create new DNS server with domain as search domain
         let mut opts = ResolverOpts::default();
-        opts.timeout = cfg.get_short_timeout();
+        opts.timeout = timeout;
         opts.attempts = 2;
         let dns = TokioAsyncResolver::tokio(config, opts);
         for computer in session.computers().await? {
@@ -264,12 +268,10 @@ pub async fn ldap(cfg: &mut Config) -> anyhow::Result<()> {
             )
         })
         .collect();
+    let timeout = cfg.get_short_timeout();
     for (host, server) in servers {
-        if let Ok(result) = tokio::time::timeout(
-            cfg.get_short_timeout(),
-            lookup_domain_on(&host, &server, &domains, &cidr),
-        )
-        .await
+        if let Ok(result) =
+            tokio::time::timeout(timeout, lookup_domain_on(&host, &server, &domains, &cidr)).await
         {
             match result {
                 Some(domain) => {

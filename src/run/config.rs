@@ -12,9 +12,14 @@ pub fn lookup_host<'a>(cfg: &'a Config, host: &str) -> anyhow::Result<&'a Host> 
         Ok(ip) => cfg
             .host_for_ip(ip)
             .with_context(|| format!("no host for ip {}", ip)),
-        Err(_) => cfg
-            .host_for_alias(host)
-            .with_context(|| format!("no host for alias {}", host)),
+        Err(_) => match host.parse() {
+            Ok(octet) => cfg
+                .host_for_octet(octet)
+                .with_context(|| format!("no host for octet {}", octet)),
+            Err(_) => cfg
+                .host_for_alias(host)
+                .with_context(|| format!("no host for alias {}", host)),
+        },
     }
 }
 
@@ -23,9 +28,14 @@ pub fn lookup_host_mut<'a>(cfg: &'a mut Config, host: &str) -> anyhow::Result<&'
         Ok(ip) => cfg
             .host_for_ip_mut(ip)
             .with_context(|| format!("no host for ip {}", ip)),
-        Err(_) => cfg
-            .host_for_alias_mut(host)
-            .with_context(|| format!("no host for alias {}", host)),
+        Err(_) => match host.parse() {
+            Ok(octet) => cfg
+                .host_for_octet_mut(octet)
+                .with_context(|| format!("no host for octet {}", octet)),
+            Err(_) => cfg
+                .host_for_alias_mut(host)
+                .with_context(|| format!("no host for alias {}", host)),
+        },
     }
 }
 

@@ -1,10 +1,12 @@
 // Configuration file shenanigans
 
 use crate::scan::OsType;
+use crate::util::ip::convert_to_cidr;
 use anyhow::Context;
 use cidr::IpCidr;
 use serde::{Deserialize, Serialize};
 use std::io::{BufRead, Write};
+use std::net::Ipv4Addr;
 use std::time::Duration;
 use std::{
     collections::{HashMap, HashSet},
@@ -86,6 +88,21 @@ impl Config {
 
     pub fn host_for_ip_mut(&mut self, ip: IpAddr) -> Option<&mut Host> {
         self.file.hosts.get_mut(&ip)
+    }
+
+    // Note: this only works for IPv4
+    pub fn host_for_octet(&self, octet: u8) -> Option<&Host> {
+        let cidr = self.get_cidr()?;
+        let ip = Ipv4Addr::from_bits(octet as u32);
+        let ip = convert_to_cidr(cidr, IpAddr::V4(ip)).ok()?;
+        self.host_for_ip(ip)
+    }
+
+    pub fn host_for_octet_mut(&mut self, octet: u8) -> Option<&mut Host> {
+        let cidr = self.get_cidr()?;
+        let ip = Ipv4Addr::from_bits(octet as u32);
+        let ip = convert_to_cidr(cidr, IpAddr::V4(ip)).ok()?;
+        self.host_for_ip_mut(ip)
     }
 
     // Allows infering an alias by short name (if no conflicts)

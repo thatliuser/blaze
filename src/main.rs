@@ -8,6 +8,7 @@ mod run;
 mod scan;
 mod scripts;
 mod ssh;
+mod util;
 
 use clap::Parser;
 use config::Config;

@@ -16,10 +16,13 @@ pub enum BlazeCommand {
     Remove(config::RemoveCommand),
     #[clap(alias = "ls")]
     List(config::ListCommand),
+    #[clap(alias = "i")]
     Info(config::InfoCommand),
+    #[clap(alias = "tm")]
     Timeout(config::TimeoutCommand),
     Export(config::ExportCommand),
     Import(config::ImportCommand),
+    #[clap(alias = "e")]
     Edit(config::EditCommand),
     Exclude(config::ExcludeCommand),
     #[clap(alias = "r")]

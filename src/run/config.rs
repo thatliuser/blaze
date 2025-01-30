@@ -1,7 +1,8 @@
 use crate::config::{Config, Host};
 use crate::scan::OsType;
 use anyhow::Context;
-use clap::{Args, Subcommand};
+use clap::{Args, Subcommand, ValueEnum};
+use humantime::format_duration;
 use std::collections::HashSet;
 use std::net::IpAddr;
 use std::path::PathBuf;
@@ -229,14 +230,40 @@ pub async fn import(cmd: ImportCommand, cfg: &mut Config) -> anyhow::Result<()> 
     cfg.import_compat(&cmd.filename)
 }
 
+#[derive(Clone, PartialEq, Eq, ValueEnum)]
+pub enum TimeoutType {
+    Short,
+    Long,
+}
+
 #[derive(Args)]
-#[command(about = "Set global script timeout.")]
+#[command(about = "Set or get global script / connection timeout.")]
 pub struct TimeoutCommand {
     #[clap(value_parser = humantime::parse_duration)]
-    pub timeout: Duration,
+    #[arg(short, long)]
+    pub timeout: Option<Duration>,
+
+    #[arg(default_value = "short")]
+    pub kind: TimeoutType,
 }
 
 pub async fn set_timeout(cmd: TimeoutCommand, cfg: &mut Config) -> anyhow::Result<()> {
-    cfg.set_timeout(cmd.timeout);
+    match cmd.timeout {
+        Some(timeout) => match cmd.kind {
+            TimeoutType::Short => cfg.set_short_timeout(timeout),
+            TimeoutType::Long => cfg.set_long_timeout(timeout),
+        },
+        None => match cmd.kind {
+            TimeoutType::Short => println!(
+                "Short timeout is {}",
+                format_duration(cfg.get_short_timeout())
+            ),
+
+            TimeoutType::Long => println!(
+                "Long timeout is {}",
+                format_duration(cfg.get_long_timeout())
+            ),
+        },
+    }
     Ok(())
 }

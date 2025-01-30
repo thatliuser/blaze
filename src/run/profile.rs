@@ -31,7 +31,6 @@ pub struct ProfileCommand {
 }
 
 pub async fn profile(cmd: ProfileCommand, cfg: &mut Config) -> anyhow::Result<()> {
-    let timeout = cfg.get_timeout();
     let mut strategies = cmd.strategies.unwrap_or_else(|| {
         log::info!("No strategy picked, setting all");
         vec![
@@ -56,7 +55,7 @@ pub async fn profile(cmd: ProfileCommand, cfg: &mut Config) -> anyhow::Result<()
 }
 
 pub async fn rdp(cfg: &mut Config) -> anyhow::Result<()> {
-    let timeout = cfg.get_timeout();
+    let timeout = cfg.get_short_timeout();
     let mut set = JoinSet::new();
     for (_, host) in cfg
         .hosts()
@@ -70,12 +69,12 @@ pub async fn rdp(cfg: &mut Config) -> anyhow::Result<()> {
         let (mut host, result) = joined.context("Error running rdp command")?;
         match result {
             Ok(name) => {
-                log::info!("Got name {} for host {}", name, host.ip);
+                log::info!("Got name {} for host {}", name, host);
                 host.aliases.insert(name);
                 cfg.add_host(&host);
             }
             Err(err) => {
-                log::error!("Failed to get rdp hostname for host {}: {}", host.ip, err);
+                log::error!("Failed to get rdp hostname for host {}: {}", host, err);
             }
         }
     }
@@ -96,21 +95,21 @@ pub async fn ssh(cfg: &mut Config) -> anyhow::Result<()> {
     let mut set = JoinSet::new();
     for (_, host) in cfg.hosts() {
         let host = host.clone();
-        let timeout = cfg.get_timeout();
+        let timeout = cfg.get_short_timeout();
         set.spawn(async move { (host.clone(), do_ssh(&host, timeout).await) });
     }
     while let Some(joined) = set.join_next().await {
         let (mut host, result) = joined.context("Failed to spawn host ID detector")?;
         match result {
             Ok((id, os)) => {
-                log::info!("Got ssh ID {} for host {}", id, host.ip);
+                log::info!("Got ssh ID {} for host {}", id.trim(), host);
                 if os != host.os {
                     host.os = os;
                 }
                 cfg.add_host(&host);
             }
             Err(err) => {
-                log::error!("Failed to detect ssh ID for host {}: {}", host.ip, err);
+                log::error!("Failed to detect ssh ID for host {}: {}", host, err);
             }
         }
     }
@@ -119,18 +118,20 @@ pub async fn ssh(cfg: &mut Config) -> anyhow::Result<()> {
 
 pub async fn hostname(cfg: &mut Config) -> anyhow::Result<()> {
     let script = PathBuf::from("hostname.sh");
-    let mut set = run_script_all(cfg, RunScriptArgs::new(script)).await?;
+    let mut set =
+        // SSH is slow so give it some more time
+        run_script_all(cfg.get_short_timeout().max(Duration::from_secs(2)), cfg, RunScriptArgs::new(script)).await?;
     while let Some(joined) = set.join_next().await {
         let (mut host, output) = joined.context("Error running hostname script")?;
         match output {
             Ok(output) => {
                 let alias = output.trim();
-                log::info!("Got alias {} for host {}", alias, host.ip);
+                log::info!("Got alias {} for host {}", alias, host);
                 host.aliases.insert(alias.into());
                 cfg.add_host(&host);
             }
             Err(err) => {
-                log::error!("Error running script on host {}: {}", host.ip, err);
+                log::error!("Error running script on host {}: {}", host, err);
             }
         }
     }
@@ -197,7 +198,7 @@ async fn do_ldap(dc: &Host, domain: &str, cidr: IpCidr, cfg: &mut Config) -> any
         );
         // Create new DNS server with domain as search domain
         let mut opts = ResolverOpts::default();
-        opts.timeout = Duration::from_millis(100);
+        opts.timeout = cfg.get_short_timeout();
         opts.attempts = 2;
         let dns = TokioAsyncResolver::tokio(config, opts);
         for computer in session.computers().await? {
@@ -218,7 +219,7 @@ async fn do_ldap(dc: &Host, domain: &str, cidr: IpCidr, cfg: &mut Config) -> any
                     host.aliases.insert(computer.name);
                     host.aliases.insert(computer.dns_name);
                     if let Some(os) = computer.os {
-                        log::info!("Host {} has OS {}", host.ip, os);
+                        log::info!("Host {} has OS {}", host, os);
                         if os.to_lowercase().contains("windows") {
                             host.os = OsType::Windows;
                         } else if os.to_lowercase().contains("linux") {
@@ -251,7 +252,7 @@ pub async fn ldap(cfg: &mut Config) -> anyhow::Result<()> {
         .iter()
         .filter(|(_, host)| host.open_ports.contains(&53))
         .map(|(_, host)| {
-            log::info!("Adding DNS server {}", host.ip);
+            log::info!("Adding DNS server {}", host);
             let mut config = ResolverConfig::new();
             config.add_name_server(NameServerConfig::new(
                 (host.ip.clone(), 53).into(),
@@ -265,19 +266,19 @@ pub async fn ldap(cfg: &mut Config) -> anyhow::Result<()> {
         .collect();
     for (host, server) in servers {
         if let Ok(result) = tokio::time::timeout(
-            Duration::from_secs(1),
+            cfg.get_short_timeout(),
             lookup_domain_on(&host, &server, &domains, &cidr),
         )
         .await
         {
             match result {
                 Some(domain) => {
-                    log::info!("Found domain {} for host {}", domain, host.ip);
+                    log::info!("Found domain {} for host {}", domain, host);
                     if let Err(err) = do_ldap(&host, domain, cidr, cfg).await {
-                        log::warn!("Error while running LDAP for DC {}: {}", host.ip, err);
+                        log::warn!("Error while running LDAP for DC {}: {}", host, err);
                     }
                 }
-                None => log::warn!("No domain matched for DNS server {}", host.ip),
+                None => log::warn!("No domain matched for DNS server {}", host),
             }
         }
     }

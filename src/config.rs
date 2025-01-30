@@ -6,7 +6,7 @@ use anyhow::Context;
 use cidr::IpCidr;
 use serde::{Deserialize, Serialize};
 use std::io::{BufRead, Write};
-use std::net::Ipv4Addr;
+use std::net::{Ipv4Addr, SocketAddr};
 use std::time::Duration;
 use std::{
     collections::{HashMap, HashSet},
@@ -41,11 +41,20 @@ impl Host {
     }
 }
 
+impl std::fmt::Display for Host {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.name())
+    }
+}
+
 #[derive(Serialize, Deserialize)]
 struct ConfigFile {
     pub hosts: HashMap<IpAddr, Host>,
     pub cidr: Option<IpCidr>,
-    pub timeout: Duration,
+    // For long tasks like scripts
+    pub long_timeout: Duration,
+    // For short tasks like TCP connections
+    pub short_timeout: Duration,
     // Hosts to ignore in script running across all boxes
     pub excluded_octets: Vec<u8>,
 }
@@ -55,7 +64,8 @@ impl ConfigFile {
         Self {
             hosts: HashMap::new(),
             cidr: None,
-            timeout: Duration::from_secs(15),
+            long_timeout: Duration::from_secs(15),
+            short_timeout: Duration::from_millis(150),
             excluded_octets: vec![1, 2],
         }
     }
@@ -276,12 +286,20 @@ impl Config {
         Ok(())
     }
 
-    pub fn get_timeout(&self) -> Duration {
-        self.file.timeout
+    pub fn get_long_timeout(&self) -> Duration {
+        self.file.long_timeout
     }
 
-    pub fn set_timeout(&mut self, timeout: Duration) {
-        self.file.timeout = timeout;
+    pub fn set_long_timeout(&mut self, timeout: Duration) {
+        self.file.long_timeout = timeout;
+    }
+
+    pub fn get_short_timeout(&self) -> Duration {
+        self.file.short_timeout
+    }
+
+    pub fn set_short_timeout(&mut self, timeout: Duration) {
+        self.file.short_timeout = timeout;
     }
 }
 

@@ -123,27 +123,16 @@ impl Scan {
             .collect())
     }
 
-    async fn rustscan(subnet: &IpCidr) -> anyhow::Result<Vec<Host>> {
+    async fn rustscan(subnet: &IpCidr, timeout: Duration) -> anyhow::Result<Vec<Host>> {
         // Copied from rustscan::address::parse_address
         let ips: Vec<IpAddr> = subnet.iter().map(|c| c.address()).collect();
         let ports = vec![22u16, 53, 88, 135, 389, 445, 3389, 5985];
         let strategy = PortStrategy::pick(&None, Some(ports.clone()), ScanOrder::Serial);
-        let timeout_ms = 100;
-        let scanner = Scanner::new(
-            &ips,
-            100,
-            Duration::from_millis(timeout_ms),
-            1,
-            true,
-            strategy,
-            true,
-            vec![],
-            false,
-        );
+        let scanner = Scanner::new(&ips, 100, timeout, 1, true, strategy, true, vec![], false);
         log::info!(
             "rustscan -a {} -g -t {} -p {}",
             subnet,
-            timeout_ms,
+            timeout.as_millis(),
             ports
                 .iter()
                 .map(|port| port.to_string())
@@ -164,11 +153,11 @@ impl Scan {
             .collect())
     }
 
-    pub async fn new(subnet: &IpCidr, backend: Backend) -> anyhow::Result<Scan> {
+    pub async fn new(subnet: &IpCidr, backend: Backend, timeout: Duration) -> anyhow::Result<Scan> {
         Ok(Scan {
             hosts: match backend {
                 Backend::Nmap => Scan::nmap(subnet).await?,
-                Backend::RustScan => Scan::rustscan(subnet).await?,
+                Backend::RustScan => Scan::rustscan(subnet, timeout).await?,
             },
         })
     }

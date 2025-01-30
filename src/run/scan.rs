@@ -21,7 +21,7 @@ pub struct ScanCommand {
 pub async fn scan(cmd: ScanCommand, cfg: &mut Config) -> anyhow::Result<()> {
     log::debug!("Subnet: {:?}", cmd.subnet);
     cfg.set_cidr(cmd.subnet);
-    let scan = Scan::new(&cmd.subnet, cmd.backend).await?;
+    let scan = Scan::new(&cmd.subnet, cmd.backend, cfg.get_short_timeout()).await?;
     for host in scan.hosts {
         let user = match host.os {
             OsType::UnixLike => &cmd.linux_root,

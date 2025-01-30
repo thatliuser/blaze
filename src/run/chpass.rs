@@ -26,11 +26,12 @@ pub async fn chpass(_cmd: (), cfg: &mut Config) -> anyhow::Result<()> {
     let mut passwords = get_passwords()?;
     let mut rng = rand::thread_rng();
     let mut set = run_script_all_args(
+        cfg.get_long_timeout(),
         cfg,
         |host| {
             let rand = rng.gen_range(0..passwords.len());
             let pass = passwords.remove(rand);
-            log::info!("Using password {} for host {}", pass.id, host.ip);
+            log::info!("Using password {} for host {}", pass.id, host);
             vec![host.user.clone(), pass.password]
         },
         RunScriptArgs::new(script),
@@ -44,13 +45,13 @@ pub async fn chpass(_cmd: (), cfg: &mut Config) -> anyhow::Result<()> {
                 let pass = pass.trim();
                 log::info!(
                     "Ran password script on host {}, now checking password {}",
-                    host.ip,
+                    host,
                     pass
                 );
                 let session = Session::connect(&host.user, pass, (host.ip, host.port)).await;
                 if let Err(err) = session {
                     log::error!("Password change seems to have failed, error: {}", err);
-                    failed.push(format!("{}", host.ip));
+                    failed.push(host.to_string());
                 } else {
                     log::info!("Success, writing config file");
                     host.pass = Some(pass.into());
@@ -58,8 +59,8 @@ pub async fn chpass(_cmd: (), cfg: &mut Config) -> anyhow::Result<()> {
                 }
             }
             Err(err) => {
-                log::error!("Error running script on host {}: {}", host.ip, err);
-                failed.push(format!("{}", host.ip));
+                log::error!("Error running script on host {}: {}", host, err);
+                failed.push(host.to_string());
             }
         }
     }

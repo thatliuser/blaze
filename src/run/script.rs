@@ -71,6 +71,7 @@ pub async fn run_script(
 }
 
 pub async fn run_script_all_args<F: FnMut(&Host) -> Vec<String>>(
+    timeout: Duration,
     cfg: &Config,
     mut gen_args: F,
     args: RunScriptArgs,
@@ -78,7 +79,6 @@ pub async fn run_script_all_args<F: FnMut(&Host) -> Vec<String>>(
     log::info!("Executing script on all hosts");
     let mut set = JoinSet::new();
     for (_, host) in cfg.script_hosts() {
-        let timeout = cfg.get_timeout();
         let host = host.clone();
         let mut args = args.clone();
         args.args = gen_args(&host);
@@ -93,11 +93,12 @@ pub async fn run_script_all_args<F: FnMut(&Host) -> Vec<String>>(
 }
 
 pub async fn run_script_all(
+    timeout: Duration,
     cfg: &Config,
     args: RunScriptArgs,
 ) -> anyhow::Result<JoinSet<(Host, anyhow::Result<String>)>> {
     let arg_list = args.args.clone();
-    run_script_all_args(cfg, |_| arg_list.clone(), args).await
+    run_script_all_args(timeout, cfg, |_| arg_list.clone(), args).await
 }
 
 #[derive(Args)]
@@ -115,9 +116,9 @@ pub async fn script(cmd: ScriptCommand, cfg: &mut Config) -> anyhow::Result<()> 
     match cmd.host {
         Some(host) => {
             let host = lookup_host(&cfg, &host)?;
-            log::info!("Running script on host {}", host.ip);
+            log::info!("Running script on host {}", host);
             let output = run_script(
-                cfg.get_timeout(),
+                cfg.get_long_timeout(),
                 host,
                 RunScriptArgs::new(cmd.script).set_upload(cmd.upload),
             )
@@ -126,6 +127,7 @@ pub async fn script(cmd: ScriptCommand, cfg: &mut Config) -> anyhow::Result<()> 
         }
         None => {
             let mut set = run_script_all(
+                cfg.get_long_timeout(),
                 cfg,
                 RunScriptArgs::new(cmd.script)
                     .set_upload(cmd.upload)
@@ -137,10 +139,10 @@ pub async fn script(cmd: ScriptCommand, cfg: &mut Config) -> anyhow::Result<()> 
                     .context("Error running script")
                     .map(|(host, output)| match output {
                         Ok(output) => {
-                            log::info!("Script on host {} outputted: {}", host.ip, output);
+                            log::info!("Script on host {} outputted: {}", host, output);
                         }
                         Err(err) => {
-                            log::error!("Error running script on host {}: {}", host.ip, err);
+                            log::error!("Error running script on host {}: {}", host, err);
                         }
                     })?;
             }
@@ -156,17 +158,10 @@ pub struct ShellCommand {
 }
 
 pub async fn shell(cmd: ShellCommand, cfg: &mut Config) -> anyhow::Result<()> {
-    let ip = cmd.host.parse().or_else(|_| {
-        cfg.host_for_alias(&cmd.host)
-            .map(|host| host.ip)
-            .ok_or_else(|| anyhow::Error::msg("couldn't lookup host by alias"))
-    })?;
-    let host = cfg
-        .host_for_ip(ip)
-        .ok_or_else(|| anyhow::Error::msg("failed to get host for IP"))?;
+    let host = lookup_host(cfg, &cmd.host)?;
     if let Some(pass) = &host.pass {
-        let mut session = Session::connect(&host.user, &pass, (ip, host.port)).await?;
-        log::info!("ssh {}@{} -p {}", host.user, host.ip, host.port);
+        let mut session = Session::connect(&host.user, &pass, (host.ip, host.port)).await?;
+        log::info!("ssh {}@{} -p {}", host.user, host, host.port);
         log::info!("Using password '{}'", &pass);
         let code = session.shell().await?;
         if code != 0 {

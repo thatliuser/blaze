@@ -48,10 +48,10 @@ impl Session {
     ) -> anyhow::Result<Self> {
         let config = client::Config {
             // Don't want the inactivity to kill the session from our side
-            // inactivity_timeout: Some(Duration::from_secs(86400)),
-            keepalive_interval: Some(Duration::from_secs(1)),
-            // Tolerate only 10 seconds of frozen terminal before failing
-            keepalive_max: 10,
+            inactivity_timeout: Some(Duration::from_secs(86400)),
+            keepalive_interval: Some(Duration::from_secs(10)),
+            // Tolerate only 20 seconds of frozen terminal before failing
+            keepalive_max: 2,
             ..<_>::default()
         };
 
@@ -71,9 +71,8 @@ impl Session {
     // Read the first line of the server, which prints the ID
     async fn do_read_server_id<A: ToSocketAddrs>(addrs: A) -> anyhow::Result<String> {
         // This should take a really short amount of time because it's just connecting
-        let stream = tokio::time::timeout(Duration::from_millis(100), TcpStream::connect(addrs))
+        let stream = TcpStream::connect(addrs)
             .await
-            .context("timed out")?
             .context("failed to connect to tcp stream")?;
         stream.readable().await?;
         let mut data = vec![0; 1024];

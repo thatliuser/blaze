@@ -176,3 +176,25 @@ pub async fn shell(cmd: ShellCommand, cfg: &mut Config) -> anyhow::Result<()> {
     }
     Ok(())
 }
+
+#[derive(Args)]
+#[command(about = "Upload a file to a host or all hosts.")]
+pub struct UploadCommand {
+    pub file: PathBuf,
+    pub host: Option<String>,
+}
+
+pub async fn upload(cmd: UploadCommand, cfg: &mut Config) -> anyhow::Result<()> {
+    match cmd.host {
+        Some(host) => {
+            let host = lookup_host(cfg, &host).context("couldn't lookup host")?;
+            let pass = host.pass.as_ref().context("host has no password set")?;
+            let mut session = Session::connect(&host.user, &pass, (host.ip, host.port)).await?;
+            session.upload(&cmd.file).await?;
+            Ok(())
+        }
+        None => {
+            anyhow::bail!("Unimplemented at the moment");
+        }
+    }
+}

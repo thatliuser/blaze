@@ -18,6 +18,7 @@ pub enum BlazeCommand {
     List(config::ListCommand),
     Timeout(config::TimeoutCommand),
     Export(config::ExportCommand),
+    Import(config::ImportCommand),
     Edit(config::EditCommand),
     #[clap(alias = "r")]
     #[command(about = "Detect the hostnames of all detected hosts.")]
@@ -30,6 +31,8 @@ pub enum BlazeCommand {
     Shell(script::ShellCommand),
     Ldap(profile::LdapCommand),
     Rdp,
+    #[clap(alias = "up")]
+    Upload(script::UploadCommand),
 }
 
 pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
@@ -39,11 +42,13 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
         BlazeCommand::Remove(cmd) => config::remove_host(cmd, cfg).await?,
         BlazeCommand::List(cmd) => config::list_hosts(cmd, cfg).await?,
         BlazeCommand::Timeout(cmd) => config::set_timeout(cmd, cfg).await?,
-        BlazeCommand::Shell(cmd) => script::shell(cmd, cfg).await?,
         BlazeCommand::Export(cmd) => config::export(cmd, cfg).await?,
+        BlazeCommand::Import(cmd) => config::import(cmd, cfg).await?,
         BlazeCommand::Resolve => profile::hostname((), cfg).await?,
         BlazeCommand::Chpass => chpass::chpass((), cfg).await?,
         BlazeCommand::Script(cmd) => script::script(cmd, cfg).await?,
+        BlazeCommand::Shell(cmd) => script::shell(cmd, cfg).await?,
+        BlazeCommand::Upload(cmd) => script::upload(cmd, cfg).await?,
         BlazeCommand::Edit(cmd) => config::edit_host(cmd, cfg).await?,
         BlazeCommand::Ldap(cmd) => profile::ldap(cmd, cfg).await?,
         BlazeCommand::Rdp => profile::rdp((), cfg).await?,

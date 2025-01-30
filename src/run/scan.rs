@@ -10,7 +10,9 @@ use tokio::task::JoinSet;
 pub struct ScanCommand {
     pub subnet: IpCidr,
     #[arg(short, long, default_value_t = String::from("root"))]
-    pub user: String,
+    pub linux_root: String,
+    #[arg(short, long, default_value_t = String::from("Administrator"))]
+    pub windows_root: String,
     pub pass: String,
     #[arg(short, long, default_value_t = 22)]
     pub port: u16,
@@ -48,7 +50,12 @@ pub async fn scan(cmd: ScanCommand, cfg: &mut Config) -> anyhow::Result<()> {
                 log::error!("Failed to detect host {} ID from SSH: {}", host.addr, err);
             }
         }
-        cfg.add_host_from(&host, cmd.user.clone(), Some(cmd.pass.clone()), cmd.port)?;
+        cfg.add_host_from(
+            &host,
+            cmd.linux_root.clone(),
+            Some(cmd.pass.clone()),
+            cmd.port,
+        )?;
     }
     Ok(())
 }

@@ -4,7 +4,7 @@ use crate::scan::OsType;
 use anyhow::Context;
 use cidr::IpCidr;
 use serde::{Deserialize, Serialize};
-use std::io::Write;
+use std::io::{BufRead, Write};
 use std::time::Duration;
 use std::{
     collections::{HashMap, HashSet},
@@ -187,6 +187,33 @@ impl Config {
                 aliases
             );
             writeln!(writer, "{}", line.trim())?;
+        }
+        Ok(())
+    }
+
+    pub fn import_compat(&mut self, filename: &Path) -> anyhow::Result<()> {
+        let file = File::open(filename)?;
+        let reader = BufReader::new(file);
+        for line in reader.lines().map_while(Result::ok) {
+            let fields = line.split(" ").collect::<Vec<_>>();
+            if fields.len() < 4 {
+                anyhow::bail!("invalid line format in legacy file format");
+            }
+            let ip = fields[0].parse()?;
+            let user = fields[1].to_owned();
+            let pass = fields[2].to_owned();
+            let port: u16 = fields[3].parse()?;
+            let aliases = fields[4..].iter().map(|alias| alias.to_string()).collect();
+            let host = Host {
+                ip,
+                user,
+                pass: Some(pass),
+                port,
+                aliases,
+                open_ports: HashSet::new(),
+                os: OsType::UnixLike,
+            };
+            self.add_host(&host);
         }
         Ok(())
     }

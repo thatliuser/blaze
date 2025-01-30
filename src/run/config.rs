@@ -157,6 +157,16 @@ pub async fn export(cmd: ExportCommand, cfg: &mut Config) -> anyhow::Result<()> 
 }
 
 #[derive(Args)]
+#[command(about = "Import config in compatibility mode.")]
+pub struct ImportCommand {
+    pub filename: PathBuf,
+}
+
+pub async fn import(cmd: ImportCommand, cfg: &mut Config) -> anyhow::Result<()> {
+    cfg.import_compat(&cmd.filename)
+}
+
+#[derive(Args)]
 #[command(about = "Set global script timeout.")]
 pub struct TimeoutCommand {
     #[clap(value_parser = humantime::parse_duration)]

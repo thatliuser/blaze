@@ -1,6 +1,7 @@
 use crate::config::{Config, Host};
 use crate::run::config::lookup_host;
 use crate::ssh::Session;
+use crate::util::ip::convert_to_cidr;
 use anyhow::Context;
 use clap::Args;
 use std::path::PathBuf;
@@ -76,7 +77,7 @@ pub async fn run_script_all_args<F: FnMut(&Host) -> Vec<String>>(
 ) -> anyhow::Result<JoinSet<(Host, anyhow::Result<String>)>> {
     log::info!("Executing script on all hosts");
     let mut set = JoinSet::new();
-    for (_, host) in cfg.hosts() {
+    for (_, host) in cfg.script_hosts() {
         let timeout = cfg.get_timeout();
         let host = host.clone();
         let mut args = args.clone();

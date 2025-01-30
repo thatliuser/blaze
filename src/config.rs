@@ -34,6 +34,8 @@ struct ConfigFile {
     pub hosts: HashMap<IpAddr, Host>,
     pub cidr: Option<IpCidr>,
     pub timeout: Duration,
+    // Hosts to ignore in script running across all boxes
+    pub excluded_octets: Vec<u8>,
 }
 
 impl ConfigFile {
@@ -42,6 +44,7 @@ impl ConfigFile {
             hosts: HashMap::new(),
             cidr: None,
             timeout: Duration::from_secs(15),
+            excluded_octets: vec![1, 2],
         }
     }
 }
@@ -94,14 +97,14 @@ impl Config {
     pub fn host_for_octet(&self, octet: u8) -> Option<&Host> {
         let cidr = self.get_cidr()?;
         let ip = Ipv4Addr::from_bits(octet as u32);
-        let ip = convert_to_cidr(cidr, IpAddr::V4(ip)).ok()?;
+        let ip = convert_to_cidr(cidr, ip.into()).ok()?;
         self.host_for_ip(ip)
     }
 
     pub fn host_for_octet_mut(&mut self, octet: u8) -> Option<&mut Host> {
         let cidr = self.get_cidr()?;
         let ip = Ipv4Addr::from_bits(octet as u32);
-        let ip = convert_to_cidr(cidr, IpAddr::V4(ip)).ok()?;
+        let ip = convert_to_cidr(cidr, ip.into()).ok()?;
         self.host_for_ip_mut(ip)
     }
 
@@ -148,6 +151,14 @@ impl Config {
         })
     }
 
+    pub fn get_excluded_octets(&self) -> &Vec<u8> {
+        &self.file.excluded_octets
+    }
+
+    pub fn set_excluded_octets(&mut self, octets: &Vec<u8>) {
+        self.file.excluded_octets = octets.clone()
+    }
+
     pub fn add_host(&mut self, host: &Host) {
         self.file.hosts.insert(host.ip, host.clone());
     }
@@ -178,6 +189,22 @@ impl Config {
 
     pub fn hosts(&self) -> &HashMap<IpAddr, Host> {
         &self.file.hosts
+    }
+
+    pub fn script_hosts(&self) -> Box<dyn Iterator<Item = (&IpAddr, &Host)> + '_> {
+        match self.get_cidr() {
+            Some(cidr) => Box::new(self.hosts().iter().filter(move |(ip, host)| {
+                // Get all the addresses that are not part of the excluded octets
+                self.get_excluded_octets()
+                    .iter()
+                    .filter_map(|octet| {
+                        let ip = Ipv4Addr::from_bits(*octet as u32);
+                        convert_to_cidr(cidr, ip.into()).ok()
+                    })
+                    .all(|addr| addr != **ip)
+            })),
+            None => Box::new(self.file.hosts.iter()),
+        }
     }
 
     pub fn hosts_mut(&mut self) -> &mut HashMap<IpAddr, Host> {

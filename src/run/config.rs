@@ -147,6 +147,39 @@ pub async fn list_hosts(cmd: ListCommand, cfg: &mut Config) -> anyhow::Result<()
 }
 
 #[derive(Args)]
+#[command(about = "Get detailed information about a host.")]
+pub struct InfoCommand {
+    pub host: String,
+}
+
+pub async fn host_info(cmd: InfoCommand, cfg: &mut Config) -> anyhow::Result<()> {
+    let host = lookup_host(cfg, &cmd.host)?;
+    let aliases = if host.aliases.len() == 0 {
+        "<none>".into()
+    } else {
+        host.aliases
+            .iter()
+            .map(|alias| alias.to_string())
+            .collect::<Vec<_>>()
+            .join(", ")
+    };
+    let ports = host
+        .open_ports
+        .iter()
+        .map(|port| port.to_string())
+        .collect::<Vec<_>>()
+        .join(", ");
+    println!("{} (aliases {})", host.ip, aliases);
+    println!("Open ports: {}", ports);
+    println!(
+        "Password: {}",
+        host.pass.as_ref().unwrap_or(&"<none>".into())
+    );
+    println!("Operating system: {:?}", host.os);
+    Ok(())
+}
+
+#[derive(Args)]
 #[command(about = "Export config in compatibility mode.")]
 pub struct ExportCommand {
     pub filename: PathBuf,

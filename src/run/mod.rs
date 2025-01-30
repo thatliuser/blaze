@@ -16,6 +16,7 @@ pub enum BlazeCommand {
     Remove(config::RemoveCommand),
     #[clap(alias = "ls")]
     List(config::ListCommand),
+    Info(config::InfoCommand),
     Timeout(config::TimeoutCommand),
     Export(config::ExportCommand),
     Import(config::ImportCommand),
@@ -41,6 +42,7 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
         BlazeCommand::Add(cmd) => config::add_host(cmd, cfg).await?,
         BlazeCommand::Remove(cmd) => config::remove_host(cmd, cfg).await?,
         BlazeCommand::List(cmd) => config::list_hosts(cmd, cfg).await?,
+        BlazeCommand::Info(cmd) => config::host_info(cmd, cfg).await?,
         BlazeCommand::Timeout(cmd) => config::set_timeout(cmd, cfg).await?,
         BlazeCommand::Export(cmd) => config::export(cmd, cfg).await?,
         BlazeCommand::Import(cmd) => config::import(cmd, cfg).await?,

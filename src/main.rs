@@ -1,13 +1,11 @@
 // Entrypoint
 
 mod config;
-mod ldap;
-mod rdp;
+mod proto;
 mod repl;
 mod run;
 mod scan;
 mod scripts;
-mod ssh;
 mod util;
 
 use clap::Parser;

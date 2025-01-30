@@ -70,7 +70,11 @@ impl Session {
 
     // Read the first line of the server, which prints the ID
     async fn do_read_server_id<A: ToSocketAddrs>(addrs: A) -> anyhow::Result<String> {
-        let stream = TcpStream::connect(addrs).await?;
+        // This should take a really short amount of time because it's just connecting
+        let stream = tokio::time::timeout(Duration::from_millis(100), TcpStream::connect(addrs))
+            .await
+            .context("timed out")?
+            .context("failed to connect to tcp stream")?;
         stream.readable().await?;
         let mut data = vec![0; 1024];
         let count = stream.try_read(&mut data)?;

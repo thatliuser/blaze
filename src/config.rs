@@ -27,6 +27,18 @@ pub struct Host {
     pub open_ports: HashSet<u16>,
     pub aliases: HashSet<String>,
     pub os: OsType,
+    pub desc: String,
+}
+
+impl Host {
+    // Either the IP, or a friendly name from profiling.
+    pub fn name(&self) -> String {
+        self.aliases
+            .iter()
+            .next()
+            .cloned()
+            .unwrap_or_else(|| self.ip.to_string())
+    }
 }
 
 #[derive(Serialize, Deserialize)]
@@ -182,6 +194,7 @@ impl Config {
             open_ports: scan_host.ports.clone(),
             aliases: HashSet::new(),
             os: scan_host.os,
+            desc: "".into(),
         };
         self.file.hosts.insert(host.ip, host);
         Ok(())
@@ -193,7 +206,7 @@ impl Config {
 
     pub fn script_hosts(&self) -> Box<dyn Iterator<Item = (&IpAddr, &Host)> + '_> {
         match self.get_cidr() {
-            Some(cidr) => Box::new(self.hosts().iter().filter(move |(ip, host)| {
+            Some(cidr) => Box::new(self.hosts().iter().filter(move |(ip, _)| {
                 // Get all the addresses that are not part of the excluded octets
                 self.get_excluded_octets()
                     .iter()
@@ -256,6 +269,7 @@ impl Config {
                 aliases,
                 open_ports: HashSet::new(),
                 os: OsType::UnixLike,
+                desc: "".into(),
             };
             self.add_host(&host);
         }

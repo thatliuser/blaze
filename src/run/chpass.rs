@@ -1,6 +1,6 @@
 use crate::config::Config;
+use crate::proto::ssh::Session;
 use crate::run::script::{run_script_all_args, RunScriptArgs};
-use crate::ssh::Session;
 use anyhow::Context;
 use rand::Rng;
 use serde::Deserialize;

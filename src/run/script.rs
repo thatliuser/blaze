@@ -1,6 +1,6 @@
 use crate::config::{Config, Host};
+use crate::proto::ssh::Session;
 use crate::run::config::lookup_host;
-use crate::ssh::Session;
 use crate::util::ip::convert_to_cidr;
 use anyhow::Context;
 use clap::Args;

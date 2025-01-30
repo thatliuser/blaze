@@ -61,6 +61,7 @@ pub async fn add_host(cmd: AddCommand, cfg: &mut Config) -> anyhow::Result<()> {
         open_ports: HashSet::new(),
         aliases: HashSet::new(),
         os: cmd.os,
+        desc: "".into(),
     });
     Ok(())
 }

@@ -5,7 +5,7 @@ mod chpass;
 mod config;
 mod profile;
 mod scan;
-mod script;
+pub mod script;
 
 #[derive(Parser)]
 pub enum BlazeCommand {
@@ -23,18 +23,16 @@ pub enum BlazeCommand {
     Edit(config::EditCommand),
     Exclude(config::ExcludeCommand),
     #[clap(alias = "r")]
-    #[command(about = "Detect the hostnames of all detected hosts.")]
-    Resolve,
     #[command(about = "Change the login credentials of all detected hosts.")]
     Chpass,
     #[clap(alias = "sc")]
     Script(script::ScriptCommand),
     #[clap(alias = "sh")]
     Shell(script::ShellCommand),
-    Ldap(profile::LdapCommand),
-    Rdp,
     #[clap(alias = "up")]
     Upload(script::UploadCommand),
+    #[clap(alias = "pr")]
+    Profile(profile::ProfileCommand),
 }
 
 pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
@@ -48,14 +46,12 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
         BlazeCommand::Export(cmd) => config::export(cmd, cfg).await?,
         BlazeCommand::Import(cmd) => config::import(cmd, cfg).await?,
         BlazeCommand::Exclude(cmd) => config::exclude(cmd, cfg).await?,
-        BlazeCommand::Resolve => profile::hostname((), cfg).await?,
         BlazeCommand::Chpass => chpass::chpass((), cfg).await?,
         BlazeCommand::Script(cmd) => script::script(cmd, cfg).await?,
         BlazeCommand::Shell(cmd) => script::shell(cmd, cfg).await?,
         BlazeCommand::Upload(cmd) => script::upload(cmd, cfg).await?,
         BlazeCommand::Edit(cmd) => config::edit_host(cmd, cfg).await?,
-        BlazeCommand::Ldap(cmd) => profile::ldap(cmd, cfg).await?,
-        BlazeCommand::Rdp => profile::rdp((), cfg).await?,
+        BlazeCommand::Profile(cmd) => profile::profile(cmd, cfg).await?,
     }
     Ok(())
 }

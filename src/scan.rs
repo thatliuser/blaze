@@ -1,6 +1,6 @@
 // Scan a network to detect hosts.
 
-use crate::ssh::Session;
+use crate::proto::ssh::Session;
 use anyhow::Context;
 use cidr::IpCidr;
 use clap::ValueEnum;
@@ -49,16 +49,6 @@ impl Host {
             OsType::UnixLike
         };
         Host { addr, ports, os }
-    }
-    // Check the SSH server ID to get the OS type
-    pub async fn try_detect_ssh(&self, timeout: Duration) -> anyhow::Result<(String, OsType)> {
-        let id = Session::get_server_id((self.addr, 22), timeout).await?;
-        let os = if id.to_lowercase().contains("windows") {
-            OsType::Windows
-        } else {
-            OsType::UnixLike
-        };
-        Ok((id, os))
     }
 }
 

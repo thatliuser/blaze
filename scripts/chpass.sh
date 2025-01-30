@@ -16,4 +16,5 @@ else
     echo 'chpasswd and passwd both not found, failing'
     exit 1
 fi
-echo "$PASS"
+
+exit 0

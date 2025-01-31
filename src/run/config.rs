@@ -1,5 +1,6 @@
 use crate::config::{Config, Host};
 use crate::scan::OsType;
+use crate::util::strings::{comma_join, join};
 use anyhow::Context;
 use clap::{Args, Subcommand, ValueEnum};
 use humantime::format_duration;
@@ -157,11 +158,7 @@ pub async fn list_hosts(cmd: ListCommand, cfg: &mut Config) -> anyhow::Result<()
     }
     println!(
         "Octets excluded from scripts: {}",
-        cfg.get_excluded_octets()
-            .iter()
-            .map(|octet| octet.to_string())
-            .collect::<Vec<_>>()
-            .join(", ")
+        comma_join(cfg.get_excluded_octets())
     );
     Ok(())
 }
@@ -177,18 +174,9 @@ pub async fn host_info(cmd: InfoCommand, cfg: &mut Config) -> anyhow::Result<()>
     let aliases = if host.aliases.len() == 0 {
         "<none>".into()
     } else {
-        host.aliases
-            .iter()
-            .map(|alias| alias.to_string())
-            .collect::<Vec<_>>()
-            .join(", ")
+        comma_join(&host.aliases)
     };
-    let ports = host
-        .open_ports
-        .iter()
-        .map(|port| port.to_string())
-        .collect::<Vec<_>>()
-        .join(", ");
+    let ports = comma_join(&host.open_ports);
     println!("{} (aliases {})", host.ip, aliases);
     println!("Open ports: {}", ports);
     println!(
@@ -196,14 +184,7 @@ pub async fn host_info(cmd: InfoCommand, cfg: &mut Config) -> anyhow::Result<()>
         host.pass.as_ref().unwrap_or(&"<none>".into())
     );
     println!("Operating system: {:?}", host.os);
-    println!(
-        "Description: {}",
-        host.desc
-            .iter()
-            .cloned()
-            .collect::<Vec<_>>()
-            .join("\n             ")
-    );
+    println!("Description: {}", join(&host.desc, "\n             "));
     Ok(())
 }
 

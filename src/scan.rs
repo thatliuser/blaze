@@ -1,6 +1,7 @@
 // Scan a network to detect hosts.
 
 use crate::proto::ssh::Session;
+use crate::util::strings::join;
 use anyhow::Context;
 use cidr::IpCidr;
 use clap::ValueEnum;
@@ -90,11 +91,7 @@ impl Display for Backend {
 
 impl Scan {
     async fn nmap(subnet: &IpCidr, ports: &Vec<u16>) -> anyhow::Result<Vec<Host>> {
-        let ports_arg = ports
-            .iter()
-            .map(|port| port.to_string())
-            .collect::<Vec<_>>()
-            .join(",");
+        let ports_arg = join(ports, ",");
         let args = vec![
             "--min-rate",
             "3000",
@@ -141,11 +138,7 @@ impl Scan {
             "rustscan -a {} -g -t {} -p {}",
             subnet,
             timeout.as_millis(),
-            ports
-                .iter()
-                .map(|port| port.to_string())
-                .collect::<Vec<_>>()
-                .join(","),
+            join(ports, ",")
         );
         let mut hosts = HashMap::<IpAddr, HashSet<u16>>::new();
         scanner.run().await.iter().for_each(|addr| {

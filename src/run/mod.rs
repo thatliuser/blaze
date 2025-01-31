@@ -11,6 +11,7 @@ pub mod script;
 pub enum BlazeCommand {
     Scan(scan::ScanCommand),
     Rescan(scan::RescanCommand),
+    #[clap(alias = "pc")]
     PortCheck(scan::PortCheckCommand),
     #[clap(alias = "a")]
     Add(config::AddCommand),

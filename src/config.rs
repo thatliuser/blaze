@@ -6,7 +6,7 @@ use anyhow::Context;
 use cidr::IpCidr;
 use serde::{Deserialize, Serialize};
 use std::io::{BufRead, Write};
-use std::net::{Ipv4Addr, SocketAddr};
+use std::net::Ipv4Addr;
 use std::time::Duration;
 use std::{
     collections::{HashMap, HashSet},

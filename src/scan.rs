@@ -1,6 +1,5 @@
 // Scan a network to detect hosts.
 
-use crate::proto::ssh::Session;
 use crate::util::strings::join;
 use anyhow::Context;
 use cidr::IpCidr;

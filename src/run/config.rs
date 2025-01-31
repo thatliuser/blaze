@@ -62,7 +62,7 @@ pub async fn add_host(cmd: AddCommand, cfg: &mut Config) -> anyhow::Result<()> {
         open_ports: HashSet::new(),
         aliases: HashSet::new(),
         os: cmd.os,
-        desc: Vec::new(),
+        desc: HashSet::new(),
     });
     Ok(())
 }
@@ -196,7 +196,14 @@ pub async fn host_info(cmd: InfoCommand, cfg: &mut Config) -> anyhow::Result<()>
         host.pass.as_ref().unwrap_or(&"<none>".into())
     );
     println!("Operating system: {:?}", host.os);
-    println!("Description: {}", host.desc.join("\n           "));
+    println!(
+        "Description: {}",
+        host.desc
+            .iter()
+            .cloned()
+            .collect::<Vec<_>>()
+            .join("\n             ")
+    );
     Ok(())
 }
 

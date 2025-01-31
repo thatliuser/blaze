@@ -10,6 +10,7 @@ pub mod script;
 #[derive(Parser)]
 pub enum BlazeCommand {
     Scan(scan::ScanCommand),
+    Rescan(scan::RescanCommand),
     #[clap(alias = "a")]
     Add(config::AddCommand),
     #[clap(alias = "rm")]
@@ -41,6 +42,7 @@ pub enum BlazeCommand {
 pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
     match cmd {
         BlazeCommand::Scan(cmd) => scan::scan(cmd, cfg).await?,
+        BlazeCommand::Rescan(cmd) => scan::rescan(cmd, cfg).await?,
         BlazeCommand::Add(cmd) => config::add_host(cmd, cfg).await?,
         BlazeCommand::Remove(cmd) => config::remove_host(cmd, cfg).await?,
         BlazeCommand::List(cmd) => config::list_hosts(cmd, cfg).await?,

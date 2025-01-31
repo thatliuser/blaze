@@ -89,12 +89,17 @@ impl Display for Backend {
 }
 
 impl Scan {
-    async fn nmap(subnet: &IpCidr) -> anyhow::Result<Vec<Host>> {
+    async fn nmap(subnet: &IpCidr, ports: &Vec<u16>) -> anyhow::Result<Vec<Host>> {
+        let ports_arg = ports
+            .iter()
+            .map(|port| port.to_string())
+            .collect::<Vec<_>>()
+            .join(",");
         let args = vec![
             "--min-rate",
             "3000",
             "-p",
-            "22,53,88,135,389,445,3389,5985",
+            &ports_arg,
             "--open",
             "-oX",
             "scan.xml",
@@ -123,10 +128,13 @@ impl Scan {
             .collect())
     }
 
-    async fn rustscan(subnet: &IpCidr, timeout: Duration) -> anyhow::Result<Vec<Host>> {
+    async fn rustscan(
+        subnet: &IpCidr,
+        ports: &Vec<u16>,
+        timeout: Duration,
+    ) -> anyhow::Result<Vec<Host>> {
         // Copied from rustscan::address::parse_address
         let ips: Vec<IpAddr> = subnet.iter().map(|c| c.address()).collect();
-        let ports = vec![22u16, 53, 88, 135, 389, 445, 3389, 5985];
         let strategy = PortStrategy::pick(&None, Some(ports.clone()), ScanOrder::Serial);
         let scanner = Scanner::new(&ips, 100, timeout, 1, true, strategy, true, vec![], false);
         log::info!(
@@ -136,7 +144,7 @@ impl Scan {
             ports
                 .iter()
                 .map(|port| port.to_string())
-                .collect::<Vec<String>>()
+                .collect::<Vec<_>>()
                 .join(","),
         );
         let mut hosts = HashMap::<IpAddr, HashSet<u16>>::new();
@@ -153,11 +161,25 @@ impl Scan {
             .collect())
     }
 
-    pub async fn new(subnet: &IpCidr, backend: Backend, timeout: Duration) -> anyhow::Result<Scan> {
+    pub fn common_ports() -> Vec<u16> {
+        vec![
+            22, 3389, // Remoting (SSH, RDP)
+            88, 135, 389, 445, 5985, // Windows Server components (Kerberos, SMB, WinRM)
+            3306, 5432, 27017, // Databases (MySQL, Postgres, Mongo)
+            53, 80, 443, 8080, // Other common service ports (dns, http, https)
+        ]
+    }
+
+    pub async fn new(
+        subnet: &IpCidr,
+        ports: &Vec<u16>,
+        backend: Backend,
+        timeout: Duration,
+    ) -> anyhow::Result<Scan> {
         Ok(Scan {
             hosts: match backend {
-                Backend::Nmap => Scan::nmap(subnet).await?,
-                Backend::RustScan => Scan::rustscan(subnet, timeout).await?,
+                Backend::Nmap => Scan::nmap(subnet, ports).await?,
+                Backend::RustScan => Scan::rustscan(subnet, ports, timeout).await?,
             },
         })
     }
@@ -169,15 +191,25 @@ mod tests {
 
     #[tokio::test]
     async fn test_nmap() -> anyhow::Result<()> {
-        Scan::new(&"10.100.3.0/24".parse().unwrap(), Backend::Nmap)
-            .await
-            .map(|_| ())
+        Scan::new(
+            &"10.100.3.0/24".parse().unwrap(),
+            &Scan::common_ports(),
+            Backend::Nmap,
+            Duration::from_secs(5),
+        )
+        .await
+        .map(|_| ())
     }
 
     #[tokio::test]
     async fn test_rustscan() -> anyhow::Result<()> {
-        Scan::new(&"10.100.3.0/24".parse().unwrap(), Backend::RustScan)
-            .await
-            .map(|_| ())
+        Scan::new(
+            &"10.100.3.0/24".parse().unwrap(),
+            &Scan::common_ports(),
+            Backend::RustScan,
+            Duration::from_secs(5),
+        )
+        .await
+        .map(|_| ())
     }
 }

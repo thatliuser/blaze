@@ -27,7 +27,7 @@ pub struct Host {
     pub open_ports: HashSet<u16>,
     pub aliases: HashSet<String>,
     pub os: OsType,
-    pub desc: Vec<String>,
+    pub desc: HashSet<String>,
 }
 
 impl Host {
@@ -204,7 +204,7 @@ impl Config {
             open_ports: scan_host.ports.clone(),
             aliases: HashSet::new(),
             os: scan_host.os,
-            desc: Vec::new(),
+            desc: HashSet::new(),
         };
         self.file.hosts.insert(host.ip, host);
         Ok(())
@@ -279,7 +279,7 @@ impl Config {
                 aliases,
                 open_ports: HashSet::new(),
                 os: OsType::UnixLike,
-                desc: Vec::new(),
+                desc: HashSet::new(),
             };
             self.add_host(&host);
         }

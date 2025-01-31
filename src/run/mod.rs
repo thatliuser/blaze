@@ -33,6 +33,8 @@ pub enum BlazeCommand {
     Chpass,
     #[clap(alias = "sc")]
     Script(script::ScriptCommand),
+    #[command(about = "Run basic scripts across all hosts.")]
+    Base,
     #[clap(alias = "sh")]
     Shell(script::ShellCommand),
     #[clap(alias = "up")]
@@ -56,6 +58,7 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
         BlazeCommand::Exclude(cmd) => config::exclude(cmd, cfg).await?,
         BlazeCommand::Chpass => chpass::chpass((), cfg).await?,
         BlazeCommand::Script(cmd) => script::script(cmd, cfg).await?,
+        BlazeCommand::Base => script::base((), cfg).await?,
         BlazeCommand::Shell(cmd) => script::shell(cmd, cfg).await?,
         BlazeCommand::Upload(cmd) => script::upload(cmd, cfg).await?,
         BlazeCommand::Edit(cmd) => config::edit_host(cmd, cfg).await?,

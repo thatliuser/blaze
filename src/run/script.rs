@@ -3,7 +3,7 @@ use crate::proto::ssh::Session;
 use crate::run::config::lookup_host;
 use anyhow::Context;
 use clap::Args;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::time::Duration;
 use tokio::task::JoinSet;
 
@@ -34,18 +34,14 @@ impl RunScriptArgs {
     }
 }
 
-async fn do_run_script_args(host: &Host, args: RunScriptArgs) -> anyhow::Result<String> {
+async fn do_run_script_args(host: &Host, args: RunScriptArgs) -> anyhow::Result<(u32, String)> {
     if let Some(pass) = &host.pass {
         let mut session = Session::connect(&host.user, pass, (host.ip, host.port)).await?;
         let (code, output) = session
             .run_script(&args.script, args.args, true, args.upload)
             .await?;
         let output = String::from_utf8_lossy(&output);
-        if code != 0 {
-            anyhow::bail!("script returned nonzero code {}", code);
-        } else {
-            Ok(output.into())
-        }
+        Ok((code, output.into()))
     } else {
         anyhow::bail!("No password for host set")
     }
@@ -55,7 +51,7 @@ pub async fn run_script_args(
     timeout: Duration,
     host: &Host,
     args: RunScriptArgs,
-) -> anyhow::Result<String> {
+) -> anyhow::Result<(u32, String)> {
     tokio::time::timeout(timeout, do_run_script_args(host, args))
         .await
         .unwrap_or_else(|_| Err(anyhow::Error::msg("run_script_args timed out")))
@@ -65,7 +61,7 @@ pub async fn run_script(
     timeout: Duration,
     host: &Host,
     args: RunScriptArgs,
-) -> anyhow::Result<String> {
+) -> anyhow::Result<(u32, String)> {
     run_script_args(timeout, host, args).await
 }
 
@@ -74,7 +70,7 @@ pub async fn run_script_all_args<F: FnMut(&Host) -> Vec<String>>(
     cfg: &Config,
     mut gen_args: F,
     args: RunScriptArgs,
-) -> anyhow::Result<JoinSet<(Host, anyhow::Result<String>)>> {
+) -> JoinSet<(Host, anyhow::Result<(u32, String)>)> {
     log::info!("Executing script on all hosts");
     let mut set = JoinSet::new();
     for (_, host) in cfg.script_hosts() {
@@ -88,16 +84,46 @@ pub async fn run_script_all_args<F: FnMut(&Host) -> Vec<String>>(
             )
         });
     }
-    Ok(set)
+    set
 }
 
 pub async fn run_script_all(
     timeout: Duration,
     cfg: &Config,
     args: RunScriptArgs,
-) -> anyhow::Result<JoinSet<(Host, anyhow::Result<String>)>> {
+) -> JoinSet<(Host, anyhow::Result<(u32, String)>)> {
     let arg_list = args.args.clone();
     run_script_all_args(timeout, cfg, |_| arg_list.clone(), args).await
+}
+
+async fn do_upload_script(host: &Host, script: &Path) -> anyhow::Result<()> {
+    if let Some(pass) = &host.pass {
+        let mut session = Session::connect(&host.user, pass, (host.ip, host.port)).await?;
+        session.upload(script).await?;
+        Ok(())
+    } else {
+        anyhow::bail!("No password for host set")
+    }
+}
+
+async fn upload_script(timeout: Duration, host: &Host, script: &Path) -> anyhow::Result<()> {
+    tokio::time::timeout(timeout, do_upload_script(host, script))
+        .await
+        .unwrap_or_else(|_| Err(anyhow::Error::msg("run_script_args timed out")))
+}
+
+pub async fn upload_script_all(
+    timeout: Duration,
+    cfg: &Config,
+    script: &Path,
+) -> JoinSet<(Host, anyhow::Result<()>)> {
+    let mut set = JoinSet::new();
+    for (_, host) in cfg.script_hosts() {
+        let host = host.clone();
+        let script = script.to_owned();
+        set.spawn(async move { (host.clone(), upload_script(timeout, &host, &script).await) });
+    }
+    set
 }
 
 #[derive(Args)]
@@ -116,13 +142,13 @@ pub async fn script(cmd: ScriptCommand, cfg: &mut Config) -> anyhow::Result<()> 
         Some(host) => {
             let host = lookup_host(&cfg, &host)?;
             log::info!("Running script on host {}", host);
-            let output = run_script(
+            let (code, output) = run_script(
                 cfg.get_long_timeout(),
                 host,
                 RunScriptArgs::new(cmd.script).set_upload(cmd.upload),
             )
             .await?;
-            log::info!("Script outputted: {}", output);
+            log::info!("Script exited with code {}. Output: {}", code, output);
         }
         None => {
             let mut set = run_script_all(
@@ -132,13 +158,18 @@ pub async fn script(cmd: ScriptCommand, cfg: &mut Config) -> anyhow::Result<()> 
                     .set_upload(cmd.upload)
                     .set_args(cmd.args),
             )
-            .await?;
+            .await;
             while let Some(joined) = set.join_next().await {
                 joined
                     .context("Error running script")
-                    .map(|(host, output)| match output {
-                        Ok(output) => {
-                            log::info!("Script on host {} outputted: {}", host, output);
+                    .map(|(host, result)| match result {
+                        Ok((code, output)) => {
+                            log::info!(
+                                "Script on host {} returned code {} with output: {}",
+                                host,
+                                code,
+                                output
+                            );
                         }
                         Err(err) => {
                             log::error!("Error running script on host {}: {}", host, err);
@@ -180,16 +211,77 @@ pub struct UploadCommand {
 }
 
 pub async fn upload(cmd: UploadCommand, cfg: &mut Config) -> anyhow::Result<()> {
+    let timeout = cfg.get_long_timeout();
     match cmd.host {
         Some(host) => {
-            let host = lookup_host(cfg, &host).context("couldn't lookup host")?;
-            let pass = host.pass.as_ref().context("host has no password set")?;
-            let mut session = Session::connect(&host.user, &pass, (host.ip, host.port)).await?;
-            session.upload(&cmd.file).await?;
-            Ok(())
+            let host = lookup_host(cfg, &host)?;
+            upload_script(timeout, host, &cmd.file).await
         }
         None => {
-            anyhow::bail!("Unimplemented at the moment");
+            let mut set = upload_script_all(timeout, cfg, &cmd.file).await;
+            while let Some(joined) = set.join_next().await {
+                let (host, result) = joined.context("Failed to run upload command")?;
+                match result {
+                    Ok(()) => {
+                        log::info!("Successfully uploaded script to host {}", host);
+                    }
+                    Err(err) => {
+                        log::error!("Failed to upload script on host {}: {}", host, err);
+                    }
+                }
+            }
+            Ok(())
         }
     }
+}
+async fn run_base_script_args(
+    cfg: &mut Config,
+    name: &str,
+    args: Vec<String>,
+) -> anyhow::Result<()> {
+    let script = PathBuf::from(format!("{}.sh", name));
+    let mut set = run_script_all(
+        cfg.get_long_timeout(),
+        cfg,
+        RunScriptArgs::new(script).set_args(args),
+    )
+    .await;
+    while let Some(joined) = set.join_next().await {
+        let (host, result) = joined.with_context(|| format!("Error running {} script", name))?;
+        match result {
+            Ok((code, output)) => {
+                log::info!("{} script finished on host {}. Output:", name, host);
+                log::info!("{}", output);
+                if code != 0 {
+                    log::warn!("Script returned nonzero code {}", code);
+                }
+            }
+            Err(err) => {
+                log::error!("Error running {} script on host {}: {}", name, host, err);
+            }
+        }
+    }
+    Ok(())
+}
+
+async fn run_base_script(cfg: &mut Config, name: &str) -> anyhow::Result<()> {
+    run_base_script_args(cfg, name, vec![]).await
+}
+
+pub async fn base(_cmd: (), cfg: &mut Config) -> anyhow::Result<()> {
+    log::info!("Running hardening scripts");
+    run_base_script(cfg, "php").await?;
+    run_base_script(cfg, "ssh").await?;
+    run_base_script(cfg, "lockdown").await?;
+    upload(
+        UploadCommand {
+            file: PathBuf::from("firewall_template.sh"),
+            host: None,
+        },
+        cfg,
+    )
+    .await?;
+    run_base_script_args(cfg, "initial_backup", vec!["/etc/backup".into()]).await?;
+    run_base_script(cfg, "ident").await?;
+    Ok(())
 }

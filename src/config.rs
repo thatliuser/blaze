@@ -57,6 +57,8 @@ struct ConfigFile {
     pub short_timeout: Duration,
     // Hosts to ignore in script running across all boxes
     pub excluded_octets: Vec<u8>,
+    pub linux_root: String,
+    pub windows_root: String,
 }
 
 impl ConfigFile {
@@ -67,6 +69,8 @@ impl ConfigFile {
             long_timeout: Duration::from_secs(15),
             short_timeout: Duration::from_millis(150),
             excluded_octets: vec![1, 2],
+            linux_root: "root".into(),
+            windows_root: "Administrator".into(),
         }
     }
 }
@@ -215,8 +219,13 @@ impl Config {
     }
 
     pub fn script_hosts(&self) -> Box<dyn Iterator<Item = (&IpAddr, &Host)> + '_> {
+        // Filter out hosts that don't have SSH open
+        let runnable = self
+            .hosts()
+            .iter()
+            .filter(|(_, host)| host.open_ports.contains(&22));
         match self.get_cidr() {
-            Some(cidr) => Box::new(self.hosts().iter().filter(move |(ip, _)| {
+            Some(cidr) => Box::new(runnable.filter(move |(ip, _)| {
                 // Get all the addresses that are not part of the excluded octets
                 self.get_excluded_octets()
                     .iter()
@@ -226,7 +235,7 @@ impl Config {
                     })
                     .all(|addr| addr != **ip)
             })),
-            None => Box::new(self.file.hosts.iter()),
+            None => Box::new(runnable),
         }
     }
 
@@ -300,6 +309,13 @@ impl Config {
 
     pub fn set_short_timeout(&mut self, timeout: Duration) {
         self.file.short_timeout = timeout;
+    }
+
+    pub fn linux_root(&self) -> &str {
+        &self.file.linux_root
+    }
+    pub fn windows_root(&self) -> &str {
+        &self.file.windows_root
     }
 }
 

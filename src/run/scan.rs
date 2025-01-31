@@ -1,19 +1,18 @@
 use crate::config::Config;
+use crate::run::config::lookup_host;
 use crate::scan::{Backend, OsType, Scan};
 use crate::util::strings::comma_join;
 use cidr::IpCidr;
 use clap::Args;
 
-use super::config::lookup_host;
-
 #[derive(Args)]
 #[command(about = "Run a network scan on a specified subnet.")]
 pub struct ScanCommand {
     pub subnet: IpCidr,
-    #[arg(short, long, default_value_t = String::from("root"))]
-    pub linux_root: String,
-    #[arg(short, long, default_value_t = String::from("Administrator"))]
-    pub windows_root: String,
+    #[arg(short, long)]
+    pub linux_root: Option<String>,
+    #[arg(short, long)]
+    pub windows_root: Option<String>,
     pub pass: String,
     #[arg(short, long, default_value_t = 22)]
     pub port: u16,
@@ -31,10 +30,12 @@ pub async fn scan(cmd: ScanCommand, cfg: &mut Config) -> anyhow::Result<()> {
         cfg.get_short_timeout(),
     )
     .await?;
+    let linux_root = cmd.linux_root.unwrap_or(cfg.linux_root().into());
+    let windows_root = cmd.windows_root.unwrap_or(cfg.windows_root().into());
     for host in scan.hosts {
         let user = match host.os {
-            OsType::UnixLike => &cmd.linux_root,
-            OsType::Windows => &cmd.windows_root,
+            OsType::UnixLike => &linux_root,
+            OsType::Windows => &windows_root,
         }
         .clone();
         log::info!(

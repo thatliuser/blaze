@@ -36,12 +36,19 @@ pub async fn chpass(_cmd: (), cfg: &mut Config) -> anyhow::Result<()> {
         },
         RunScriptArgs::new(script),
     )
-    .await?;
+    .await;
     let mut failed = Vec::<String>::new();
     while let Some(joined) = set.join_next().await {
         let (mut host, output) = joined.context("Error running password script")?;
         match output {
-            Ok(pass) => {
+            Ok((code, pass)) => {
+                if code != 0 {
+                    log::warn!(
+                        "Password script returned nonzero code {} for host {}",
+                        code,
+                        host
+                    );
+                }
                 let pass = pass.trim();
                 log::info!(
                     "Ran password script on host {}, now checking password {}",

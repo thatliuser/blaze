@@ -104,6 +104,16 @@ pub async fn ssh(cfg: &mut Config) -> anyhow::Result<()> {
             Ok((id, os)) => {
                 log::info!("Got ssh ID {} for host {}", id.trim(), host);
                 host.desc.insert(id.trim().to_string());
+                match os {
+                    OsType::UnixLike => {
+                        host.os = OsType::UnixLike;
+                        host.user = cfg.linux_root().into();
+                    }
+                    OsType::Windows => {
+                        host.os = OsType::Windows;
+                        host.user = cfg.windows_root().into();
+                    }
+                }
                 if os != host.os {
                     host.os = os;
                 }
@@ -121,11 +131,16 @@ pub async fn hostname(cfg: &mut Config) -> anyhow::Result<()> {
     let script = PathBuf::from("hostname.sh");
     let mut set =
         // SSH is slow so give it some more time
-        run_script_all(cfg.get_short_timeout().max(Duration::from_secs(2)), cfg, RunScriptArgs::new(script)).await?;
+        run_script_all(cfg.get_short_timeout().max(Duration::from_secs(2)), cfg, RunScriptArgs::new(script)).await;
     while let Some(joined) = set.join_next().await {
-        let (mut host, output) = joined.context("Error running hostname script")?;
-        match output {
-            Ok(output) => {
+        let (mut host, result) = joined.context("Error running hostname script")?;
+        match result {
+            Ok((code, output)) => {
+                log::warn!(
+                    "Hostname script returned nonzero code {} for host {}",
+                    code,
+                    host
+                );
                 let alias = output.trim();
                 log::info!("Got alias {} for host {}", alias, host);
                 host.aliases.insert(alias.into());
@@ -230,8 +245,10 @@ async fn do_ldap(dc: &Host, domain: &str, cidr: IpCidr, cfg: &mut Config) -> any
                         log::info!("Host {} has OS {}", host, os);
                         if os.to_lowercase().contains("windows") {
                             host.os = OsType::Windows;
+                            host.user = cfg.windows_root().into();
                         } else if os.to_lowercase().contains("linux") {
                             host.os = OsType::UnixLike;
+                            host.user = cfg.linux_root().into();
                         }
                         host.desc.insert(
                             format!("{} {}", os, computer.os_version.unwrap_or("".into()))
@@ -276,18 +293,18 @@ pub async fn ldap(cfg: &mut Config) -> anyhow::Result<()> {
         .collect();
     let timeout = cfg.get_short_timeout();
     for (host, server) in servers {
-        if let Ok(result) =
-            tokio::time::timeout(timeout, lookup_domain_on(&host, &server, &domains, &cidr)).await
+        match tokio::time::timeout(timeout, lookup_domain_on(&host, &server, &domains, &cidr)).await
         {
-            match result {
+            Ok(result) => match result {
                 Some(domain) => {
                     log::info!("Found domain {} for host {}", domain, host);
                     if let Err(err) = do_ldap(&host, domain, cidr, cfg).await {
                         log::warn!("Error while running LDAP for DC {}: {}", host, err);
                     }
                 }
-                None => log::warn!("No domain matched for DNS server {}", host),
-            }
+                None => log::debug!("No domain matched for DNS server {}", host),
+            },
+            Err(_) => log::debug!("DNS connection timed out for host {}", host),
         }
     }
     Ok(())

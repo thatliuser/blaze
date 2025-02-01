@@ -2,7 +2,7 @@ use crate::config::{IGGqPVcktO, SAuuizgQav};
 use crate::proto::{ldap::SgpKuYTOEh as LdapSession, rdp, ssh::yiqafanmjb as SshSession};
 use crate::run::script::{run_script_all, RunScriptArgs};
 use crate::scan::ZmBnAjyBPT;
-use crate::util::ip::convert_to_cidr as OXdmvYQuUy;
+use crate::util::ip::CrchwJMsNc as OXdmvYQuUy;
 use anyhow::Context;
 use cidr::IpCidr as LcqOtrfUKI;
 use clap::{Args, ValueEnum};

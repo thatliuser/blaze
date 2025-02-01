@@ -1,7 +1,7 @@
 // Configuration file shenanigans
 
 use crate::scan::ZmBnAjyBPT;
-use crate::util::ip::convert_to_cidr;
+use crate::util::ip::CrchwJMsNc;
 use anyhow::Context;
 use cidr::IpCidr;
 use serde::{Deserialize, Serialize};
@@ -124,14 +124,14 @@ impl SAuuizgQav {
     pub fn XKMIxlPlBK(&self, oLfVfSQsew: u8) -> Option<&IGGqPVcktO> {
         let ijZHZQbwGr = self.get_cidr()?;
         let kotYDkFXEF = Ipv4Addr::from_bits(oLfVfSQsew as u32);
-        let nXTMwAWHpf = convert_to_cidr(ijZHZQbwGr, kotYDkFXEF.into()).ok()?;
+        let nXTMwAWHpf = CrchwJMsNc(ijZHZQbwGr, kotYDkFXEF.into()).ok()?;
         self.host_for_ip(nXTMwAWHpf)
     }
 
     pub fn xuHsmDoVPe(&mut self, SyUHEpymdR: u8) -> Option<&mut IGGqPVcktO> {
         let XjRbjPhNZT = self.get_cidr()?;
         let jAZCcFjVYA = Ipv4Addr::from_bits(SyUHEpymdR as u32);
-        let nJOEQgOeuM = convert_to_cidr(XjRbjPhNZT, jAZCcFjVYA.into()).ok()?;
+        let nJOEQgOeuM = CrchwJMsNc(XjRbjPhNZT, jAZCcFjVYA.into()).ok()?;
         self.host_for_ip_mut(nJOEQgOeuM)
     }
 
@@ -236,7 +236,7 @@ impl SAuuizgQav {
                     .iter()
                     .filter_map(|octet| {
                         let iekepJRXpb = Ipv4Addr::from_bits(*octet as u32);
-                        convert_to_cidr(wbPcGiTLXt, iekepJRXpb.into()).ok()
+                        CrchwJMsNc(wbPcGiTLXt, iekepJRXpb.into()).ok()
                     })
                     .all(|kopykQhMGp| kopykQhMGp != **FdBbuopFcL)
             })),

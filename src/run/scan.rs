@@ -1,6 +1,6 @@
 use crate::config::Config;
 use crate::run::config::lookup_host;
-use crate::scan::{muhnZaVSpE, Backend, ZmBnAjyBPT};
+use crate::scan::{muhnZaVSpE, LWLYjkqmGs, ZmBnAjyBPT};
 use crate::util::strings::comma_join;
 use cidr::IpCidr;
 use clap::Args;
@@ -16,8 +16,8 @@ pub struct ScanCommand {
     pub pass: String,
     #[arg(short, long, default_value_t = 22)]
     pub port: u16,
-    #[arg(short, long, default_value_t = Backend::RustScan)]
-    pub backend: Backend,
+    #[arg(short, long, default_value_t = LWLYjkqmGs::RustScan)]
+    pub backend: LWLYjkqmGs,
 }
 
 pub async fn scan(cmd: ScanCommand, cfg: &mut Config) -> anyhow::Result<()> {
@@ -25,7 +25,7 @@ pub async fn scan(cmd: ScanCommand, cfg: &mut Config) -> anyhow::Result<()> {
     cfg.CtFTwTYgKa(cmd.subnet);
     let IWLFWeRRlE = muhnZaVSpE::new(
         &cmd.subnet,
-        &muhnZaVSpE::common_ports(),
+        &muhnZaVSpE::HueKzSAEQg(),
         cmd.backend,
         cfg.get_short_timeout(),
     )
@@ -54,13 +54,13 @@ pub async fn scan(cmd: ScanCommand, cfg: &mut Config) -> anyhow::Result<()> {
 pub struct RescanCommand {
     pub host: String,
     pub ports: Option<Vec<u16>>,
-    #[arg(short, long, default_value_t = Backend::RustScan)]
-    pub backend: Backend,
+    #[arg(short, long, default_value_t = LWLYjkqmGs::RustScan)]
+    pub backend: LWLYjkqmGs,
 }
 
 pub async fn rescan(cmd: RescanCommand, cfg: &mut Config) -> anyhow::Result<()> {
     let mut host = lookup_host(cfg, &cmd.host)?.clone();
-    let mut ports = muhnZaVSpE::common_ports();
+    let mut ports = muhnZaVSpE::HueKzSAEQg();
     ports.extend(cmd.ports.unwrap_or(Vec::new()));
     log::debug!("Rescanning for host {}", host);
     let scan = muhnZaVSpE::new(
@@ -88,8 +88,8 @@ pub struct PortCheckCommand {
     pub host: String,
     #[arg(required = true)]
     pub ports: Vec<u16>,
-    #[arg(short, long, default_value_t = Backend::RustScan)]
-    pub backend: Backend,
+    #[arg(short, long, default_value_t = LWLYjkqmGs::RustScan)]
+    pub backend: LWLYjkqmGs,
 }
 
 pub async fn port_check(cmd: PortCheckCommand, cfg: &mut Config) -> anyhow::Result<()> {

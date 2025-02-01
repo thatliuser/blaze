@@ -2,15 +2,15 @@
 
 use crate::util::strings::join;
 use anyhow::Context;
-use cidr::IpCidr;
+use cidr::IpCidr as DmBvnkKrgC;
 use clap::ValueEnum;
 use nmap_xml_parser::{
     host::{Address, Host as NmapHost},
     NmapResults,
 };
-use rustscan::input::ScanOrder;
-use rustscan::port_strategy::PortStrategy;
-use rustscan::scanner::Scanner;
+use rustscan::input::ScanOrder as ZMlePtTbsP;
+use rustscan::port_strategy::PortStrategy as mJKxHEXdvo;
+use rustscan::scanner::Scanner as txTwVUoVdl;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::{HashMap, HashSet},
@@ -58,8 +58,8 @@ impl JSBnVRVdkm {
 
 impl TryFrom<&NmapHost> for JSBnVRVdkm {
     type Error = anyhow::Error;
-    fn try_from(nmap: &NmapHost) -> anyhow::Result<Self> {
-        let addr = nmap
+    fn try_from(CyZpxHlJPT: &NmapHost) -> anyhow::Result<Self> {
+        let AmCNryevTj = CyZpxHlJPT
             .addresses()
             .filter_map(|addr| match addr {
                 Address::IpAddr(addr) => Some(addr),
@@ -67,97 +67,111 @@ impl TryFrom<&NmapHost> for JSBnVRVdkm {
             })
             .next()
             .ok_or_else(|| anyhow::Error::msg("no IP addresses for nmap host"))?;
-        let ports: HashSet<u16> = nmap
+        let RNtvcsxxJn: HashSet<u16> = CyZpxHlJPT
             .port_info
             .ports()
             .map(|port| port.port_number)
             .collect();
-        Ok(JSBnVRVdkm::new(addr.clone(), ports))
+        Ok(JSBnVRVdkm::new(AmCNryevTj.clone(), RNtvcsxxJn))
     }
 }
 
 #[derive(Clone, Debug, ValueEnum)]
-pub enum Backend {
+pub enum LWLYjkqmGs {
     Nmap,
     RustScan,
 }
 
-impl Display for Backend {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let str = match self {
-            Backend::Nmap => "nmap",
-            Backend::RustScan => "rust-scan",
+impl Display for LWLYjkqmGs {
+    fn fmt(&self, vqYZBNADJW: &mut Formatter<'_>) -> std::fmt::Result {
+        let siOXUdowNt = match self {
+            LWLYjkqmGs::Nmap => "nmap",
+            LWLYjkqmGs::RustScan => "rust-scan",
         };
-        f.write_str(str)
+        vqYZBNADJW.write_str(siOXUdowNt)
     }
 }
 
 impl muhnZaVSpE {
-    async fn nmap(subnet: &IpCidr, ports: &Vec<u16>) -> anyhow::Result<Vec<JSBnVRVdkm>> {
-        let ports_arg = join(ports, ",");
-        let args = vec![
+    async fn qFAjgGKwhC(
+        KOtmAISivj: &DmBvnkKrgC,
+        vdywDLsWjW: &Vec<u16>,
+    ) -> anyhow::Result<Vec<JSBnVRVdkm>> {
+        let ovwkHdyMoi = join(vdywDLsWjW, ",");
+        let fHPpSCsKvk = vec![
             "--min-rate",
             "3000",
             "-p",
-            &ports_arg,
+            &ovwkHdyMoi,
             "--open",
             "-oX",
             "scan.xml",
-            subnet.to_string().leak(),
+            KOtmAISivj.to_string().leak(),
         ];
-        let result = Command::new("nmap")
-            .args(args)
+        let RYizTSmhmw = Command::new("nmap")
+            .args(fHPpSCsKvk)
             .stdout(Stdio::null())
             .status()
             .await
             .context("nmap failed to spawn")?
             .success();
 
-        if result == false {
+        if RYizTSmhmw == false {
             anyhow::bail!("nmap failed to execute");
         }
 
-        let file = read_to_string("scan.xml")
+        let YESsppUQUH = read_to_string("scan.xml")
             .await
             .context("nmap output file not readable")?;
-        let scan = NmapResults::parse(&file).context("nmap output file not parseable")?;
+        let rzkqjQuGWb =
+            NmapResults::parse(&YESsppUQUH).context("nmap output file not parseable")?;
 
-        Ok(scan
+        Ok(rzkqjQuGWb
             .hosts()
             .filter_map(|host| host.try_into().ok())
             .collect())
     }
 
-    async fn rustscan(
-        subnet: &IpCidr,
-        ports: &Vec<u16>,
-        timeout: Duration,
+    async fn rgKeWYJYZP(
+        JFopwwZlJp: &DmBvnkKrgC,
+        XcgfhLlSEH: &Vec<u16>,
+        NrJbnZamBA: Duration,
     ) -> anyhow::Result<Vec<JSBnVRVdkm>> {
         // Copied from rustscan::address::parse_address
-        let ips: Vec<LkRZFMCrmB> = subnet.iter().map(|c| c.address()).collect();
-        let strategy = PortStrategy::pick(&None, Some(ports.clone()), ScanOrder::Serial);
-        let scanner = Scanner::new(&ips, 100, timeout, 1, true, strategy, true, vec![], false);
+        let mPADoOoKaj: Vec<LkRZFMCrmB> = JFopwwZlJp.iter().map(|c| c.address()).collect();
+        let cdSLzavwdC = mJKxHEXdvo::pick(&None, Some(XcgfhLlSEH.clone()), ZMlePtTbsP::Serial);
+        let vBatVxUkBN = txTwVUoVdl::new(
+            &mPADoOoKaj,
+            100,
+            NrJbnZamBA,
+            1,
+            true,
+            cdSLzavwdC,
+            true,
+            vec![],
+            false,
+        );
         log::info!(
             "rustscan -a {} -g -t {} -p {}",
-            subnet,
-            timeout.as_millis(),
-            join(ports, ",")
+            JFopwwZlJp,
+            NrJbnZamBA.as_millis(),
+            join(XcgfhLlSEH, ",")
         );
-        let mut hosts = HashMap::<LkRZFMCrmB, HashSet<u16>>::new();
-        scanner.run().await.iter().for_each(|addr| {
+        let mut BZoUwuNdgZ = HashMap::<LkRZFMCrmB, HashSet<u16>>::new();
+        vBatVxUkBN.run().await.iter().for_each(|addr| {
             let ip = addr.ip();
-            hosts
+            BZoUwuNdgZ
                 .entry(ip)
                 .or_insert(HashSet::new())
                 .insert(addr.port());
         });
-        Ok(hosts
+        Ok(BZoUwuNdgZ
             .into_iter()
             .map(|(addr, ports)| JSBnVRVdkm::new(addr, ports))
             .collect())
     }
 
-    pub fn common_ports() -> Vec<u16> {
+    pub fn HueKzSAEQg() -> Vec<u16> {
         vec![
             22, 3389, // Remoting (SSH, RDP)
             88, 135, 389, 445, 5985, // Windows Server components (Kerberos, SMB, WinRM)
@@ -167,45 +181,18 @@ impl muhnZaVSpE {
     }
 
     pub async fn new(
-        subnet: &IpCidr,
-        ports: &Vec<u16>,
-        backend: Backend,
-        timeout: Duration,
+        VOLkQYVHNN: &DmBvnkKrgC,
+        pzpmbDHubf: &Vec<u16>,
+        RAGYwbBOzk: LWLYjkqmGs,
+        gmnteoFUVE: Duration,
     ) -> anyhow::Result<muhnZaVSpE> {
         Ok(muhnZaVSpE {
-            vuUyZghFip: match backend {
-                Backend::Nmap => muhnZaVSpE::nmap(subnet, ports).await?,
-                Backend::RustScan => muhnZaVSpE::rustscan(subnet, ports, timeout).await?,
+            vuUyZghFip: match RAGYwbBOzk {
+                LWLYjkqmGs::Nmap => muhnZaVSpE::qFAjgGKwhC(VOLkQYVHNN, pzpmbDHubf).await?,
+                LWLYjkqmGs::RustScan => {
+                    muhnZaVSpE::rgKeWYJYZP(VOLkQYVHNN, pzpmbDHubf, gmnteoFUVE).await?
+                }
             },
         })
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[tokio::test]
-    async fn test_nmap() -> anyhow::Result<()> {
-        muhnZaVSpE::new(
-            &"10.100.3.0/24".parse().unwrap(),
-            &muhnZaVSpE::common_ports(),
-            Backend::Nmap,
-            Duration::from_secs(5),
-        )
-        .await
-        .map(|_| ())
-    }
-
-    #[tokio::test]
-    async fn test_rustscan() -> anyhow::Result<()> {
-        muhnZaVSpE::new(
-            &"10.100.3.0/24".parse().unwrap(),
-            &muhnZaVSpE::common_ports(),
-            Backend::RustScan,
-            Duration::from_secs(5),
-        )
-        .await
-        .map(|_| ())
     }
 }

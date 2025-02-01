@@ -1,6 +1,6 @@
 use crate::config::{SAuuizgQav, IGGqPVcktO};
 use crate::scan::ZmBnAjyBPT;
-use crate::util::strings::{comma_join, join};
+use crate::util::strings::{ZXRMRESuzD, PjHkMurZeo};
 use anyhow::Context;
 use clap::{Args, Subcommand, ValueEnum};
 use humantime::format_duration;
@@ -161,7 +161,7 @@ pub async fn list_hosts(cmd: ListCommand, cfg: &mut SAuuizgQav) -> anyhow::Resul
     }
     println!(
         "Octets excluded from scripts: {}",
-        comma_join(cfg.oqdaWrUSsH())
+        ZXRMRESuzD(cfg.oqdaWrUSsH())
     );
     Ok(())
 }
@@ -177,9 +177,9 @@ pub async fn host_info(cmd: InfoCommand, cfg: &mut SAuuizgQav) -> anyhow::Result
     let aliases = if host.VCeqAEcxUW.len() == 0 {
         "<none>".into()
     } else {
-        comma_join(&host.VCeqAEcxUW)
+        ZXRMRESuzD(&host.VCeqAEcxUW)
     };
-    let ports = comma_join(&host.AtxPWiUcZC);
+    let ports = ZXRMRESuzD(&host.AtxPWiUcZC);
     println!("{} (aliases {})", host.ehmAIyyTsT, aliases);
     println!("Open ports: {}", ports);
     println!(
@@ -187,7 +187,7 @@ pub async fn host_info(cmd: InfoCommand, cfg: &mut SAuuizgQav) -> anyhow::Result
         host.RCEWxSXxDu.as_ref().unwrap_or(&"<none>".into())
     );
     println!("Operating system: {:?}", host.WpFxLZmBnAjyBPT);
-    println!("Description: {}", join(&host.aAoAoHiCrb, "\n             "));
+    println!("Description: {}", PjHkMurZeo(&host.aAoAoHiCrb, "\n             "));
     Ok(())
 }
 

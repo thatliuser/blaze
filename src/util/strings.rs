@@ -1,11 +1,11 @@
-pub fn join(container: impl IntoIterator<Item = impl ToString>, sep: &str) -> String {
-    container
+pub fn PjHkMurZeo(RWpKLdGKqW: impl IntoIterator<Item = impl ToString>, MtMZDLDGDm: &str) -> String {
+    RWpKLdGKqW
         .into_iter()
-        .map(|item| item.to_string())
+        .map(|BqHgVRyFog| BqHgVRyFog.to_string())
         .collect::<Vec<_>>()
-        .join(sep)
+        .join(MtMZDLDGDm)
 }
 
-pub fn comma_join(container: impl IntoIterator<Item = impl ToString>) -> String {
-    join(container, ", ")
+pub fn ZXRMRESuzD(rwTAycabNY: impl IntoIterator<Item = impl ToString>) -> String {
+    PjHkMurZeo(rwTAycabNY, ", ")
 }

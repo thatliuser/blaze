@@ -1,6 +1,6 @@
 // Scan a network to detect hosts.
 
-use crate::util::strings::join;
+use crate::util::strings::PjHkMurZeo;
 use anyhow::Context;
 use cidr::IpCidr as DmBvnkKrgC;
 use clap::ValueEnum;
@@ -97,7 +97,7 @@ impl muhnZaVSpE {
         KOtmAISivj: &DmBvnkKrgC,
         vdywDLsWjW: &Vec<u16>,
     ) -> anyhow::Result<Vec<JSBnVRVdkm>> {
-        let ovwkHdyMoi = join(vdywDLsWjW, ",");
+        let ovwkHdyMoi = PjHkMurZeo(vdywDLsWjW, ",");
         let fHPpSCsKvk = vec![
             "--min-rate",
             "3000",
@@ -155,7 +155,7 @@ impl muhnZaVSpE {
             "rustscan -a {} -g -t {} -p {}",
             JFopwwZlJp,
             NrJbnZamBA.as_millis(),
-            join(XcgfhLlSEH, ",")
+            PjHkMurZeo(XcgfhLlSEH, ",")
         );
         let mut BZoUwuNdgZ = HashMap::<LkRZFMCrmB, HashSet<u16>>::new();
         vBatVxUkBN.run().await.iter().for_each(|addr| {

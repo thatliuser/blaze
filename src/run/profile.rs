@@ -208,10 +208,11 @@ async fn do_ldap(dc: &Host, domain: &str, cidr: IpCidr, cfg: &mut Config) -> any
         dc.desc.insert(format!("Domain controller for {}", domain));
         cfg.add_host(&dc);
         let timeout = cfg.get_short_timeout();
-        let mut session = tokio::time::timeout(timeout, LdapSession::new(dc.ip, domain, pass))
-            .await
-            .context("ldap connection timed out")?
-            .context("error connecting to ldap")?;
+        let mut session =
+            tokio::time::timeout(timeout, LdapSession::new(dc.ip, domain, &dc.user, pass))
+                .await
+                .context("ldap connection timed out")?
+                .context("error connecting to ldap")?;
         let mut config = ResolverConfig::new();
         config.add_name_server(NameServerConfig::new((dc.ip, 53).into(), Protocol::Tcp));
         config.set_domain(

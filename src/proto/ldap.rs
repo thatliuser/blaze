@@ -1,4 +1,4 @@
-use ldap3::{drive, Ldap, LdapConnAsync, Scope, SearchEntry};
+use ldap3::{drive, Ldap, LdapConnAsync, ResultEntry, Scope, SearchEntry};
 use std::net::IpAddr;
 
 pub struct Session {
@@ -15,17 +15,21 @@ pub struct Computer {
 }
 
 // TODO
-pub struct User {}
+pub struct User {
+    pub name: String,
+    pub id: String,
+    pub admin: bool,
+}
 
 impl Session {
-    pub async fn new(ip: IpAddr, domain: &str, pass: &str) -> anyhow::Result<Self> {
+    pub async fn new(ip: IpAddr, domain: &str, user: &str, pass: &str) -> anyhow::Result<Self> {
         let dcs: Vec<_> = domain.split(".").map(|dc| format!("DC={}", dc)).collect();
         let domain = dcs.join(",");
         log::info!("Connecting to domain {}", domain);
         let (conn, mut handle) = LdapConnAsync::new(&format!("ldap://{}", ip)).await?;
         drive!(conn);
         handle
-            .simple_bind(&format!("CN=Administrator,CN=Users,{}", domain), pass)
+            .simple_bind(&format!("CN={},CN=Users,{}", user, domain), pass)
             .await?
             .success()?;
         Ok(Self { domain, handle })
@@ -40,25 +44,45 @@ impl Session {
             .cloned()
     }
 
-    // List all computers that are joined to this LDAP server.
-    pub async fn computers(&mut self) -> anyhow::Result<Vec<Computer>> {
+    // Turn a container name into a fully qualified one.
+    pub fn qualify(&self, container: &str) -> String {
+        format!("{},{}", container, self.domain())
+    }
+
+    pub async fn search<'a, S, A>(
+        &mut self,
+        container: &str,
+        filter: &str,
+        attrs: A,
+    ) -> anyhow::Result<Vec<ResultEntry>>
+    where
+        S: AsRef<str> + Send + Sync + 'a,
+        A: AsRef<[S]> + Send + Sync + 'a,
+    {
         let (entries, result) = self
             .handle
             .clone()
+            .search(&self.qualify(container), Scope::Subtree, filter, attrs)
+            .await?
+            .success()?;
+        result.success()?;
+        Ok(entries)
+    }
+
+    // List all computers that are joined to this LDAP server.
+    pub async fn computers(&mut self) -> anyhow::Result<Vec<Computer>> {
+        let entries = self
             .search(
-                &format!("CN=Computers,{}", self.domain),
-                Scope::Subtree,
+                "CN=Computers",
                 "(objectClass=computer)",
-                vec![
+                &vec![
                     "name",
                     "operatingSystem",
                     "operatingSystemVersion",
                     "dNSHostName",
                 ],
             )
-            .await?
-            .success()?;
-        result.success()?;
+            .await?;
         Ok(entries
             .into_iter()
             .filter_map(|entry| {
@@ -78,7 +102,27 @@ impl Session {
     }
 
     pub async fn users(&mut self) -> anyhow::Result<Vec<User>> {
-        todo!()
+        let entries = self
+            .search(
+                "CN=Users",
+                "(objectClass=person)",
+                &vec!["name", "sAMAccountName", "adminCount"],
+            )
+            .await?;
+        Ok(entries
+            .into_iter()
+            .filter_map(|entry| {
+                let entry = SearchEntry::construct(entry);
+                let name = entry.attrs.get("name")?.iter().next()?.clone();
+                let id = entry.attrs.get("sAMAccountName")?.iter().next()?.clone();
+                let admin = entry.attrs.get("adminCount").is_some();
+                Some(User { name, id, admin })
+            })
+            .collect())
+    }
+
+    pub fn domain(&self) -> &str {
+        &self.domain
     }
 }
 

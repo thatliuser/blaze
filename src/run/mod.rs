@@ -3,6 +3,7 @@ use clap::Parser;
 
 mod chpass;
 mod config;
+mod ldap;
 mod profile;
 mod scan;
 pub mod script;
@@ -41,6 +42,7 @@ pub enum BlazeCommand {
     Upload(script::UploadCommand),
     #[clap(alias = "pr")]
     Profile(profile::ProfileCommand),
+    Ldap(ldap::LdapCommand),
 }
 
 pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
@@ -63,6 +65,7 @@ pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
         BlazeCommand::Upload(cmd) => script::upload(cmd, cfg).await?,
         BlazeCommand::Edit(cmd) => config::edit_host(cmd, cfg).await?,
         BlazeCommand::Profile(cmd) => profile::profile(cmd, cfg).await?,
+        BlazeCommand::Ldap(cmd) => ldap::ldap(cmd, cfg).await?,
     }
     Ok(())
 }

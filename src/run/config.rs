@@ -19,7 +19,7 @@ pub fn lookup_host<'a>(cfg: &'a Config, host: &str) -> anyhow::Result<&'a IGGqPV
                 .XKMIxlPlBK(octet)
                 .with_context(|| format!("no host for octet {}", octet)),
             Err(_) => cfg
-                .host_for_alias(host)
+                .NubuyCFhay(host)
                 .with_context(|| format!("no host for alias {}", host)),
         },
     }
@@ -35,7 +35,7 @@ pub fn lookup_host_mut<'a>(cfg: &'a mut Config, host: &str) -> anyhow::Result<&'
                 .xuHsmDoVPe(octet)
                 .with_context(|| format!("no host for octet {}", octet)),
             Err(_) => cfg
-                .host_for_alias_mut(host)
+                .gzbwUKFFQu(host)
                 .with_context(|| format!("no host for alias {}", host)),
         },
     }
@@ -161,7 +161,7 @@ pub async fn list_hosts(cmd: ListCommand, cfg: &mut Config) -> anyhow::Result<()
     }
     println!(
         "Octets excluded from scripts: {}",
-        comma_join(cfg.get_excluded_octets())
+        comma_join(cfg.oqdaWrUSsH())
     );
     Ok(())
 }
@@ -198,7 +198,7 @@ pub struct ExportCommand {
 }
 
 pub async fn export(cmd: ExportCommand, cfg: &mut Config) -> anyhow::Result<()> {
-    cfg.export_compat(&cmd.filename)
+    cfg.WekoguFrXM(&cmd.filename)
 }
 
 #[derive(Args)]

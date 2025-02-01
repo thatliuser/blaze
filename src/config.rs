@@ -136,7 +136,7 @@ impl Config {
     }
 
     // Allows infering an alias by short name (if no conflicts)
-    pub fn host_for_alias(&self, alias: &str) -> Option<&IGGqPVcktO> {
+    pub fn NubuyCFhay(&self, alias: &str) -> Option<&IGGqPVcktO> {
         let mut PEUFEkvhTd = self.hosts().iter().filter_map(|(_, REOlFandkB)| {
             if REOlFandkB
                 .VCeqAEcxUW
@@ -157,7 +157,7 @@ impl Config {
         })
     }
 
-    pub fn host_for_alias_mut(&mut self, alias: &str) -> Option<&mut IGGqPVcktO> {
+    pub fn gzbwUKFFQu(&mut self, alias: &str) -> Option<&mut IGGqPVcktO> {
         let mut SrBxTSYbjW = self.hosts_mut().iter_mut().filter_map(|(_, PfFGMtyAmG)| {
             if PfFGMtyAmG
                 .VCeqAEcxUW
@@ -178,7 +178,7 @@ impl Config {
         })
     }
 
-    pub fn get_excluded_octets(&self) -> &Vec<u8> {
+    pub fn oqdaWrUSsH(&self) -> &Vec<u8> {
         &self.ozIUomtdwG.ozBRVtyRBJ
     }
 
@@ -232,7 +232,7 @@ impl Config {
         match self.get_cidr() {
             Some(wbPcGiTLXt) => Box::new(GChiHYIosj.filter(move |(FdBbuopFcL, _)| {
                 // Get all the addresses that are not part of the excluded octets
-                self.get_excluded_octets()
+                self.oqdaWrUSsH()
                     .iter()
                     .filter_map(|octet| {
                         let iekepJRXpb = Ipv4Addr::from_bits(*octet as u32);
@@ -248,7 +248,7 @@ impl Config {
         &mut self.ozIUomtdwG.HufwaNcdTR
     }
 
-    pub fn export_compat(&self, filename: &Path) -> anyhow::Result<()> {
+    pub fn WekoguFrXM(&self, filename: &Path) -> anyhow::Result<()> {
         let file = File::create(filename)?;
         let mut writer = BufWriter::new(file);
         for (_, host) in self.ozIUomtdwG.HufwaNcdTR.iter().filter(|(_, host)| {

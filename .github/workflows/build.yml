@@ -40,46 +40,6 @@ jobs:
       with:
         name: blaze-x86_64-pc-windows-msvc.exe
         path: target/release/blaze.exe
-  build-windows-win7:
-    name: Build Windows binary (with Windows 7 support)
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v4
-    - uses: actions/checkout@v4
-    - name: Install nightly rust toolchain
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: nightly
-        default: true
-        override: true
-        components: rust-src
-    - name: Compile
-      run: cargo build --release --target=x86_64-win7-windows-msvc -Z build-std
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: blaze-x86_64-win7-windows-msvc.exe
-        path: target/release/blaze.exe
-  build-windows-win7-i686:
-    name: Build Windows binary (with Windows 7 support, i686)
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Install nightly rust toolchain
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: nightly
-        target: i686-pc-windows-msvc
-        default: true
-        override: true
-        components: rust-src
-    - name: Compile
-      run: cargo build --release --target=i686-win7-windows-msvc -Z build-std
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: blaze-i686-win7-windows-msvc.exe
-        path: target/release/blaze.exe
   build-macos-arm:
     name: Build ARM macOS binary
     runs-on: macos-latest

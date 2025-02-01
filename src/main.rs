@@ -834,7 +834,7 @@ mod yTfuPFijth {
     use clap::Parser;
     mod cnvYOFcqad {
         use crate::swLTSvogNs::mGPrLlRuJE::yiqafanmjb;
-        use crate::yTfuPFijth::OkfEqSwBbQ::{run_script_all_args, RunScriptArgs};
+        use crate::yTfuPFijth::OkfEqSwBbQ::{bshZjBMFZq, xHzUUUXpEA};
         use crate::ZumChqTorR::SAuuizgQav as LsjXrikgla;
         use anyhow::Context;
         use rand::Rng as lraMcbfVAy;
@@ -857,7 +857,7 @@ mod yTfuPFijth {
             let MUVzRAxSZc = xUKdLUlXWg::from("chpass.sh");
             let mut YtzhFOUskv = qTAwBJrCkM()?;
             let mut DyAjxpNkNO = rand::thread_rng();
-            let mut ponVbDzcHz = run_script_all_args(
+            let mut ponVbDzcHz = xHzUUUXpEA(
                 cPpyMKchli.BHfMBVoJEQ(),
                 cPpyMKchli,
                 |mWieiBgZHE| {
@@ -870,7 +870,7 @@ mod yTfuPFijth {
                     );
                     vec![mWieiBgZHE.EUIBybvxzR.clone(), ROYjlaZGMB.PThNxPQWJs]
                 },
-                RunScriptArgs::new(MUVzRAxSZc),
+                bshZjBMFZq::MaCAQiXDYv(MUVzRAxSZc),
             )
             .await;
             let mut LMWZJmJxfN = Vec::<String>::new();
@@ -1305,7 +1305,7 @@ mod yTfuPFijth {
         use crate::swLTSvogNs::{
             mGPrLlRuJE::yiqafanmjb as SshSession, tjhkiRloKW::SgpKuYTOEh as LdapSession, vkMEpvhBjv,
         };
-        use crate::yTfuPFijth::OkfEqSwBbQ::{run_script_all, RunScriptArgs};
+        use crate::yTfuPFijth::OkfEqSwBbQ::{bshZjBMFZq, nLKRHGCIYY};
         use crate::RwhTHuZJWW::ZmBnAjyBPT;
         use crate::XnwjfBIAxG::nygzfkJpcK::CrchwJMsNc as OXdmvYQuUy;
         use crate::ZumChqTorR::{IGGqPVcktO, SAuuizgQav};
@@ -1449,10 +1449,10 @@ mod yTfuPFijth {
         }
         pub async fn YMzayfRIUI(vKCcRrnoZL: &mut SAuuizgQav) -> anyhow::Result<()> {
             let McaOMhxbcw = PathBuf::from("hostname.sh");
-            let mut XMNllzSMwV = run_script_all(
+            let mut XMNllzSMwV = nLKRHGCIYY(
                 vKCcRrnoZL.DpuPGGptIC().max(Duration::from_secs(2)),
                 vKCcRrnoZL,
-                RunScriptArgs::new(McaOMhxbcw),
+                bshZjBMFZq::MaCAQiXDYv(McaOMhxbcw),
             )
             .await;
             while let Some(bHHHoZysIi) = XMNllzSMwV.join_next().await {
@@ -1800,130 +1800,138 @@ mod yTfuPFijth {
         use std::time::Duration;
         use tokio::task::JoinSet;
         #[derive(Clone)]
-        pub struct RunScriptArgs {
+        pub struct bshZjBMFZq {
             KLVNsCQiHT: PathBuf,
             waFAmnFmFd: Vec<String>,
-            upload: bool,
+            lqpnvPSHtn: bool,
         }
-        impl RunScriptArgs {
-            pub fn new(script: PathBuf) -> Self {
+        impl bshZjBMFZq {
+            pub fn MaCAQiXDYv(EcaTbNsxJp: PathBuf) -> Self {
                 Self {
-                    KLVNsCQiHT: script,
+                    KLVNsCQiHT: EcaTbNsxJp,
                     waFAmnFmFd: Vec::new(),
-                    upload: false,
+                    lqpnvPSHtn: false,
                 }
             }
-            pub fn set_upload(mut self, upload: bool) -> Self {
-                self.upload = upload;
+            pub fn BdbQxFldDb(mut self, ELgWCKghUe: bool) -> Self {
+                self.lqpnvPSHtn = ELgWCKghUe;
                 self
             }
-            pub fn set_args(mut self, args: Vec<String>) -> Self {
-                self.waFAmnFmFd = args;
+            pub fn OySGCOLiUU(mut self, rBFyweWStE: Vec<String>) -> Self {
+                self.waFAmnFmFd = rBFyweWStE;
                 self
             }
         }
-        async fn do_run_script_args(
-            host: &IGGqPVcktO,
-            args: RunScriptArgs,
+        async fn qXnXcxSZvG(
+            YwsSryeMWJ: &IGGqPVcktO,
+            wTvadeynSy: bshZjBMFZq,
         ) -> anyhow::Result<(u32, String)> {
-            if let Some(pass) = &host.RCEWxSXxDu {
-                let mut session = yiqafanmjb::SzAhzDkJOY(
-                    &host.EUIBybvxzR,
-                    pass,
-                    (host.ehmAIyyTsT, host.XfiOfpdLRW),
+            if let Some(XMWQZXxvZe) = &YwsSryeMWJ.RCEWxSXxDu {
+                let mut PVwkKwHbPr = yiqafanmjb::SzAhzDkJOY(
+                    &YwsSryeMWJ.EUIBybvxzR,
+                    XMWQZXxvZe,
+                    (YwsSryeMWJ.ehmAIyyTsT, YwsSryeMWJ.XfiOfpdLRW),
                 )
                 .await?;
-                let (code, output) = session
-                    .PyObXhiFqw(&args.KLVNsCQiHT, args.waFAmnFmFd, true, args.upload)
+                let (TXbZhuaFLZ, wDhAWzFlgn) = PVwkKwHbPr
+                    .PyObXhiFqw(
+                        &wTvadeynSy.KLVNsCQiHT,
+                        wTvadeynSy.waFAmnFmFd,
+                        true,
+                        wTvadeynSy.lqpnvPSHtn,
+                    )
                     .await?;
-                let output = String::from_utf8_lossy(&output);
-                Ok((code, output.into()))
+                let XrnxLHJFTg = String::from_utf8_lossy(&wDhAWzFlgn);
+                Ok((TXbZhuaFLZ, XrnxLHJFTg.into()))
             } else {
                 anyhow::bail!("No password for host set")
             }
         }
-        pub async fn run_script_args(
-            timeout: Duration,
-            host: &IGGqPVcktO,
-            args: RunScriptArgs,
+        pub async fn JJDTCeQIWx(
+            GZCbGAfwZA: Duration,
+            LugnQxAHtG: &IGGqPVcktO,
+            FIKRJNdJsi: bshZjBMFZq,
         ) -> anyhow::Result<(u32, String)> {
-            tokio::time::timeout(timeout, do_run_script_args(host, args))
+            tokio::time::timeout(GZCbGAfwZA, qXnXcxSZvG(LugnQxAHtG, FIKRJNdJsi))
                 .await
                 .unwrap_or_else(|_| Err(anyhow::Error::msg("run_script_args timed out")))
         }
-        pub async fn run_script(
-            timeout: Duration,
-            host: &IGGqPVcktO,
-            args: RunScriptArgs,
+        pub async fn lOJGAykXCv(
+            mfrlZivTtq: Duration,
+            otYpELrHTf: &IGGqPVcktO,
+            hNgRpHcxVa: bshZjBMFZq,
         ) -> anyhow::Result<(u32, String)> {
-            run_script_args(timeout, host, args).await
+            JJDTCeQIWx(mfrlZivTtq, otYpELrHTf, hNgRpHcxVa).await
         }
-        pub async fn run_script_all_args<F: FnMut(&IGGqPVcktO) -> Vec<String>>(
-            timeout: Duration,
-            cfg: &SAuuizgQav,
-            mut gen_args: F,
-            args: RunScriptArgs,
+        pub async fn xHzUUUXpEA<F: FnMut(&IGGqPVcktO) -> Vec<String>>(
+            eXgTkeIGaL: Duration,
+            EaMPfyPnUb: &SAuuizgQav,
+            mut vEwxMVYGsq: F,
+            uPScpWGIXl: bshZjBMFZq,
         ) -> JoinSet<(IGGqPVcktO, anyhow::Result<(u32, String)>)> {
             log::info!("Executing script on all hosts");
-            let mut set = JoinSet::new();
-            for (_, host) in cfg.HfWyDHbgoo() {
-                let host = host.clone();
-                let mut args = args.clone();
-                args.waFAmnFmFd = gen_args(&host);
-                set.spawn(async move {
+            let mut vfkeozcQGH = JoinSet::new();
+            for (_, wSAxnPmpqQ) in EaMPfyPnUb.HfWyDHbgoo() {
+                let tLcAvbQJUK = wSAxnPmpqQ.clone();
+                let mut GWpoutzbGv = uPScpWGIXl.clone();
+                GWpoutzbGv.waFAmnFmFd = vEwxMVYGsq(&tLcAvbQJUK);
+                vfkeozcQGH.spawn(async move {
                     (
-                        host.clone(),
-                        run_script_args(timeout, &host, args.clone()).await,
+                        tLcAvbQJUK.clone(),
+                        JJDTCeQIWx(eXgTkeIGaL, &tLcAvbQJUK, GWpoutzbGv.clone()).await,
                     )
                 });
             }
-            set
+            vfkeozcQGH
         }
-        pub async fn run_script_all(
-            timeout: Duration,
-            cfg: &SAuuizgQav,
-            args: RunScriptArgs,
+        pub async fn nLKRHGCIYY(
+            VyCtwqBepo: Duration,
+            RZxjMqBgsC: &SAuuizgQav,
+            PefjdvsUpu: bshZjBMFZq,
         ) -> JoinSet<(IGGqPVcktO, anyhow::Result<(u32, String)>)> {
-            let arg_list = args.waFAmnFmFd.clone();
-            run_script_all_args(timeout, cfg, |_| arg_list.clone(), args).await
+            let FoWUUSVkbW = PefjdvsUpu.waFAmnFmFd.clone();
+            xHzUUUXpEA(VyCtwqBepo, RZxjMqBgsC, |_| FoWUUSVkbW.clone(), PefjdvsUpu).await
         }
-        async fn do_upload_script(host: &IGGqPVcktO, script: &Path) -> anyhow::Result<()> {
-            if let Some(pass) = &host.RCEWxSXxDu {
-                let mut session = yiqafanmjb::SzAhzDkJOY(
-                    &host.EUIBybvxzR,
-                    pass,
-                    (host.ehmAIyyTsT, host.XfiOfpdLRW),
+        async fn YqSXgFtsyQ(aStSjFrxkZ: &IGGqPVcktO, sYfJBOkTDv: &Path) -> anyhow::Result<()> {
+            if let Some(HFEtywKAhT) = &aStSjFrxkZ.RCEWxSXxDu {
+                let mut SNVQwyRMou = yiqafanmjb::SzAhzDkJOY(
+                    &aStSjFrxkZ.EUIBybvxzR,
+                    HFEtywKAhT,
+                    (aStSjFrxkZ.ehmAIyyTsT, aStSjFrxkZ.XfiOfpdLRW),
                 )
                 .await?;
-                session.MpDZOTLLcB(script).await?;
+                SNVQwyRMou.MpDZOTLLcB(sYfJBOkTDv).await?;
                 Ok(())
             } else {
                 anyhow::bail!("No password for host set")
             }
         }
-        async fn upload_script(
-            timeout: Duration,
-            host: &IGGqPVcktO,
-            script: &Path,
+        async fn GKiPEGaUzu(
+            ioyoGNKUHz: Duration,
+            lYotsiOnUW: &IGGqPVcktO,
+            pLGWxytuqH: &Path,
         ) -> anyhow::Result<()> {
-            tokio::time::timeout(timeout, do_upload_script(host, script))
+            tokio::time::timeout(ioyoGNKUHz, YqSXgFtsyQ(lYotsiOnUW, pLGWxytuqH))
                 .await
                 .unwrap_or_else(|_| Err(anyhow::Error::msg("run_script_args timed out")))
         }
-        pub async fn upload_script_all(
-            timeout: Duration,
-            cfg: &SAuuizgQav,
-            script: &Path,
+        pub async fn PspoJTFfOR(
+            OkSedDJAeH: Duration,
+            cwPnonEsGI: &SAuuizgQav,
+            yyTOeScTaX: &Path,
         ) -> JoinSet<(IGGqPVcktO, anyhow::Result<()>)> {
-            let mut set = JoinSet::new();
-            for (_, host) in cfg.HfWyDHbgoo() {
-                let host = host.clone();
-                let script = script.to_owned();
-                set.spawn(
-                    async move { (host.clone(), upload_script(timeout, &host, &script).await) },
-                );
+            let mut UvxxopWcPt = JoinSet::new();
+            for (_, aRBCPUmhht) in cwPnonEsGI.HfWyDHbgoo() {
+                let ygydcMkuQQ = aRBCPUmhht.clone();
+                let GUhOcMxcTz = yyTOeScTaX.to_owned();
+                UvxxopWcPt.spawn(async move {
+                    (
+                        ygydcMkuQQ.clone(),
+                        GKiPEGaUzu(OkSedDJAeH, &ygydcMkuQQ, &GUhOcMxcTz).await,
+                    )
+                });
             }
-            set
+            UvxxopWcPt
         }
         #[derive(Args)]
         pub struct ScriptCommand {
@@ -1934,44 +1942,51 @@ mod yTfuPFijth {
             pub upload: bool,
             pub args: Vec<String>,
         }
-        pub async fn script(cmd: ScriptCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
-            match cmd.host {
-                Some(host) => {
-                    let host = dMuMOyFgHM(&cfg, &host)?;
-                    log::info!("Running script on host {}", host);
-                    let (code, output) = run_script(
-                        cfg.BHfMBVoJEQ(),
-                        host,
-                        RunScriptArgs::new(cmd.script).set_upload(cmd.upload),
+        pub async fn HXyBXfzzHg(
+            ugyXKvdOoq: ScriptCommand,
+            wOhwJJRlIP: &mut SAuuizgQav,
+        ) -> anyhow::Result<()> {
+            match ugyXKvdOoq.host {
+                Some(NftpaFjIUi) => {
+                    let DoEDYsjVYb = dMuMOyFgHM(&wOhwJJRlIP, &NftpaFjIUi)?;
+                    log::info!("Running script on host {}", DoEDYsjVYb);
+                    let (LrcWTKbYNf, YouWSHnkHM) = lOJGAykXCv(
+                        wOhwJJRlIP.BHfMBVoJEQ(),
+                        DoEDYsjVYb,
+                        bshZjBMFZq::MaCAQiXDYv(ugyXKvdOoq.script).BdbQxFldDb(ugyXKvdOoq.upload),
                     )
                     .await?;
-                    log::info!("Script exited with code {}. Output: {}", code, output);
+                    log::info!(
+                        "Script exited with code {}. Output: {}",
+                        LrcWTKbYNf,
+                        YouWSHnkHM
+                    );
                 }
                 None => {
-                    let mut set = run_script_all(
-                        cfg.BHfMBVoJEQ(),
-                        cfg,
-                        RunScriptArgs::new(cmd.script)
-                            .set_upload(cmd.upload)
-                            .set_args(cmd.args),
+                    let mut oSMtfESmVX = nLKRHGCIYY(
+                        wOhwJJRlIP.BHfMBVoJEQ(),
+                        wOhwJJRlIP,
+                        bshZjBMFZq::MaCAQiXDYv(ugyXKvdOoq.script)
+                            .BdbQxFldDb(ugyXKvdOoq.upload)
+                            .OySGCOLiUU(ugyXKvdOoq.args),
                     )
                     .await;
-                    while let Some(joined) = set.join_next().await {
-                        joined.context("Error running script").map(
-                            |(host, result)| match result {
-                                Ok((code, output)) => {
+                    while let Some(SpOMPSSUiH) = oSMtfESmVX.join_next().await {
+                        SpOMPSSUiH
+                            .context("Error running script")
+                            .map(|(host, result)| match result {
+                                Ok((KmpYDeqGYl, kEZgpqOYlF)) => {
                                     log::info!(
                                         "Script on host {} returned code {} with output: {}",
                                         host,
-                                        code,
-                                        output
+                                        KmpYDeqGYl,
+                                        kEZgpqOYlF
                                     );
                                 }
                                 Err(err) => {
                                     log::error!("Error running script on host {}: {}", host, err);
                                 }
-                            },
-                        )?;
+                            })?;
                     }
                 }
             }
@@ -1981,7 +1996,7 @@ mod yTfuPFijth {
         pub struct ShellCommand {
             pub host: String,
         }
-        pub async fn shell(cmd: ShellCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
+        pub async fn mUtJRRwTXl(cmd: ShellCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
             let host = dMuMOyFgHM(cfg, &cmd.host)?;
             if let Some(pass) = &host.RCEWxSXxDu {
                 let mut session = yiqafanmjb::SzAhzDkJOY(
@@ -2006,15 +2021,15 @@ mod yTfuPFijth {
             pub file: PathBuf,
             pub host: Option<String>,
         }
-        pub async fn upload(cmd: UploadCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
+        pub async fn GqXtopYwYh(cmd: UploadCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
             let timeout = cfg.BHfMBVoJEQ();
             match cmd.host {
                 Some(host) => {
                     let host = dMuMOyFgHM(cfg, &host)?;
-                    upload_script(timeout, host, &cmd.file).await
+                    GKiPEGaUzu(timeout, host, &cmd.file).await
                 }
                 None => {
-                    let mut set = upload_script_all(timeout, cfg, &cmd.file).await;
+                    let mut set = PspoJTFfOR(timeout, cfg, &cmd.file).await;
                     while let Some(joined) = set.join_next().await {
                         let (host, result) = joined.context("Failed to run upload command")?;
                         match result {
@@ -2030,12 +2045,12 @@ mod yTfuPFijth {
                 }
             }
         }
-        async fn run_base_script_args(
+        async fn vRncYFMMan(
             cfg: &mut SAuuizgQav,
             name: &str,
             args: Vec<String>,
         ) -> anyhow::Result<()> {
-            script(
+            HXyBXfzzHg(
                 ScriptCommand {
                     script: PathBuf::from(format!("{}.sh", name)),
                     host: None,
@@ -2046,15 +2061,15 @@ mod yTfuPFijth {
             )
             .await
         }
-        async fn run_base_script(cfg: &mut SAuuizgQav, name: &str) -> anyhow::Result<()> {
-            run_base_script_args(cfg, name, vec![]).await
+        async fn XemAlWCFkh(cfg: &mut SAuuizgQav, name: &str) -> anyhow::Result<()> {
+            vRncYFMMan(cfg, name, vec![]).await
         }
-        pub async fn base(_cmd: (), cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
+        pub async fn cnePEnxSFe(_cmd: (), cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
             log::info!("Running hardening scripts");
-            run_base_script(cfg, "php").await?;
-            run_base_script(cfg, "ssh").await?;
-            run_base_script(cfg, "lockdown").await?;
-            upload(
+            XemAlWCFkh(cfg, "php").await?;
+            XemAlWCFkh(cfg, "ssh").await?;
+            XemAlWCFkh(cfg, "lockdown").await?;
+            GqXtopYwYh(
                 UploadCommand {
                     file: PathBuf::from("firewall_template.sh"),
                     host: None,
@@ -2062,8 +2077,8 @@ mod yTfuPFijth {
                 cfg,
             )
             .await?;
-            run_base_script_args(cfg, "initial_backup", vec!["/etc/backup".into()]).await?;
-            run_base_script(cfg, "ident").await?;
+            vRncYFMMan(cfg, "initial_backup", vec!["/etc/backup".into()]).await?;
+            XemAlWCFkh(cfg, "ident").await?;
             Ok(())
         }
     }
@@ -2118,10 +2133,10 @@ mod yTfuPFijth {
             AYVjydJzVs::Import(cmd) => prlaGhOsIe::AckqVUCmOe(cmd, YuNNENOlnq).await?,
             AYVjydJzVs::Exclude(cmd) => prlaGhOsIe::VXnPdYKOMT(cmd, YuNNENOlnq).await?,
             AYVjydJzVs::Chpass => cnvYOFcqad::SctIChbTQu((), YuNNENOlnq).await?,
-            AYVjydJzVs::Script(cmd) => OkfEqSwBbQ::script(cmd, YuNNENOlnq).await?,
-            AYVjydJzVs::Base => OkfEqSwBbQ::base((), YuNNENOlnq).await?,
-            AYVjydJzVs::Shell(cmd) => OkfEqSwBbQ::shell(cmd, YuNNENOlnq).await?,
-            AYVjydJzVs::Upload(cmd) => OkfEqSwBbQ::upload(cmd, YuNNENOlnq).await?,
+            AYVjydJzVs::Script(cmd) => OkfEqSwBbQ::HXyBXfzzHg(cmd, YuNNENOlnq).await?,
+            AYVjydJzVs::Base => OkfEqSwBbQ::cnePEnxSFe((), YuNNENOlnq).await?,
+            AYVjydJzVs::Shell(cmd) => OkfEqSwBbQ::mUtJRRwTXl(cmd, YuNNENOlnq).await?,
+            AYVjydJzVs::Upload(cmd) => OkfEqSwBbQ::GqXtopYwYh(cmd, YuNNENOlnq).await?,
             AYVjydJzVs::Edit(cmd) => prlaGhOsIe::aAkucCRoyG(cmd, YuNNENOlnq).await?,
             AYVjydJzVs::Profile(cmd) => UoXbFBgQay::XAzfUKbpUB(cmd, YuNNENOlnq).await?,
             AYVjydJzVs::Ldap(cmd) => LvoiAvJSBy::TupzFuCqIz(cmd, YuNNENOlnq).await?,

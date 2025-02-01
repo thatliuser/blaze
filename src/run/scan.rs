@@ -35,10 +35,10 @@ pub async fn OItdOMmWWV(
     .await?;
     let nJxSMqUFtR = yhAxXVivdV
         .linux_root
-        .unwrap_or(HznbPSouOE.linux_root().into());
+        .unwrap_or(HznbPSouOE.dfluOhyNbg().into());
     let mjRqZJasFs = yhAxXVivdV
         .windows_root
-        .unwrap_or(HznbPSouOE.windows_root().into());
+        .unwrap_or(HznbPSouOE.VRWcNuqsev().into());
     for GroDaOHNkG in IWLFWeRRlE.vuUyZghFip {
         let RhOFtcGnOH = match GroDaOHNkG.dciExZZqwj {
             ZmBnAjyBPT::UnixLike => &nJxSMqUFtR,

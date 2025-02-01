@@ -128,11 +128,11 @@ pub async fn lgcRRfVmcQ(QEInBbRyrJ: &mut SAuuizgQav) -> anyhow::Result<()> {
                 match LfgXNjVwak {
                     ZmBnAjyBPT::UnixLike => {
                         DQOcFiPxCH.WpFxLZmBnAjyBPT = ZmBnAjyBPT::UnixLike;
-                        DQOcFiPxCH.EUIBybvxzR = QEInBbRyrJ.linux_root().into();
+                        DQOcFiPxCH.EUIBybvxzR = QEInBbRyrJ.dfluOhyNbg().into();
                     }
                     ZmBnAjyBPT::Windows => {
                         DQOcFiPxCH.WpFxLZmBnAjyBPT = ZmBnAjyBPT::Windows;
-                        DQOcFiPxCH.EUIBybvxzR = QEInBbRyrJ.windows_root().into();
+                        DQOcFiPxCH.EUIBybvxzR = QEInBbRyrJ.VRWcNuqsev().into();
                     }
                 }
                 if LfgXNjVwak != DQOcFiPxCH.WpFxLZmBnAjyBPT {
@@ -295,10 +295,10 @@ async fn ZVmEZkuOlw(
                         log::info!("Host {} has OS {}", JSGrptPDwf, EqpGhusqXt);
                         if EqpGhusqXt.to_lowercase().contains("windows") {
                             JSGrptPDwf.WpFxLZmBnAjyBPT = ZmBnAjyBPT::Windows;
-                            JSGrptPDwf.EUIBybvxzR = gaqbSJgxXt.windows_root().into();
+                            JSGrptPDwf.EUIBybvxzR = gaqbSJgxXt.VRWcNuqsev().into();
                         } else if EqpGhusqXt.to_lowercase().contains("linux") {
                             JSGrptPDwf.WpFxLZmBnAjyBPT = ZmBnAjyBPT::UnixLike;
-                            JSGrptPDwf.EUIBybvxzR = gaqbSJgxXt.linux_root().into();
+                            JSGrptPDwf.EUIBybvxzR = gaqbSJgxXt.dfluOhyNbg().into();
                         }
                         JSGrptPDwf.aAoAoHiCrb.insert(
                             format!(

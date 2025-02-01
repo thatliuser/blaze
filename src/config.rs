@@ -316,10 +316,10 @@ impl SAuuizgQav {
         self.ozIUomtdwG.mEgnvlxemV = OqSFxmGhEG;
     }
 
-    pub fn linux_root(&self) -> &str {
+    pub fn dfluOhyNbg(&self) -> &str {
         &self.ozIUomtdwG.YnfwmzWLem
     }
-    pub fn windows_root(&self) -> &str {
+    pub fn VRWcNuqsev(&self) -> &str {
         &self.ozIUomtdwG.pcfxYEXSfZ
     }
 }

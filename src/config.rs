@@ -137,7 +137,7 @@ impl SAuuizgQav {
 
     // Allows infering an alias by short name (if no conflicts)
     pub fn NubuyCFhay(&self, IqNxsCFXwb: &str) -> Option<&IGGqPVcktO> {
-        let mut PEUFEkvhTd = self.hosts().iter().filter_map(|(_, REOlFandkB)| {
+        let mut PEUFEkvhTd = self.GRFIrbPhOM().iter().filter_map(|(_, REOlFandkB)| {
             if REOlFandkB.VCeqAEcxUW.iter().any(|VDppRPHizp| {
                 VDppRPHizp
                     .to_lowercase()
@@ -192,11 +192,11 @@ impl SAuuizgQav {
             .insert(uxGrjoawxC.ehmAIyyTsT, uxGrjoawxC.clone());
     }
 
-    pub fn remove_host(&mut self, oGrFenSKoy: &nrRdtqRmYR) -> Option<IGGqPVcktO> {
+    pub fn KCpzbcDfyw(&mut self, oGrFenSKoy: &nrRdtqRmYR) -> Option<IGGqPVcktO> {
         self.ozIUomtdwG.HufwaNcdTR.remove(oGrFenSKoy)
     }
 
-    pub fn add_host_from(
+    pub fn dwUCdvcSIO(
         &mut self,
         irYnQdUWhH: &crate::scan::JSBnVRVdkm,
         TNWBTUVmdp: String,
@@ -219,14 +219,14 @@ impl SAuuizgQav {
         Ok(())
     }
 
-    pub fn hosts(&self) -> &HashMap<nrRdtqRmYR, IGGqPVcktO> {
+    pub fn GRFIrbPhOM(&self) -> &HashMap<nrRdtqRmYR, IGGqPVcktO> {
         &self.ozIUomtdwG.HufwaNcdTR
     }
 
     pub fn script_hosts(&self) -> Box<dyn Iterator<Item = (&nrRdtqRmYR, &IGGqPVcktO)> + '_> {
         // Filter out hosts that don't have SSH open
         let GChiHYIosj = self
-            .hosts()
+            .GRFIrbPhOM()
             .iter()
             .filter(|(_, host)| host.AtxPWiUcZC.contains(&22));
         match self.sElCDVdLmF() {

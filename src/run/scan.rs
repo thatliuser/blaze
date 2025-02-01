@@ -51,7 +51,7 @@ pub async fn OItdOMmWWV(
             GroDaOHNkG.dciExZZqwj,
             ezxlyekUUR(&GroDaOHNkG.EsDudBsHYo)
         );
-        HznbPSouOE.add_host_from(
+        HznbPSouOE.dwUCdvcSIO(
             &GroDaOHNkG,
             RhOFtcGnOH,
             Some(yhAxXVivdV.pass.clone()),

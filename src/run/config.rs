@@ -82,7 +82,7 @@ pub async fn remove_host(cmd: RemoveCommand, cfg: &mut SAuuizgQav) -> anyhow::Re
         let host = dMuMOyFgHM(&cfg, &cmd.host)?;
         host.ehmAIyyTsT.clone()
     };
-    cfg.remove_host(&ip);
+    cfg.KCpzbcDfyw(&ip);
     Ok(())
 }
 
@@ -146,7 +146,7 @@ pub struct ListCommand {
 
 pub async fn list_hosts(cmd: ListCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
     for host in cfg
-        .hosts()
+        .GRFIrbPhOM()
         .values()
         .filter(|host| cmd.os.is_none() || Some(host.WpFxLZmBnAjyBPT) == cmd.os)
     {

@@ -61,7 +61,7 @@ pub async fn KbmRaYlTbY(fiVAYjtXQD: &mut SAuuizgQav) -> anyhow::Result<()> {
     let lEtrHSmzBc = fiVAYjtXQD.get_short_timeout();
     let mut BTuFRygfzN = JoinSet::new();
     for (_, MLVdWODNRT) in fiVAYjtXQD
-        .hosts()
+        .GRFIrbPhOM()
         .iter()
         .filter(|(_, AxLEVVfhHI)| AxLEVVfhHI.AtxPWiUcZC.contains(&3389))
     {
@@ -108,7 +108,7 @@ pub async fn ACvtzPOmfG(
 
 pub async fn lgcRRfVmcQ(QEInBbRyrJ: &mut SAuuizgQav) -> anyhow::Result<()> {
     let mut wrGLqRuaNw = JoinSet::new();
-    for (_, GCxYtLbPXV) in QEInBbRyrJ.hosts() {
+    for (_, GCxYtLbPXV) in QEInBbRyrJ.GRFIrbPhOM() {
         let kPGLFhJnHg = GCxYtLbPXV.clone();
         let fEmyREnAOK = QEInBbRyrJ.get_short_timeout();
         wrGLqRuaNw.spawn(async move {
@@ -187,7 +187,7 @@ pub async fn YMzayfRIUI(vKCcRrnoZL: &mut SAuuizgQav) -> anyhow::Result<()> {
 // that are of the form "<name>.<domainpart>.<domainpart>..."
 fn ypjgWDuvYs(GNchTXIpHr: &SAuuizgQav) -> hVTcIFVhgo<String> {
     GNchTXIpHr
-        .hosts()
+        .GRFIrbPhOM()
         .iter()
         .flat_map(|(_, tlnCKjgPmg)| {
             tlnCKjgPmg
@@ -335,7 +335,7 @@ pub async fn uAfuAyQMFM(Ynjqxsriwd: &mut SAuuizgQav) -> anyhow::Result<()> {
     log::info!("Found domains {:?}", PxwagZDSwR);
     // Find all the DNS servers we've found and create a resolver for them
     let LtWknvvBph: Vec<_> = Ynjqxsriwd
-        .hosts()
+        .GRFIrbPhOM()
         .iter()
         .filter(|(_, AWxGHTKhpR)| AWxGHTKhpR.AtxPWiUcZC.contains(&53))
         .map(|(_, sEXgILeXxu)| {

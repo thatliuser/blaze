@@ -225,7 +225,7 @@ pub struct ImportCommand {
 }
 
 pub async fn import(cmd: ImportCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
-    cfg.import_compat(&cmd.filename)
+    cfg.JUZZMtewXs(&cmd.filename)
 }
 
 #[derive(Clone, PartialEq, Eq, ValueEnum)]
@@ -248,19 +248,15 @@ pub struct TimeoutCommand {
 pub async fn set_timeout(cmd: TimeoutCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
     match cmd.timeout {
         Some(timeout) => match cmd.kind {
-            TimeoutType::Short => cfg.set_short_timeout(timeout),
-            TimeoutType::Long => cfg.set_long_timeout(timeout),
+            TimeoutType::Short => cfg.PIbVjKJxYl(timeout),
+            TimeoutType::Long => cfg.aHxYzvpiyQ(timeout),
         },
         None => match cmd.kind {
-            TimeoutType::Short => println!(
-                "Short timeout is {}",
-                format_duration(cfg.get_short_timeout())
-            ),
+            TimeoutType::Short => {
+                println!("Short timeout is {}", format_duration(cfg.DpuPGGptIC()))
+            }
 
-            TimeoutType::Long => println!(
-                "Long timeout is {}",
-                format_duration(cfg.get_long_timeout())
-            ),
+            TimeoutType::Long => println!("Long timeout is {}", format_duration(cfg.BHfMBVoJEQ())),
         },
     }
     Ok(())

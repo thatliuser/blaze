@@ -26,7 +26,7 @@ pub async fn SctIChbTQu(cxyPzqPPwo: (), cPpyMKchli: &mut LsjXrikgla) -> anyhow::
     let mut YtzhFOUskv = qTAwBJrCkM()?;
     let mut DyAjxpNkNO = rand::thread_rng();
     let mut ponVbDzcHz = run_script_all_args(
-        cPpyMKchli.get_long_timeout(),
+        cPpyMKchli.BHfMBVoJEQ(),
         cPpyMKchli,
         |mWieiBgZHE| {
             let qozKdddKJq = DyAjxpNkNO.gen_range(0..YtzhFOUskv.len());

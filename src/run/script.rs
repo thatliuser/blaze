@@ -1,4 +1,4 @@
-use crate::config::{SAuuizgQav, IGGqPVcktO};
+use crate::config::{IGGqPVcktO, SAuuizgQav};
 use crate::proto::ssh::yiqafanmjb;
 use crate::run::config::dMuMOyFgHM;
 use anyhow::Context;
@@ -78,7 +78,7 @@ pub async fn run_script_all_args<F: FnMut(&IGGqPVcktO) -> Vec<String>>(
 ) -> JoinSet<(IGGqPVcktO, anyhow::Result<(u32, String)>)> {
     log::info!("Executing script on all hosts");
     let mut set = JoinSet::new();
-    for (_, host) in cfg.script_hosts() {
+    for (_, host) in cfg.HfWyDHbgoo() {
         let host = host.clone();
         let mut args = args.clone();
         args.args = gen_args(&host);
@@ -125,7 +125,7 @@ pub async fn upload_script_all(
     script: &Path,
 ) -> JoinSet<(IGGqPVcktO, anyhow::Result<()>)> {
     let mut set = JoinSet::new();
-    for (_, host) in cfg.script_hosts() {
+    for (_, host) in cfg.HfWyDHbgoo() {
         let host = host.clone();
         let script = script.to_owned();
         set.spawn(async move { (host.clone(), upload_script(timeout, &host, &script).await) });
@@ -150,7 +150,7 @@ pub async fn script(cmd: ScriptCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<
             let host = dMuMOyFgHM(&cfg, &host)?;
             log::info!("Running script on host {}", host);
             let (code, output) = run_script(
-                cfg.get_long_timeout(),
+                cfg.BHfMBVoJEQ(),
                 host,
                 RunScriptArgs::new(cmd.script).set_upload(cmd.upload),
             )
@@ -159,7 +159,7 @@ pub async fn script(cmd: ScriptCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<
         }
         None => {
             let mut set = run_script_all(
-                cfg.get_long_timeout(),
+                cfg.BHfMBVoJEQ(),
                 cfg,
                 RunScriptArgs::new(cmd.script)
                     .set_upload(cmd.upload)
@@ -220,7 +220,7 @@ pub struct UploadCommand {
 }
 
 pub async fn upload(cmd: UploadCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
-    let timeout = cfg.get_long_timeout();
+    let timeout = cfg.BHfMBVoJEQ();
     match cmd.host {
         Some(host) => {
             let host = dMuMOyFgHM(cfg, &host)?;

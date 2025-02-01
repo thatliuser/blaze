@@ -58,7 +58,7 @@ pub async fn XAzfUKbpUB(
 }
 
 pub async fn KbmRaYlTbY(fiVAYjtXQD: &mut SAuuizgQav) -> anyhow::Result<()> {
-    let lEtrHSmzBc = fiVAYjtXQD.get_short_timeout();
+    let lEtrHSmzBc = fiVAYjtXQD.DpuPGGptIC();
     let mut BTuFRygfzN = JoinSet::new();
     for (_, MLVdWODNRT) in fiVAYjtXQD
         .GRFIrbPhOM()
@@ -110,7 +110,7 @@ pub async fn lgcRRfVmcQ(QEInBbRyrJ: &mut SAuuizgQav) -> anyhow::Result<()> {
     let mut wrGLqRuaNw = JoinSet::new();
     for (_, GCxYtLbPXV) in QEInBbRyrJ.GRFIrbPhOM() {
         let kPGLFhJnHg = GCxYtLbPXV.clone();
-        let fEmyREnAOK = QEInBbRyrJ.get_short_timeout();
+        let fEmyREnAOK = QEInBbRyrJ.DpuPGGptIC();
         wrGLqRuaNw.spawn(async move {
             (
                 kPGLFhJnHg.clone(),
@@ -156,7 +156,7 @@ pub async fn YMzayfRIUI(vKCcRrnoZL: &mut SAuuizgQav) -> anyhow::Result<()> {
     let McaOMhxbcw = PathBuf::from("hostname.sh");
     let mut XMNllzSMwV =
         // SSH is slow so give it some more time
-        run_script_all(vKCcRrnoZL.get_short_timeout().max(Duration::from_secs(2)), vKCcRrnoZL, RunScriptArgs::new(McaOMhxbcw)).await;
+        run_script_all(vKCcRrnoZL.DpuPGGptIC().max(Duration::from_secs(2)), vKCcRrnoZL, RunScriptArgs::new(McaOMhxbcw)).await;
     while let Some(bHHHoZysIi) = XMNllzSMwV.join_next().await {
         let (mut aIGIXjYZFW, DBmnrkfjky) = bHHHoZysIi.context("Error running hostname script")?;
         match DBmnrkfjky {
@@ -246,7 +246,7 @@ async fn ZVmEZkuOlw(
             .aAoAoHiCrb
             .insert(format!("Domain controller for {}", lrhvgiNwYI));
         gaqbSJgxXt.HnkMAlBSbZ(&UKOPexzmOw);
-        let mHhDOeTgkY = gaqbSJgxXt.get_short_timeout();
+        let mHhDOeTgkY = gaqbSJgxXt.DpuPGGptIC();
         let mut iaFMOAbNZT = tokio::time::timeout(
             mHhDOeTgkY,
             LdapSession::ZqFbFZzmBO(
@@ -351,7 +351,7 @@ pub async fn uAfuAyQMFM(Ynjqxsriwd: &mut SAuuizgQav) -> anyhow::Result<()> {
             )
         })
         .collect();
-    let XQCfbitbUX = Ynjqxsriwd.get_short_timeout();
+    let XQCfbitbUX = Ynjqxsriwd.DpuPGGptIC();
     for (WpSVcgwnNm, MAhMqoIiax) in LtWknvvBph {
         match tokio::time::timeout(
             XQCfbitbUX,

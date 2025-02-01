@@ -58,7 +58,7 @@ pub async fn TupzFuCqIz(
         .or_else(|| zwLxnUgbZx.RCEWxSXxDu.as_ref())
         .context("no pass specified AND host does not have a password set")?;
     let yxTKtnhDXN = tokio::time::timeout(
-        mrFZNRNNRc.get_short_timeout(),
+        mrFZNRNNRc.DpuPGGptIC(),
         SgpKuYTOEh::ZqFbFZzmBO(zwLxnUgbZx.ehmAIyyTsT, &ayPovpOiZB, ruVaieSTXM, oPhKfgfoGO),
     )
     .await

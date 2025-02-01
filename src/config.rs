@@ -158,7 +158,7 @@ impl SAuuizgQav {
     }
 
     pub fn gzbwUKFFQu(&mut self, QFZUpFUyEk: &str) -> Option<&mut IGGqPVcktO> {
-        let mut SrBxTSYbjW = self.hosts_mut().iter_mut().filter_map(|(_, PfFGMtyAmG)| {
+        let mut SrBxTSYbjW = self.mzZwchcbES().iter_mut().filter_map(|(_, PfFGMtyAmG)| {
             if PfFGMtyAmG
                 .VCeqAEcxUW
                 .iter()
@@ -223,7 +223,7 @@ impl SAuuizgQav {
         &self.ozIUomtdwG.HufwaNcdTR
     }
 
-    pub fn script_hosts(&self) -> Box<dyn Iterator<Item = (&nrRdtqRmYR, &IGGqPVcktO)> + '_> {
+    pub fn HfWyDHbgoo(&self) -> Box<dyn Iterator<Item = (&nrRdtqRmYR, &IGGqPVcktO)> + '_> {
         // Filter out hosts that don't have SSH open
         let GChiHYIosj = self
             .GRFIrbPhOM()
@@ -244,7 +244,7 @@ impl SAuuizgQav {
         }
     }
 
-    pub fn hosts_mut(&mut self) -> &mut HashMap<nrRdtqRmYR, IGGqPVcktO> {
+    pub fn mzZwchcbES(&mut self) -> &mut HashMap<nrRdtqRmYR, IGGqPVcktO> {
         &mut self.ozIUomtdwG.HufwaNcdTR
     }
 
@@ -269,7 +269,7 @@ impl SAuuizgQav {
         Ok(())
     }
 
-    pub fn import_compat(&mut self, FanrWYxtoc: &Path) -> anyhow::Result<()> {
+    pub fn JUZZMtewXs(&mut self, FanrWYxtoc: &Path) -> anyhow::Result<()> {
         let HLyoYlxtWb = File::open(FanrWYxtoc)?;
         let itWrVAjPGU = BufReader::new(HLyoYlxtWb);
         for wUdecUIFtG in itWrVAjPGU.lines().map_while(Result::ok) {
@@ -300,19 +300,19 @@ impl SAuuizgQav {
         Ok(())
     }
 
-    pub fn get_long_timeout(&self) -> reMfYVqQaG {
+    pub fn BHfMBVoJEQ(&self) -> reMfYVqQaG {
         self.ozIUomtdwG.vizispDrXX
     }
 
-    pub fn set_long_timeout(&mut self, tioMLegAem: reMfYVqQaG) {
+    pub fn aHxYzvpiyQ(&mut self, tioMLegAem: reMfYVqQaG) {
         self.ozIUomtdwG.vizispDrXX = tioMLegAem;
     }
 
-    pub fn get_short_timeout(&self) -> reMfYVqQaG {
+    pub fn DpuPGGptIC(&self) -> reMfYVqQaG {
         self.ozIUomtdwG.mEgnvlxemV
     }
 
-    pub fn set_short_timeout(&mut self, OqSFxmGhEG: reMfYVqQaG) {
+    pub fn PIbVjKJxYl(&mut self, OqSFxmGhEG: reMfYVqQaG) {
         self.ozIUomtdwG.mEgnvlxemV = OqSFxmGhEG;
     }
 

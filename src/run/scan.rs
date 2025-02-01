@@ -30,7 +30,7 @@ pub async fn OItdOMmWWV(
         &yhAxXVivdV.subnet,
         &muhnZaVSpE::HueKzSAEQg(),
         yhAxXVivdV.backend,
-        HznbPSouOE.get_short_timeout(),
+        HznbPSouOE.DpuPGGptIC(),
     )
     .await?;
     let nJxSMqUFtR = yhAxXVivdV
@@ -82,7 +82,7 @@ pub async fn dXilcTbWCk(
         &QCXkNrsNjZ::new_host(fkDBfhISqC.ehmAIyyTsT),
         &ewmMYwSeHi,
         CJdETqbEMr.backend,
-        TlmeXEtzDM.get_short_timeout(),
+        TlmeXEtzDM.DpuPGGptIC(),
     )
     .await?;
     if yybFzXsEeY.vuUyZghFip.len() == 0 {
@@ -116,7 +116,7 @@ pub async fn jOGtEZVMnI(
         &QCXkNrsNjZ::new_host(uZAwvXBvfT.ehmAIyyTsT),
         &gsOHscoRwV.ports,
         gsOHscoRwV.backend,
-        aNdHIWsHOD.get_short_timeout(),
+        aNdHIWsHOD.DpuPGGptIC(),
     )
     .await?;
     if AcsAhfNoEv.vuUyZghFip.len() == 0 {

@@ -9,37 +9,40 @@ use std::net::IpAddr;
 use std::path::PathBuf;
 use std::time::Duration;
 
-pub fn dMuMOyFgHM<'a>(cfg: &'a SAuuizgQav, host: &str) -> anyhow::Result<&'a IGGqPVcktO> {
-    match host.parse() {
-        Ok(ip) => cfg
-            .gDMPzCpkmL(ip)
-            .with_context(|| format!("no host for ip {}", ip)),
-        Err(_) => match host.parse() {
-            Ok(octet) => cfg
-                .XKMIxlPlBK(octet)
-                .with_context(|| format!("no host for octet {}", octet)),
-            Err(_) => cfg
-                .NubuyCFhay(host)
-                .with_context(|| format!("no host for alias {}", host)),
+pub fn dMuMOyFgHM<'a>(
+    EfOMNSCvVD: &'a SAuuizgQav,
+    PEndWkQrzM: &str,
+) -> anyhow::Result<&'a IGGqPVcktO> {
+    match PEndWkQrzM.parse() {
+        Ok(hnbAQTFqam) => EfOMNSCvVD
+            .gDMPzCpkmL(hnbAQTFqam)
+            .with_context(|| format!("no host for ip {}", hnbAQTFqam)),
+        Err(_) => match PEndWkQrzM.parse() {
+            Ok(GmCAkVjWyH) => EfOMNSCvVD
+                .XKMIxlPlBK(GmCAkVjWyH)
+                .with_context(|| format!("no host for octet {}", GmCAkVjWyH)),
+            Err(_) => EfOMNSCvVD
+                .NubuyCFhay(PEndWkQrzM)
+                .with_context(|| format!("no host for alias {}", PEndWkQrzM)),
         },
     }
 }
 
-pub fn lookup_host_mut<'a>(
-    cfg: &'a mut SAuuizgQav,
-    host: &str,
+pub fn qUkYkrMcNZ<'a>(
+    mHnTZpSMcL: &'a mut SAuuizgQav,
+    JfbYONmhBf: &str,
 ) -> anyhow::Result<&'a mut IGGqPVcktO> {
-    match host.parse() {
-        Ok(ip) => cfg
-            .qxyMcWykmf(ip)
-            .with_context(|| format!("no host for ip {}", ip)),
-        Err(_) => match host.parse() {
-            Ok(octet) => cfg
-                .xuHsmDoVPe(octet)
-                .with_context(|| format!("no host for octet {}", octet)),
-            Err(_) => cfg
-                .gzbwUKFFQu(host)
-                .with_context(|| format!("no host for alias {}", host)),
+    match JfbYONmhBf.parse() {
+        Ok(OCuzjVMRso) => mHnTZpSMcL
+            .qxyMcWykmf(OCuzjVMRso)
+            .with_context(|| format!("no host for ip {}", OCuzjVMRso)),
+        Err(_) => match JfbYONmhBf.parse() {
+            Ok(vsVbqyxBOS) => mHnTZpSMcL
+                .xuHsmDoVPe(vsVbqyxBOS)
+                .with_context(|| format!("no host for octet {}", vsVbqyxBOS)),
+            Err(_) => mHnTZpSMcL
+                .gzbwUKFFQu(JfbYONmhBf)
+                .with_context(|| format!("no host for alias {}", JfbYONmhBf)),
         },
     }
 }
@@ -57,15 +60,15 @@ pub struct AddCommand {
     pub os: ZmBnAjyBPT,
 }
 
-pub async fn add_host(cmd: AddCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
-    cfg.HnkMAlBSbZ(&IGGqPVcktO {
-        ehmAIyyTsT: cmd.ip,
-        EUIBybvxzR: cmd.user,
-        RCEWxSXxDu: Some(cmd.pass),
-        XfiOfpdLRW: cmd.port,
+pub async fn XsdkkHPidi(pjDeMXhUvg: AddCommand, oOGWznvxLh: &mut SAuuizgQav) -> anyhow::Result<()> {
+    oOGWznvxLh.HnkMAlBSbZ(&IGGqPVcktO {
+        ehmAIyyTsT: pjDeMXhUvg.ip,
+        EUIBybvxzR: pjDeMXhUvg.user,
+        RCEWxSXxDu: Some(pjDeMXhUvg.pass),
+        XfiOfpdLRW: pjDeMXhUvg.port,
         AtxPWiUcZC: HashSet::new(),
         VCeqAEcxUW: HashSet::new(),
-        WpFxLZmBnAjyBPT: cmd.os,
+        WpFxLZmBnAjyBPT: pjDeMXhUvg.os,
         aAoAoHiCrb: HashSet::new(),
     });
     Ok(())
@@ -77,12 +80,15 @@ pub struct RemoveCommand {
     pub host: String,
 }
 
-pub async fn remove_host(cmd: RemoveCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
-    let ip = {
-        let host = dMuMOyFgHM(&cfg, &cmd.host)?;
-        host.ehmAIyyTsT.clone()
+pub async fn rlmyMMQjGO(
+    SDKJmHKqyN: RemoveCommand,
+    wCaCcMQiHy: &mut SAuuizgQav,
+) -> anyhow::Result<()> {
+    let ziAcIuJFUt = {
+        let dssGYjTaoB = dMuMOyFgHM(&wCaCcMQiHy, &SDKJmHKqyN.host)?;
+        dssGYjTaoB.ehmAIyyTsT.clone()
     };
-    cfg.KCpzbcDfyw(&ip);
+    wCaCcMQiHy.KCpzbcDfyw(&ziAcIuJFUt);
     Ok(())
 }
 
@@ -127,13 +133,16 @@ pub struct EditAliasCommand {
     pub alias: String,
 }
 
-pub async fn edit_host(cmd: EditCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
-    let host = lookup_host_mut(cfg, &cmd.host)?;
-    match cmd.cmd {
-        EditCommandEnum::User(cmd) => host.EUIBybvxzR = cmd.user,
-        EditCommandEnum::Pass(cmd) => host.RCEWxSXxDu = Some(cmd.pass),
-        EditCommandEnum::Os(cmd) => host.WpFxLZmBnAjyBPT = cmd.os,
-        EditCommandEnum::Alias(cmd) => _ = host.VCeqAEcxUW.insert(cmd.alias),
+pub async fn aAkucCRoyG(
+    wgKBBREbLC: EditCommand,
+    emfVOdPLhm: &mut SAuuizgQav,
+) -> anyhow::Result<()> {
+    let JQwVeBRQAg = qUkYkrMcNZ(emfVOdPLhm, &wgKBBREbLC.host)?;
+    match wgKBBREbLC.cmd {
+        EditCommandEnum::User(KEBWBoShJc) => JQwVeBRQAg.EUIBybvxzR = KEBWBoShJc.user,
+        EditCommandEnum::Pass(TLZMnHrdZD) => JQwVeBRQAg.RCEWxSXxDu = Some(TLZMnHrdZD.pass),
+        EditCommandEnum::Os(AmQuVQcXun) => JQwVeBRQAg.WpFxLZmBnAjyBPT = AmQuVQcXun.os,
+        EditCommandEnum::Alias(OvauTeJBbT) => _ = JQwVeBRQAg.VCeqAEcxUW.insert(OvauTeJBbT.alias),
     }
     Ok(())
 }
@@ -144,27 +153,28 @@ pub struct ListCommand {
     pub os: Option<ZmBnAjyBPT>,
 }
 
-pub async fn list_hosts(cmd: ListCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
-    for host in cfg
-        .GRFIrbPhOM()
-        .values()
-        .filter(|host| cmd.os.is_none() || Some(host.WpFxLZmBnAjyBPT) == cmd.os)
-    {
-        let aliases: Vec<String> = host.VCeqAEcxUW.iter().cloned().collect();
-        let aliases = if aliases.len() == 0 {
+pub async fn vkMacxgkoZ(
+    NoBKQsmQMY: ListCommand,
+    JTeDTjGWiL: &mut SAuuizgQav,
+) -> anyhow::Result<()> {
+    for bfrqelhjgh in JTeDTjGWiL.GRFIrbPhOM().values().filter(|tCNMwqVgKD| {
+        NoBKQsmQMY.os.is_none() || Some(tCNMwqVgKD.WpFxLZmBnAjyBPT) == NoBKQsmQMY.os
+    }) {
+        let eycNIZYNqa: Vec<String> = bfrqelhjgh.VCeqAEcxUW.iter().cloned().collect();
+        let tXjwoEUXKx = if eycNIZYNqa.len() == 0 {
             "<none>".into()
         } else {
-            aliases.join(", ")
+            eycNIZYNqa.join(", ")
         };
-        let hoststr = format!(
+        let CBHsQhvgrK = format!(
             "{}@{}:{}",
-            host.EUIBybvxzR, host.ehmAIyyTsT, host.XfiOfpdLRW
+            bfrqelhjgh.EUIBybvxzR, bfrqelhjgh.ehmAIyyTsT, bfrqelhjgh.XfiOfpdLRW
         );
-        println!("{:<55} (aliases {})", hoststr, aliases);
+        println!("{:<55} (aliases {})", CBHsQhvgrK, tXjwoEUXKx);
     }
     println!(
         "Octets excluded from scripts: {}",
-        ZXRMRESuzD(cfg.oqdaWrUSsH())
+        ZXRMRESuzD(JTeDTjGWiL.oqdaWrUSsH())
     );
     Ok(())
 }
@@ -175,24 +185,27 @@ pub struct InfoCommand {
     pub host: String,
 }
 
-pub async fn host_info(cmd: InfoCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
-    let host = dMuMOyFgHM(cfg, &cmd.host)?;
-    let aliases = if host.VCeqAEcxUW.len() == 0 {
+pub async fn uKVYdOeOkX(
+    iQffLxlXEC: InfoCommand,
+    jPZMobMgAt: &mut SAuuizgQav,
+) -> anyhow::Result<()> {
+    let bWBLbHJvpX = dMuMOyFgHM(jPZMobMgAt, &iQffLxlXEC.host)?;
+    let SPMUhVExCw = if bWBLbHJvpX.VCeqAEcxUW.len() == 0 {
         "<none>".into()
     } else {
-        ZXRMRESuzD(&host.VCeqAEcxUW)
+        ZXRMRESuzD(&bWBLbHJvpX.VCeqAEcxUW)
     };
-    let ports = ZXRMRESuzD(&host.AtxPWiUcZC);
-    println!("{} (aliases {})", host.ehmAIyyTsT, aliases);
-    println!("Open ports: {}", ports);
+    let OJBYDgoHoP = ZXRMRESuzD(&bWBLbHJvpX.AtxPWiUcZC);
+    println!("{} (aliases {})", bWBLbHJvpX.ehmAIyyTsT, SPMUhVExCw);
+    println!("Open ports: {}", OJBYDgoHoP);
     println!(
         "Password: {}",
-        host.RCEWxSXxDu.as_ref().unwrap_or(&"<none>".into())
+        bWBLbHJvpX.RCEWxSXxDu.as_ref().unwrap_or(&"<none>".into())
     );
-    println!("Operating system: {:?}", host.WpFxLZmBnAjyBPT);
+    println!("Operating system: {:?}", bWBLbHJvpX.WpFxLZmBnAjyBPT);
     println!(
         "Description: {}",
-        PjHkMurZeo(&host.aAoAoHiCrb, "\n             ")
+        PjHkMurZeo(&bWBLbHJvpX.aAoAoHiCrb, "\n             ")
     );
     Ok(())
 }
@@ -203,8 +216,11 @@ pub struct ExportCommand {
     pub filename: PathBuf,
 }
 
-pub async fn export(cmd: ExportCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
-    cfg.WekoguFrXM(&cmd.filename)
+pub async fn EUvRweneUS(
+    nTRzUCdQaN: ExportCommand,
+    eIMWIXwTJp: &mut SAuuizgQav,
+) -> anyhow::Result<()> {
+    eIMWIXwTJp.WekoguFrXM(&nTRzUCdQaN.filename)
 }
 
 #[derive(Args)]
@@ -213,8 +229,11 @@ pub struct ExcludeCommand {
     pub octets: Vec<u8>,
 }
 
-pub async fn exclude(cmd: ExcludeCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
-    cfg.sDOGYbdAEB(&cmd.octets);
+pub async fn VXnPdYKOMT(
+    TPQzVSzKan: ExcludeCommand,
+    EtvKmiRLew: &mut SAuuizgQav,
+) -> anyhow::Result<()> {
+    EtvKmiRLew.sDOGYbdAEB(&TPQzVSzKan.octets);
     Ok(())
 }
 
@@ -224,8 +243,11 @@ pub struct ImportCommand {
     pub filename: PathBuf,
 }
 
-pub async fn import(cmd: ImportCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
-    cfg.JUZZMtewXs(&cmd.filename)
+pub async fn AckqVUCmOe(
+    zmmxfcFZKd: ImportCommand,
+    qYRgNbHptJ: &mut SAuuizgQav,
+) -> anyhow::Result<()> {
+    qYRgNbHptJ.JUZZMtewXs(&zmmxfcFZKd.filename)
 }
 
 #[derive(Clone, PartialEq, Eq, ValueEnum)]
@@ -245,18 +267,27 @@ pub struct TimeoutCommand {
     pub kind: TimeoutType,
 }
 
-pub async fn set_timeout(cmd: TimeoutCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
-    match cmd.timeout {
-        Some(timeout) => match cmd.kind {
-            TimeoutType::Short => cfg.PIbVjKJxYl(timeout),
-            TimeoutType::Long => cfg.aHxYzvpiyQ(timeout),
+pub async fn BMsGldHZJH(
+    aUQeqpTsib: TimeoutCommand,
+    CKtCknEAFY: &mut SAuuizgQav,
+) -> anyhow::Result<()> {
+    match aUQeqpTsib.timeout {
+        Some(SpqBXaVKkO) => match aUQeqpTsib.kind {
+            TimeoutType::Short => CKtCknEAFY.PIbVjKJxYl(SpqBXaVKkO),
+            TimeoutType::Long => CKtCknEAFY.aHxYzvpiyQ(SpqBXaVKkO),
         },
-        None => match cmd.kind {
+        None => match aUQeqpTsib.kind {
             TimeoutType::Short => {
-                println!("Short timeout is {}", format_duration(cfg.DpuPGGptIC()))
+                println!(
+                    "Short timeout is {}",
+                    format_duration(CKtCknEAFY.DpuPGGptIC())
+                )
             }
 
-            TimeoutType::Long => println!("Long timeout is {}", format_duration(cfg.BHfMBVoJEQ())),
+            TimeoutType::Long => println!(
+                "Long timeout is {}",
+                format_duration(CKtCknEAFY.BHfMBVoJEQ())
+            ),
         },
     }
     Ok(())

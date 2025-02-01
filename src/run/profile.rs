@@ -14,7 +14,7 @@ use std::time::Duration;
 use tokio::task::JoinSet;
 
 #[derive(ValueEnum, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub enum ProfileStrategy {
+pub enum VIaDosyWNk {
     // Ordered by what should be checked first
     Rdp,
     Ssh,
@@ -27,132 +27,156 @@ pub enum ProfileStrategy {
     about = "Profile computers on the network with various protocols. If no strategies are set, it will run all of them."
 )]
 pub struct ProfileCommand {
-    pub strategies: Option<Vec<ProfileStrategy>>,
+    pub strategies: Option<Vec<VIaDosyWNk>>,
 }
 
-pub async fn profile(cmd: ProfileCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
-    let mut strategies = cmd.strategies.unwrap_or_else(|| {
+pub async fn XAzfUKbpUB(
+    ZXZjUGYVXL: ProfileCommand,
+    GnNwsTxgjv: &mut SAuuizgQav,
+) -> anyhow::Result<()> {
+    let mut uEnyMKibhn = ZXZjUGYVXL.strategies.unwrap_or_else(|| {
         log::info!("No strategy picked, setting all");
         vec![
-            ProfileStrategy::Rdp,
-            ProfileStrategy::Ssh,
-            ProfileStrategy::Hostname,
-            ProfileStrategy::Ldap,
+            VIaDosyWNk::Rdp,
+            VIaDosyWNk::Ssh,
+            VIaDosyWNk::Hostname,
+            VIaDosyWNk::Ldap,
         ]
     });
     // Sort so that strategies are in order
-    strategies.sort();
+    uEnyMKibhn.sort();
     // let set = JoinSet::new()
-    for strat in strategies {
-        match strat {
-            ProfileStrategy::Rdp => rdp(cfg).await?,
-            ProfileStrategy::Ssh => ssh(cfg).await?,
-            ProfileStrategy::Hostname => hostname(cfg).await?,
-            ProfileStrategy::Ldap => ldap(cfg).await?,
+    for VlsGFLHzMc in uEnyMKibhn {
+        match VlsGFLHzMc {
+            VIaDosyWNk::Rdp => KbmRaYlTbY(GnNwsTxgjv).await?,
+            VIaDosyWNk::Ssh => lgcRRfVmcQ(GnNwsTxgjv).await?,
+            VIaDosyWNk::Hostname => YMzayfRIUI(GnNwsTxgjv).await?,
+            VIaDosyWNk::Ldap => uAfuAyQMFM(GnNwsTxgjv).await?,
         }
     }
     Ok(())
 }
 
-pub async fn rdp(cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
-    let timeout = cfg.get_short_timeout();
-    let mut set = JoinSet::new();
-    for (_, host) in cfg
+pub async fn KbmRaYlTbY(fiVAYjtXQD: &mut SAuuizgQav) -> anyhow::Result<()> {
+    let lEtrHSmzBc = fiVAYjtXQD.get_short_timeout();
+    let mut BTuFRygfzN = JoinSet::new();
+    for (_, MLVdWODNRT) in fiVAYjtXQD
         .hosts()
         .iter()
-        .filter(|(_, host)| host.AtxPWiUcZC.contains(&3389))
+        .filter(|(_, AxLEVVfhHI)| AxLEVVfhHI.AtxPWiUcZC.contains(&3389))
     {
-        let host = host.clone();
-        set.spawn(async move {
+        let sVOVWyVGia = MLVdWODNRT.clone();
+        BTuFRygfzN.spawn(async move {
             (
-                host.clone(),
-                rdp::grab_rdp_hostname(host.ehmAIyyTsT, timeout).await,
+                sVOVWyVGia.clone(),
+                rdp::grab_rdp_hostname(sVOVWyVGia.ehmAIyyTsT, lEtrHSmzBc).await,
             )
         });
     }
-    while let Some(joined) = set.join_next().await {
-        let (mut host, result) = joined.context("Error running rdp command")?;
-        match result {
-            Ok(name) => {
-                log::info!("Got name {} for host {}", name, host);
-                host.VCeqAEcxUW.insert(name);
-                cfg.add_host(&host);
+    while let Some(oVbQYUVgeg) = BTuFRygfzN.join_next().await {
+        let (mut tsfbNYcmXQ, AGOaNHWRVl) = oVbQYUVgeg.context("Error running rdp command")?;
+        match AGOaNHWRVl {
+            Ok(NuZCHmXRzB) => {
+                log::info!("Got name {} for host {}", NuZCHmXRzB, tsfbNYcmXQ);
+                tsfbNYcmXQ.VCeqAEcxUW.insert(NuZCHmXRzB);
+                fiVAYjtXQD.add_host(&tsfbNYcmXQ);
             }
-            Err(err) => {
-                log::error!("Failed to get rdp hostname for host {}: {}", host, err);
+            Err(FbHAXQxDvM) => {
+                log::error!(
+                    "Failed to get rdp hostname for host {}: {}",
+                    tsfbNYcmXQ,
+                    FbHAXQxDvM
+                );
             }
         }
     }
     Ok(())
 }
 
-pub async fn do_ssh(host: &IGGqPVcktO, timeout: Duration) -> anyhow::Result<(String, ZmBnAjyBPT)> {
-    let id = SshSession::NiyIrattFM((host.ehmAIyyTsT, host.XfiOfpdLRW), timeout).await?;
-    let os = if id.to_lowercase().contains("windows") {
+pub async fn ACvtzPOmfG(
+    host: &IGGqPVcktO,
+    timeout: Duration,
+) -> anyhow::Result<(String, ZmBnAjyBPT)> {
+    let ExCiITyPyC = SshSession::NiyIrattFM((host.ehmAIyyTsT, host.XfiOfpdLRW), timeout).await?;
+    let dnVnEUdtIZ = if ExCiITyPyC.to_lowercase().contains("windows") {
         ZmBnAjyBPT::Windows
     } else {
         ZmBnAjyBPT::UnixLike
     };
-    Ok((id, os))
+    Ok((ExCiITyPyC, dnVnEUdtIZ))
 }
 
-pub async fn ssh(cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
-    let mut set = JoinSet::new();
-    for (_, host) in cfg.hosts() {
-        let host = host.clone();
-        let timeout = cfg.get_short_timeout();
-        set.spawn(async move { (host.clone(), do_ssh(&host, timeout).await) });
+pub async fn lgcRRfVmcQ(QEInBbRyrJ: &mut SAuuizgQav) -> anyhow::Result<()> {
+    let mut wrGLqRuaNw = JoinSet::new();
+    for (_, GCxYtLbPXV) in QEInBbRyrJ.hosts() {
+        let kPGLFhJnHg = GCxYtLbPXV.clone();
+        let fEmyREnAOK = QEInBbRyrJ.get_short_timeout();
+        wrGLqRuaNw.spawn(async move {
+            (
+                kPGLFhJnHg.clone(),
+                ACvtzPOmfG(&kPGLFhJnHg, fEmyREnAOK).await,
+            )
+        });
     }
-    while let Some(joined) = set.join_next().await {
-        let (mut host, result) = joined.context("Failed to spawn host ID detector")?;
-        match result {
-            Ok((id, os)) => {
-                log::info!("Got ssh ID {} for host {}", id.trim(), host);
-                host.aAoAoHiCrb.insert(id.trim().to_string());
-                match os {
+    while let Some(xEWIzwNNra) = wrGLqRuaNw.join_next().await {
+        let (mut DQOcFiPxCH, cJPRKPQnZn) =
+            xEWIzwNNra.context("Failed to spawn host ID detector")?;
+        match cJPRKPQnZn {
+            Ok((fbSCncVcTs, LfgXNjVwak)) => {
+                log::info!("Got ssh ID {} for host {}", fbSCncVcTs.trim(), DQOcFiPxCH);
+                DQOcFiPxCH.aAoAoHiCrb.insert(fbSCncVcTs.trim().to_string());
+                match LfgXNjVwak {
                     ZmBnAjyBPT::UnixLike => {
-                        host.WpFxLZmBnAjyBPT = ZmBnAjyBPT::UnixLike;
-                        host.EUIBybvxzR = cfg.linux_root().into();
+                        DQOcFiPxCH.WpFxLZmBnAjyBPT = ZmBnAjyBPT::UnixLike;
+                        DQOcFiPxCH.EUIBybvxzR = QEInBbRyrJ.linux_root().into();
                     }
                     ZmBnAjyBPT::Windows => {
-                        host.WpFxLZmBnAjyBPT = ZmBnAjyBPT::Windows;
-                        host.EUIBybvxzR = cfg.windows_root().into();
+                        DQOcFiPxCH.WpFxLZmBnAjyBPT = ZmBnAjyBPT::Windows;
+                        DQOcFiPxCH.EUIBybvxzR = QEInBbRyrJ.windows_root().into();
                     }
                 }
-                if os != host.WpFxLZmBnAjyBPT {
-                    host.WpFxLZmBnAjyBPT = os;
+                if LfgXNjVwak != DQOcFiPxCH.WpFxLZmBnAjyBPT {
+                    DQOcFiPxCH.WpFxLZmBnAjyBPT = LfgXNjVwak;
                 }
-                cfg.add_host(&host);
+                QEInBbRyrJ.add_host(&DQOcFiPxCH);
             }
-            Err(err) => {
-                log::error!("Failed to detect ssh ID for host {}: {}", host, err);
+            Err(dSFtXdnVFY) => {
+                log::error!(
+                    "Failed to detect ssh ID for host {}: {}",
+                    DQOcFiPxCH,
+                    dSFtXdnVFY
+                );
             }
         }
     }
     Ok(())
 }
 
-pub async fn hostname(cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
-    let script = PathBuf::from("hostname.sh");
-    let mut set =
+pub async fn YMzayfRIUI(vKCcRrnoZL: &mut SAuuizgQav) -> anyhow::Result<()> {
+    let McaOMhxbcw = PathBuf::from("hostname.sh");
+    let mut XMNllzSMwV =
         // SSH is slow so give it some more time
-        run_script_all(cfg.get_short_timeout().max(Duration::from_secs(2)), cfg, RunScriptArgs::new(script)).await;
-    while let Some(joined) = set.join_next().await {
-        let (mut host, result) = joined.context("Error running hostname script")?;
-        match result {
-            Ok((code, output)) => {
+        run_script_all(vKCcRrnoZL.get_short_timeout().max(Duration::from_secs(2)), vKCcRrnoZL, RunScriptArgs::new(McaOMhxbcw)).await;
+    while let Some(bHHHoZysIi) = XMNllzSMwV.join_next().await {
+        let (mut aIGIXjYZFW, DBmnrkfjky) = bHHHoZysIi.context("Error running hostname script")?;
+        match DBmnrkfjky {
+            Ok((urDUagBWen, anoAYwHDYu)) => {
                 log::warn!(
                     "Hostname script returned nonzero code {} for host {}",
-                    code,
-                    host
+                    urDUagBWen,
+                    aIGIXjYZFW
                 );
-                let alias = output.trim();
-                log::info!("Got alias {} for host {}", alias, host);
-                host.VCeqAEcxUW.insert(alias.into());
-                cfg.add_host(&host);
+                let EvBbHeblpH = anoAYwHDYu.trim();
+                log::info!("Got alias {} for host {}", EvBbHeblpH, aIGIXjYZFW);
+                aIGIXjYZFW.VCeqAEcxUW.insert(EvBbHeblpH.into());
+                vKCcRrnoZL.add_host(&aIGIXjYZFW);
             }
-            Err(err) => {
-                log::error!("Error running script on host {}: {}", host, err);
+            Err(XMkwuQEXFp) => {
+                log::error!(
+                    "Error running script on host {}: {}",
+                    aIGIXjYZFW,
+                    XMkwuQEXFp
+                );
             }
         }
     }
@@ -161,17 +185,19 @@ pub async fn hostname(cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
 
 // Collect all aliases of all hosts, then find only the ones
 // that are of the form "<name>.<domainpart>.<domainpart>..."
-fn get_domains(cfg: &SAuuizgQav) -> hVTcIFVhgo<String> {
-    cfg.hosts()
+fn ypjgWDuvYs(GNchTXIpHr: &SAuuizgQav) -> hVTcIFVhgo<String> {
+    GNchTXIpHr
+        .hosts()
         .iter()
-        .flat_map(|(_, host)| {
-            host.VCeqAEcxUW
+        .flat_map(|(_, tlnCKjgPmg)| {
+            tlnCKjgPmg
+                .VCeqAEcxUW
                 .iter()
-                .map(|alias| alias.splitn(2, '.').collect::<Vec<_>>())
+                .map(|XzOXYaGyEv| XzOXYaGyEv.splitn(2, '.').collect::<Vec<_>>())
         })
-        .filter_map(|alias| {
-            if alias.len() == 2 {
-                Some(alias[1].to_owned())
+        .filter_map(|tXkzEjyjCP| {
+            if tXkzEjyjCP.len() == 2 {
+                Some(tXkzEjyjCP[1].to_owned())
             } else {
                 None
             }
@@ -180,152 +206,175 @@ fn get_domains(cfg: &SAuuizgQav) -> hVTcIFVhgo<String> {
 }
 
 // See if the DNS server is associated with a domain.
-async fn lookup_domain_on<'a>(
-    host: &IGGqPVcktO,
-    dns: &ezcSaHgATl,
-    domains: &'a hVTcIFVhgo<String>,
-    cidr: &LcqOtrfUKI,
+async fn nApXytTlCs<'a>(
+    lCUpIZPfFj: &IGGqPVcktO,
+    tDeTGfMeia: &ezcSaHgATl,
+    xellGGmrWB: &'a hVTcIFVhgo<String>,
+    WWDJWxKhST: &LcqOtrfUKI,
 ) -> Option<&'a str> {
-    for domain in domains {
+    for SRytBffxDz in xellGGmrWB {
         // TODO: JoinSet
-        let ips = dns.lookup_ip(domain).await;
+        let OcBoDZYOcL = tDeTGfMeia.lookup_ip(SRytBffxDz).await;
         // Look through the list of ips returned and see if any match the current host.
         // If they do, return the domain.
-        let found = ips
-            .map(|ips| {
-                ips.iter()
-                    .filter_map(|ip| OXdmvYQuUy(*cidr, ip).ok())
-                    .filter(|ip| ip == &host.ehmAIyyTsT)
+        let PFyczyICWc = OcBoDZYOcL
+            .map(|UUNdyUntoM| {
+                UUNdyUntoM
+                    .iter()
+                    .filter_map(|QwsqLsWwrd| OXdmvYQuUy(*WWDJWxKhST, QwsqLsWwrd).ok())
+                    .filter(|LVDkErDHue| LVDkErDHue == &lCUpIZPfFj.ehmAIyyTsT)
                     .next()
             })
             .ok()
             .flatten();
-        if found.is_some() {
-            return Some(domain.as_str());
+        if PFyczyICWc.is_some() {
+            return Some(SRytBffxDz.as_str());
         }
     }
     None
 }
 
-async fn do_ldap(
-    dc: &IGGqPVcktO,
-    domain: &str,
-    cidr: LcqOtrfUKI,
-    cfg: &mut SAuuizgQav,
+async fn ZVmEZkuOlw(
+    TUFCUEtrUx: &IGGqPVcktO,
+    lrhvgiNwYI: &str,
+    GVofmsLViF: LcqOtrfUKI,
+    gaqbSJgxXt: &mut SAuuizgQav,
 ) -> anyhow::Result<()> {
-    if let Some(pass) = &dc.RCEWxSXxDu {
-        let mut dc = dc.clone();
-        dc.aAoAoHiCrb
-            .insert(format!("Domain controller for {}", domain));
-        cfg.add_host(&dc);
-        let timeout = cfg.get_short_timeout();
-        let mut session = tokio::time::timeout(
-            timeout,
-            LdapSession::ZqFbFZzmBO(dc.ehmAIyyTsT, domain, &dc.EUIBybvxzR, pass),
+    if let Some(eIAEUscbdU) = &TUFCUEtrUx.RCEWxSXxDu {
+        let mut UKOPexzmOw = TUFCUEtrUx.clone();
+        UKOPexzmOw
+            .aAoAoHiCrb
+            .insert(format!("Domain controller for {}", lrhvgiNwYI));
+        gaqbSJgxXt.add_host(&UKOPexzmOw);
+        let mHhDOeTgkY = gaqbSJgxXt.get_short_timeout();
+        let mut iaFMOAbNZT = tokio::time::timeout(
+            mHhDOeTgkY,
+            LdapSession::ZqFbFZzmBO(
+                UKOPexzmOw.ehmAIyyTsT,
+                lrhvgiNwYI,
+                &UKOPexzmOw.EUIBybvxzR,
+                eIAEUscbdU,
+            ),
         )
         .await
         .context("ldap connection timed out")?
         .context("error connecting to ldap")?;
-        let mut config = ResolverConfig::new();
-        config.add_name_server(NameServerConfig::new(
-            (dc.ehmAIyyTsT, 53).into(),
+        let mut yvBGDVynzf = ResolverConfig::new();
+        yvBGDVynzf.add_name_server(NameServerConfig::new(
+            (UKOPexzmOw.ehmAIyyTsT, 53).into(),
             Protocol::Tcp,
         ));
-        config.set_domain(
-            format!("{}.", domain)
+        yvBGDVynzf.set_domain(
+            format!("{}.", lrhvgiNwYI)
                 .parse()
                 .context("domain has invalid format for DNS resolver")?,
         );
         // Create new DNS server with domain as search domain
-        let mut opts = ResolverOpts::default();
-        opts.timeout = timeout;
-        opts.attempts = 2;
-        let dns = ezcSaHgATl::tokio(config, opts);
-        for computer in session.mrYxCAWUem().await? {
+        let mut OyCsLeflAU = ResolverOpts::default();
+        OyCsLeflAU.timeout = mHhDOeTgkY;
+        OyCsLeflAU.attempts = 2;
+        let iNXbbDQMuN = ezcSaHgATl::tokio(yvBGDVynzf, OyCsLeflAU);
+        for plkMIYWVCf in iaFMOAbNZT.mrYxCAWUem().await? {
             // Either the name without the domain as a suffix, or just the name if it doesn't contain the suffix
-            let host = dns
-                .lookup_ip(computer.vMoYcEINHf.clone())
+            let PoxeTfHoFK = iNXbbDQMuN
+                .lookup_ip(plkMIYWVCf.vMoYcEINHf.clone())
                 .await
                 .ok()
-                .and_then(|ips| ips.iter().next())
-                .and_then(|ip| {
-                    log::info!("Computer {} has ip {}", computer.YoMZFBEXti, ip);
-                    OXdmvYQuUy(cidr, ip).ok()
+                .and_then(|FYRQoXZymU| FYRQoXZymU.iter().next())
+                .and_then(|LLHXzlSvKk| {
+                    log::info!("Computer {} has ip {}", plkMIYWVCf.YoMZFBEXti, LLHXzlSvKk);
+                    OXdmvYQuUy(GVofmsLViF, LLHXzlSvKk).ok()
                 })
-                .and_then(|ip| cfg.host_for_ip(ip));
-            match host {
-                Some(host) => {
-                    let mut host = host.clone();
-                    host.VCeqAEcxUW.insert(computer.YoMZFBEXti);
-                    host.VCeqAEcxUW.insert(computer.vMoYcEINHf);
-                    if let Some(EqpGhusqXt) = computer.RkTmGzJZwW {
-                        log::info!("Host {} has OS {}", host, EqpGhusqXt);
+                .and_then(|NjwAxvJLsz| gaqbSJgxXt.host_for_ip(NjwAxvJLsz));
+            match PoxeTfHoFK {
+                Some(fOkuNhzWKe) => {
+                    let mut JSGrptPDwf = fOkuNhzWKe.clone();
+                    JSGrptPDwf.VCeqAEcxUW.insert(plkMIYWVCf.YoMZFBEXti);
+                    JSGrptPDwf.VCeqAEcxUW.insert(plkMIYWVCf.vMoYcEINHf);
+                    if let Some(EqpGhusqXt) = plkMIYWVCf.RkTmGzJZwW {
+                        log::info!("Host {} has OS {}", JSGrptPDwf, EqpGhusqXt);
                         if EqpGhusqXt.to_lowercase().contains("windows") {
-                            host.WpFxLZmBnAjyBPT = ZmBnAjyBPT::Windows;
-                            host.EUIBybvxzR = cfg.windows_root().into();
+                            JSGrptPDwf.WpFxLZmBnAjyBPT = ZmBnAjyBPT::Windows;
+                            JSGrptPDwf.EUIBybvxzR = gaqbSJgxXt.windows_root().into();
                         } else if EqpGhusqXt.to_lowercase().contains("linux") {
-                            host.WpFxLZmBnAjyBPT = ZmBnAjyBPT::UnixLike;
-                            host.EUIBybvxzR = cfg.linux_root().into();
+                            JSGrptPDwf.WpFxLZmBnAjyBPT = ZmBnAjyBPT::UnixLike;
+                            JSGrptPDwf.EUIBybvxzR = gaqbSJgxXt.linux_root().into();
                         }
-                        host.aAoAoHiCrb.insert(
+                        JSGrptPDwf.aAoAoHiCrb.insert(
                             format!(
                                 "{} {}",
                                 EqpGhusqXt,
-                                computer.vShGbXshZt.unwrap_or("".into())
+                                plkMIYWVCf.vShGbXshZt.unwrap_or("".into())
                             )
                             .trim()
                             .to_string(),
                         );
                     }
-                    cfg.add_host(&host);
+                    gaqbSJgxXt.add_host(&JSGrptPDwf);
                 }
                 None => log::warn!(
                     "No host found for hostname {} in domain",
-                    computer.YoMZFBEXti
+                    plkMIYWVCf.YoMZFBEXti
                 ),
             }
         }
         Ok(())
     } else {
-        anyhow::bail!("Detected domain for DC {}, but no password!", dc.ehmAIyyTsT);
+        anyhow::bail!(
+            "Detected domain for DC {}, but no password!",
+            TUFCUEtrUx.ehmAIyyTsT
+        );
     }
 }
 
-pub async fn ldap(cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
-    let cidr = cfg
+pub async fn uAfuAyQMFM(Ynjqxsriwd: &mut SAuuizgQav) -> anyhow::Result<()> {
+    let mapKZbYbqL = Ynjqxsriwd
         .get_cidr()
         .context("no cidr set; have you run a scan?")?;
-    let domains = get_domains(cfg);
-    log::info!("Found domains {:?}", domains);
+    let PxwagZDSwR = ypjgWDuvYs(Ynjqxsriwd);
+    log::info!("Found domains {:?}", PxwagZDSwR);
     // Find all the DNS servers we've found and create a resolver for them
-    let servers: Vec<_> = cfg
+    let LtWknvvBph: Vec<_> = Ynjqxsriwd
         .hosts()
         .iter()
-        .filter(|(_, host)| host.AtxPWiUcZC.contains(&53))
-        .map(|(_, host)| {
-            log::debug!("Adding DNS server {}", host);
-            let mut config = ResolverConfig::new();
-            config.add_name_server(NameServerConfig::new(
-                (host.ehmAIyyTsT.clone(), 53).into(),
+        .filter(|(_, AWxGHTKhpR)| AWxGHTKhpR.AtxPWiUcZC.contains(&53))
+        .map(|(_, sEXgILeXxu)| {
+            log::debug!("Adding DNS server {}", sEXgILeXxu);
+            let mut jPqDsKBgtq = ResolverConfig::new();
+            jPqDsKBgtq.add_name_server(NameServerConfig::new(
+                (sEXgILeXxu.ehmAIyyTsT.clone(), 53).into(),
                 Protocol::Tcp,
             ));
-            (host.clone(), ezcSaHgATl::tokio(config, Default::default()))
+            (
+                sEXgILeXxu.clone(),
+                ezcSaHgATl::tokio(jPqDsKBgtq, Default::default()),
+            )
         })
         .collect();
-    let timeout = cfg.get_short_timeout();
-    for (host, server) in servers {
-        match tokio::time::timeout(timeout, lookup_domain_on(&host, &server, &domains, &cidr)).await
+    let XQCfbitbUX = Ynjqxsriwd.get_short_timeout();
+    for (WpSVcgwnNm, MAhMqoIiax) in LtWknvvBph {
+        match tokio::time::timeout(
+            XQCfbitbUX,
+            nApXytTlCs(&WpSVcgwnNm, &MAhMqoIiax, &PxwagZDSwR, &mapKZbYbqL),
+        )
+        .await
         {
-            Ok(result) => match result {
-                Some(domain) => {
-                    log::info!("Found domain {} for host {}", domain, host);
-                    if let Err(err) = do_ldap(&host, domain, cidr, cfg).await {
-                        log::warn!("Error while running LDAP for DC {}: {}", host, err);
+            Ok(JBEpgSkrHc) => match JBEpgSkrHc {
+                Some(DebzBiINAy) => {
+                    log::info!("Found domain {} for host {}", DebzBiINAy, WpSVcgwnNm);
+                    if let Err(eUorZUyKnK) =
+                        ZVmEZkuOlw(&WpSVcgwnNm, DebzBiINAy, mapKZbYbqL, Ynjqxsriwd).await
+                    {
+                        log::warn!(
+                            "Error while running LDAP for DC {}: {}",
+                            WpSVcgwnNm,
+                            eUorZUyKnK
+                        );
                     }
                 }
-                None => log::debug!("No domain matched for DNS server {}", host),
+                None => log::debug!("No domain matched for DNS server {}", WpSVcgwnNm),
             },
-            Err(_) => log::debug!("DNS connection timed out for host {}", host),
+            Err(_) => log::debug!("DNS connection timed out for host {}", WpSVcgwnNm),
         }
     }
     Ok(())

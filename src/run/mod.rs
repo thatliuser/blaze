@@ -47,9 +47,9 @@ pub enum AYVjydJzVs {
 
 pub async fn run(cmd: AYVjydJzVs, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
     match cmd {
-        AYVjydJzVs::Scan(cmd) => scan::scan(cmd, cfg).await?,
-        AYVjydJzVs::Rescan(cmd) => scan::rescan(cmd, cfg).await?,
-        AYVjydJzVs::PortCheck(cmd) => scan::port_check(cmd, cfg).await?,
+        AYVjydJzVs::Scan(cmd) => scan::OItdOMmWWV(cmd, cfg).await?,
+        AYVjydJzVs::Rescan(cmd) => scan::dXilcTbWCk(cmd, cfg).await?,
+        AYVjydJzVs::PortCheck(cmd) => scan::jOGtEZVMnI(cmd, cfg).await?,
         AYVjydJzVs::Add(cmd) => config::add_host(cmd, cfg).await?,
         AYVjydJzVs::Remove(cmd) => config::remove_host(cmd, cfg).await?,
         AYVjydJzVs::List(cmd) => config::list_hosts(cmd, cfg).await?,

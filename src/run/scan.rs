@@ -1,14 +1,14 @@
-use crate::config::SAuuizgQav;
+use crate::config::SAuuizgQav as wIHVcrelvN;
 use crate::run::config::dMuMOyFgHM;
 use crate::scan::{muhnZaVSpE, LWLYjkqmGs, ZmBnAjyBPT};
-use crate::util::strings::comma_join;
-use cidr::IpCidr;
+use crate::util::strings::comma_join as ezxlyekUUR;
+use cidr::IpCidr as QCXkNrsNjZ;
 use clap::Args;
 
 #[derive(Args)]
 #[command(about = "Run a network scan on a specified subnet.")]
 pub struct ScanCommand {
-    pub subnet: IpCidr,
+    pub subnet: QCXkNrsNjZ,
     #[arg(short, long)]
     pub linux_root: Option<String>,
     #[arg(short, long)]
@@ -20,31 +20,43 @@ pub struct ScanCommand {
     pub backend: LWLYjkqmGs,
 }
 
-pub async fn scan(cmd: ScanCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
-    log::debug!("Subnet: {:?}", cmd.subnet);
-    cfg.CtFTwTYgKa(cmd.subnet);
+pub async fn OItdOMmWWV(
+    yhAxXVivdV: ScanCommand,
+    HznbPSouOE: &mut wIHVcrelvN,
+) -> anyhow::Result<()> {
+    log::debug!("Subnet: {:?}", yhAxXVivdV.subnet);
+    HznbPSouOE.CtFTwTYgKa(yhAxXVivdV.subnet);
     let IWLFWeRRlE = muhnZaVSpE::new(
-        &cmd.subnet,
+        &yhAxXVivdV.subnet,
         &muhnZaVSpE::HueKzSAEQg(),
-        cmd.backend,
-        cfg.get_short_timeout(),
+        yhAxXVivdV.backend,
+        HznbPSouOE.get_short_timeout(),
     )
     .await?;
-    let linux_root = cmd.linux_root.unwrap_or(cfg.linux_root().into());
-    let windows_root = cmd.windows_root.unwrap_or(cfg.windows_root().into());
-    for host in IWLFWeRRlE.vuUyZghFip {
-        let user = match host.dciExZZqwj {
-            ZmBnAjyBPT::UnixLike => &linux_root,
-            ZmBnAjyBPT::Windows => &windows_root,
+    let nJxSMqUFtR = yhAxXVivdV
+        .linux_root
+        .unwrap_or(HznbPSouOE.linux_root().into());
+    let mjRqZJasFs = yhAxXVivdV
+        .windows_root
+        .unwrap_or(HznbPSouOE.windows_root().into());
+    for GroDaOHNkG in IWLFWeRRlE.vuUyZghFip {
+        let RhOFtcGnOH = match GroDaOHNkG.dciExZZqwj {
+            ZmBnAjyBPT::UnixLike => &nJxSMqUFtR,
+            ZmBnAjyBPT::Windows => &mjRqZJasFs,
         }
         .clone();
         log::info!(
             "Found host {} with os {:?}, ports: {}",
-            host.TLxIayDIUv,
-            host.dciExZZqwj,
-            comma_join(&host.EsDudBsHYo)
+            GroDaOHNkG.TLxIayDIUv,
+            GroDaOHNkG.dciExZZqwj,
+            ezxlyekUUR(&GroDaOHNkG.EsDudBsHYo)
         );
-        cfg.add_host_from(&host, user, Some(cmd.pass.clone()), cmd.port)?;
+        HznbPSouOE.add_host_from(
+            &GroDaOHNkG,
+            RhOFtcGnOH,
+            Some(yhAxXVivdV.pass.clone()),
+            yhAxXVivdV.port,
+        )?;
     }
     Ok(())
 }
@@ -58,25 +70,28 @@ pub struct RescanCommand {
     pub backend: LWLYjkqmGs,
 }
 
-pub async fn rescan(cmd: RescanCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
-    let mut host = dMuMOyFgHM(cfg, &cmd.host)?.clone();
-    let mut ports = muhnZaVSpE::HueKzSAEQg();
-    ports.extend(cmd.ports.unwrap_or(Vec::new()));
-    log::debug!("Rescanning for host {}", host);
-    let scan = muhnZaVSpE::new(
-        &IpCidr::new_host(host.ehmAIyyTsT),
-        &ports,
-        cmd.backend,
-        cfg.get_short_timeout(),
+pub async fn dXilcTbWCk(
+    CJdETqbEMr: RescanCommand,
+    TlmeXEtzDM: &mut wIHVcrelvN,
+) -> anyhow::Result<()> {
+    let mut fkDBfhISqC = dMuMOyFgHM(TlmeXEtzDM, &CJdETqbEMr.host)?.clone();
+    let mut ewmMYwSeHi = muhnZaVSpE::HueKzSAEQg();
+    ewmMYwSeHi.extend(CJdETqbEMr.ports.unwrap_or(Vec::new()));
+    log::debug!("Rescanning for host {}", fkDBfhISqC);
+    let yybFzXsEeY = muhnZaVSpE::new(
+        &QCXkNrsNjZ::new_host(fkDBfhISqC.ehmAIyyTsT),
+        &ewmMYwSeHi,
+        CJdETqbEMr.backend,
+        TlmeXEtzDM.get_short_timeout(),
     )
     .await?;
-    if scan.vuUyZghFip.len() == 0 {
+    if yybFzXsEeY.vuUyZghFip.len() == 0 {
         anyhow::bail!("No hosts scanned; is the host up?");
     }
-    let scanned = &scan.vuUyZghFip[0];
-    log::info!("Got ports {}", comma_join(&scanned.EsDudBsHYo));
-    host.AtxPWiUcZC = scanned.EsDudBsHYo.clone();
-    cfg.add_host(&host);
+    let BmFvJQaHNF = &yybFzXsEeY.vuUyZghFip[0];
+    log::info!("Got ports {}", ezxlyekUUR(&BmFvJQaHNF.EsDudBsHYo));
+    fkDBfhISqC.AtxPWiUcZC = BmFvJQaHNF.EsDudBsHYo.clone();
+    TlmeXEtzDM.add_host(&fkDBfhISqC);
     Ok(())
 }
 
@@ -92,24 +107,27 @@ pub struct PortCheckCommand {
     pub backend: LWLYjkqmGs,
 }
 
-pub async fn port_check(cmd: PortCheckCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
-    let host = dMuMOyFgHM(cfg, &cmd.host)?;
-    let scan = muhnZaVSpE::new(
-        &IpCidr::new_host(host.ehmAIyyTsT),
-        &cmd.ports,
-        cmd.backend,
-        cfg.get_short_timeout(),
+pub async fn jOGtEZVMnI(
+    gsOHscoRwV: PortCheckCommand,
+    aNdHIWsHOD: &mut wIHVcrelvN,
+) -> anyhow::Result<()> {
+    let uZAwvXBvfT = dMuMOyFgHM(aNdHIWsHOD, &gsOHscoRwV.host)?;
+    let AcsAhfNoEv = muhnZaVSpE::new(
+        &QCXkNrsNjZ::new_host(uZAwvXBvfT.ehmAIyyTsT),
+        &gsOHscoRwV.ports,
+        gsOHscoRwV.backend,
+        aNdHIWsHOD.get_short_timeout(),
     )
     .await?;
-    if scan.vuUyZghFip.len() == 0 {
+    if AcsAhfNoEv.vuUyZghFip.len() == 0 {
         anyhow::bail!("No hosts scanned; is the host up?");
     }
-    let scanned = &scan.vuUyZghFip[0];
-    let (open, closed): (Vec<u16>, _) = cmd
+    let TziKwOjepU = &AcsAhfNoEv.vuUyZghFip[0];
+    let (HbtbQnkxeX, KXjPttaXNP): (Vec<u16>, _) = gsOHscoRwV
         .ports
         .iter()
-        .partition(|port| scanned.EsDudBsHYo.contains(port));
-    log::info!("Open   ports: {}", comma_join(open));
-    log::info!("Closed ports: {}", comma_join(closed));
+        .partition(|port| TziKwOjepU.EsDudBsHYo.contains(port));
+    log::info!("Open   ports: {}", ezxlyekUUR(HbtbQnkxeX));
+    log::info!("Closed ports: {}", ezxlyekUUR(KXjPttaXNP));
     Ok(())
 }

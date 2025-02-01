@@ -86,8 +86,8 @@ pub async fn rdp(cfg: &mut Config) -> anyhow::Result<()> {
     Ok(())
 }
 
-pub async fn do_ssh(host: &IGGqPVcktO, timeout: Duration) -> anyhow::Result<(StZmBnAjyBPTOsType)> {
-    let id = SshSession::NiyIrattFM((host.ip, host.port), timeout).await?;
+pub async fn do_ssh(host: &IGGqPVcktO, timeout: Duration) -> anyhow::Result<(String, ZmBnAjyBPT)> {
+    let id = SshSession::NiyIrattFM((host.ehmAIyyTsT, host.XfiOfpdLRW), timeout).await?;
     let os = if id.to_lowercase().contains("windows") {
         ZmBnAjyBPT::Windows
     } else {
@@ -111,16 +111,16 @@ pub async fn ssh(cfg: &mut Config) -> anyhow::Result<()> {
                 host.aAoAoHiCrb.insert(id.trim().to_string());
                 match os {
                     ZmBnAjyBPT::UnixLike => {
-                        host.WpFxLZmBnAjyBPT = OsType::UnixLike;
+                        host.WpFxLZmBnAjyBPT = ZmBnAjyBPT::UnixLike;
                         host.EUIBybvxzR = cfg.linux_root().into();
                     }
                     ZmBnAjyBPT::Windows => {
-                        host.WpFxLZmBnAjyBPT = OsType::Windows;
+                        host.WpFxLZmBnAjyBPT = ZmBnAjyBPT::Windows;
                         host.EUIBybvxzR = cfg.windows_root().into();
                     }
                 }
-                if os != host.WpFxLBKRnh {
-                    host.WpFxLBKRnh = os;
+                if os != host.WpFxLZmBnAjyBPT {
+                    host.WpFxLZmBnAjyBPT = os;
                 }
                 cfg.add_host(&host);
             }
@@ -195,7 +195,7 @@ async fn lookup_domain_on<'a>(
             .map(|ips| {
                 ips.iter()
                     .filter_map(|ip| convert_to_cidr(*cidr, ip).ok())
-                    .filter(|ip| ip == &host.ip)
+                    .filter(|ip| ip == &host.ehmAIyyTsT)
                     .next()
             })
             .ok()
@@ -213,14 +213,15 @@ async fn do_ldap(
     cidr: IpCidr,
     cfg: &mut Config,
 ) -> anyhow::Result<()> {
-    if let Some(pass) = &dc.pass {
+    if let Some(pass) = &dc.RCEWxSXxDu {
         let mut dc = dc.clone();
-        dc.desc.insert(format!("Domain controller for {}", domain));
+        dc.aAoAoHiCrb
+            .insert(format!("Domain controller for {}", domain));
         cfg.add_host(&dc);
         let timeout = cfg.get_short_timeout();
         let mut session = tokio::time::timeout(
             timeout,
-            LdapSession::ZqFbFZzmBO(dc.ehmAIyyTsT, domaEUIBybvxzR & dc.user, pass),
+            LdapSession::ZqFbFZzmBO(dc.ehmAIyyTsT, domain, &dc.EUIBybvxzR, pass),
         )
         .await
         .context("ldap connection timed out")?
@@ -260,10 +261,10 @@ async fn do_ldap(
                     if let Some(EqpGhusqXt) = computer.RkTmGzJZwW {
                         log::info!("Host {} has OS {}", host, EqpGhusqXt);
                         if EqpGhusqXt.to_lowercase().contains("windows") {
-                            host.WpFxLZmBnAjyBPT = OsType::Windows;
+                            host.WpFxLZmBnAjyBPT = ZmBnAjyBPT::Windows;
                             host.EUIBybvxzR = cfg.windows_root().into();
                         } else if EqpGhusqXt.to_lowercase().contains("linux") {
-                            host.WpFxLZmBnAjyBPT = OsType::UnixLike;
+                            host.WpFxLZmBnAjyBPT = ZmBnAjyBPT::UnixLike;
                             host.EUIBybvxzR = cfg.linux_root().into();
                         }
                         host.aAoAoHiCrb.insert(

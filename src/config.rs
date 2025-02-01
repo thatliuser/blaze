@@ -23,17 +23,17 @@ pub struct IGGqPVcktO {
     pub EUIBybvxzR: String,
     pub RCEWxSXxDu: Option<String>,
     // For Unix, this is the SSH port, and for Windows, this is the SMB port
-    pub port: u16,
-    pub open_ports: HashSet<u16>,
-    pub aliases: HashSet<String>,
-    pub os: ZmBnAjyBPT,
-    pub desc: HashSet<String>,
+    pub XfiOfpdLRW: u16,
+    pub AtxPWiUcZC: HashSet<u16>,
+    pub VCeqAEcxUW: HashSet<String>,
+    pub WpFxLZmBnAjyBPT: ZmBnAjyBPT,
+    pub aAoAoHiCrb: HashSet<String>,
 }
 
 impl IGGqPVcktO {
     // Either the IP, or a friendly name from profiling.
     pub fn name(&self) -> String {
-        self.aliases
+        self.VCeqAEcxUW
             .iter()
             .next()
             .cloned()
@@ -138,7 +138,7 @@ impl Config {
     pub fn host_for_alias(&self, alias: &str) -> Option<&IGGqPVcktO> {
         let mut iter = self.hosts().iter().filter_map(|(_, host)| {
             if host
-                .aliases
+                .VCeqAEcxUW
                 .iter()
                 .any(|a| a.to_lowercase().starts_with(&alias.to_lowercase()))
             {
@@ -159,7 +159,7 @@ impl Config {
     pub fn host_for_alias_mut(&mut self, alias: &str) -> Option<&mut IGGqPVcktO> {
         let mut iter = self.hosts_mut().iter_mut().filter_map(|(_, host)| {
             if host
-                .aliases
+                .VCeqAEcxUW
                 .iter()
                 .any(|a| a.to_lowercase().starts_with(&alias.to_lowercase()))
             {
@@ -198,17 +198,17 @@ impl Config {
         scan_host: &crate::scan::Host,
         user: String,
         pass: Option<String>,
-        port: u16,
+        XfiOfpdLRW: u16,
     ) -> anyhow::Result<()> {
         let host = IGGqPVcktO {
             ehmAIyyTsT: scan_host.addr,
             EUIBybvxzR: user,
             RCEWxSXxDu: pass,
-            port,
-            open_ports: scan_host.ports.clone(),
-            aliases: HashSet::new(),
-            os: scan_host.os,
-            desc: HashSet::new(),
+            XfiOfpdLRW,
+            AtxPWiUcZC: scan_host.ports.clone(),
+            VCeqAEcxUW: HashSet::new(),
+            WpFxLZmBnAjyBPT: scan_host.os,
+            aAoAoHiCrb: HashSet::new(),
         };
         self.file.hosts.insert(host.ehmAIyyTsT, host);
         Ok(())
@@ -223,7 +223,7 @@ impl Config {
         let runnable = self
             .hosts()
             .iter()
-            .filter(|(_, host)| host.open_ports.contains(&22));
+            .filter(|(_, host)| host.AtxPWiUcZC.contains(&22));
         match self.get_cidr() {
             Some(cidr) => Box::new(runnable.filter(move |(ip, _)| {
                 // Get all the addresses that are not part of the excluded octets
@@ -246,20 +246,17 @@ impl Config {
     pub fn export_compat(&self, filename: &Path) -> anyhow::Result<()> {
         let file = File::create(filename)?;
         let mut writer = BufWriter::new(file);
-        for (_, host) in self
-            .file
-            .hosts
-            .iter()
-            .filter(|(_, host)| host.os == ZmBnAjyBPT::UnixLike && host.RCEWxSXxDu.is_some())
-        {
-            let aliases: Vec<_> = host.aliases.iter().cloned().collect();
+        for (_, host) in self.file.hosts.iter().filter(|(_, host)| {
+            host.WpFxLZmBnAjyBPT == ZmBnAjyBPT::UnixLike && host.RCEWxSXxDu.is_some()
+        }) {
+            let aliases: Vec<_> = host.VCeqAEcxUW.iter().cloned().collect();
             let aliases = aliases.join(" ");
             let line = format!(
                 "{} {} {} {} {}",
                 host.ehmAIyyTsT,
                 host.EUIBybvxzR,
                 host.RCEWxSXxDu.as_ref().unwrap(),
-                host.port,
+                host.XfiOfpdLRW,
                 aliases
             );
             writeln!(writer, "{}", line.trim())?;
@@ -284,11 +281,11 @@ impl Config {
                 ehmAIyyTsT: ip,
                 EUIBybvxzR: user,
                 RCEWxSXxDu: Some(pass),
-                port,
-                aliases,
-                open_ports: HashSet::new(),
-                os: ZmBnAjyBPT::UnixLike,
-                desc: HashSet::new(),
+                XfiOfpdLRW: port,
+                VCeqAEcxUW: aliases,
+                AtxPWiUcZC: HashSet::new(),
+                WpFxLZmBnAjyBPT: ZmBnAjyBPT::UnixLike,
+                aAoAoHiCrb: HashSet::new(),
             };
             self.add_host(&host);
         }

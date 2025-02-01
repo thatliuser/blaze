@@ -62,7 +62,7 @@ pub async fn add_host(cmd: AddCommand, cfg: &mut Config) -> anyhow::Result<()> {
         XfiOfpdLRW: cmd.port,
         AtxPWiUcZC: HashSet::new(),
         VCeqAEcxUW: HashSet::new(),
-        WpFxLBKRnh: cmd.os,
+        WpFxLZmBnAjyBPT: cmd.os,
         aAoAoHiCrb: HashSet::new(),
     });
     Ok(())
@@ -129,7 +129,7 @@ pub async fn edit_host(cmd: EditCommand, cfg: &mut Config) -> anyhow::Result<()>
     match cmd.cmd {
         EditCommandEnum::User(cmd) => host.EUIBybvxzR = cmd.user,
         EditCommandEnum::Pass(cmd) => host.RCEWxSXxDu = Some(cmd.pass),
-        EditCommandEnum::Os(cmd) => host.WpFxLBKRnh = cmd.os,
+        EditCommandEnum::Os(cmd) => host.WpFxLZmBnAjyBPT = cmd.os,
         EditCommandEnum::Alias(cmd) => _ = host.VCeqAEcxUW.insert(cmd.alias),
     }
     Ok(())
@@ -145,7 +145,7 @@ pub async fn list_hosts(cmd: ListCommand, cfg: &mut Config) -> anyhow::Result<()
     for host in cfg
         .hosts()
         .values()
-        .filter(|host| cmd.os.is_none() || Some(host.WpFxLBKRnh) == cmd.os)
+        .filter(|host| cmd.os.is_none() || Some(host.WpFxLZmBnAjyBPT) == cmd.os)
     {
         let aliases: Vec<String> = host.VCeqAEcxUW.iter().cloned().collect();
         let aliases = if aliases.len() == 0 {
@@ -153,7 +153,10 @@ pub async fn list_hosts(cmd: ListCommand, cfg: &mut Config) -> anyhow::Result<()
         } else {
             aliases.join(", ")
         };
-        let hoststr = format!("{}@{}:{}", host.EUIBybvxzR, host.ehmAIyyTsT, host.XfiOfpdLRW);
+        let hoststr = format!(
+            "{}@{}:{}",
+            host.EUIBybvxzR, host.ehmAIyyTsT, host.XfiOfpdLRW
+        );
         println!("{:<55} (aliases {})", hoststr, aliases);
     }
     println!(
@@ -183,7 +186,7 @@ pub async fn host_info(cmd: InfoCommand, cfg: &mut Config) -> anyhow::Result<()>
         "Password: {}",
         host.RCEWxSXxDu.as_ref().unwrap_or(&"<none>".into())
     );
-    println!("Operating system: {:?}", host.WpFxLBKRnh);
+    println!("Operating system: {:?}", host.WpFxLZmBnAjyBPT);
     println!("Description: {}", join(&host.aAoAoHiCrb, "\n             "));
     Ok(())
 }

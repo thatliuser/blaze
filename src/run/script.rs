@@ -34,9 +34,14 @@ impl RunScriptArgs {
     }
 }
 
-async fn do_run_script_args(host: &IGGqPVcktO, args: RunScriptArgs) -> anyhow::Result<(u32, String)> {
+async fn do_run_script_args(
+    host: &IGGqPVcktO,
+    args: RunScriptArgs,
+) -> anyhow::Result<(u32, String)> {
     if let Some(pass) = &host.RCEWxSXxDu {
-        let mut session = yiqafanmjb::SzAhzDkJOY(&host.EUIBybvxzR, pass, (host.ehmAIyyTsT, host.XfiOfpdLRW)).await?;
+        let mut session =
+            yiqafanmjb::SzAhzDkJOY(&host.EUIBybvxzR, pass, (host.ehmAIyyTsT, host.XfiOfpdLRW))
+                .await?;
         let (code, output) = session
             .PyObXhiFqw(&args.script, args.args, true, args.upload)
             .await?;
@@ -98,7 +103,9 @@ pub async fn run_script_all(
 
 async fn do_upload_script(host: &IGGqPVcktO, script: &Path) -> anyhow::Result<()> {
     if let Some(pass) = &host.RCEWxSXxDu {
-        let mut session = yiqafanmjb::SzAhzDkJOY(&host.EUIBybvxzR, pass, (host.ehmAIyyTsT, host.XfiOfpdLRW)).await?;
+        let mut session =
+            yiqafanmjb::SzAhzDkJOY(&host.EUIBybvxzR, pass, (host.ehmAIyyTsT, host.XfiOfpdLRW))
+                .await?;
         session.MpDZOTLLcB(script).await?;
         Ok(())
     } else {
@@ -190,7 +197,9 @@ pub struct ShellCommand {
 pub async fn shell(cmd: ShellCommand, cfg: &mut Config) -> anyhow::Result<()> {
     let host = lookup_host(cfg, &cmd.host)?;
     if let Some(pass) = &host.RCEWxSXxDu {
-        let mut session = yiqafanmjb::SzAhzDkJOY(&host.EUIBybvxzR, &pass, (host.ehmAIyyTsT, host.XfiOfpdLRW)).await?;
+        let mut session =
+            yiqafanmjb::SzAhzDkJOY(&host.EUIBybvxzR, &pass, (host.ehmAIyyTsT, host.XfiOfpdLRW))
+                .await?;
         log::info!("ssh {}@{} -p {}", host.EUIBybvxzR, host, host.XfiOfpdLRW);
         log::info!("Using password '{}'", &pass);
         let code = session.TgSSLzpblV().await?;

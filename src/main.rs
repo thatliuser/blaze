@@ -25,7 +25,7 @@ async fn main() -> anyhow::Result<()> {
         .init();
     let mut jyltHgruQu = BnVzinadxz::from(&AxByfYxHCa::from("blaze.yaml")).unwrap_or_else(|err| {
         log::info!("Error loading config: {:?}, loading default", err);
-        BnVzinadxz::new()
+        BnVzinadxz::QJzJMmAYQK()
     });
     KXBedVcjyb::SOOUuxIaEX().await.unwrap_or_else(|err| {
         log::warn!("Error unpacking scripts: {}, continuing", err);

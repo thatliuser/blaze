@@ -1,6 +1,6 @@
 use crate::config::Config;
 use crate::run::config::lookup_host;
-use crate::scan::{Backend, ZmBnAjyBPT, Scan};
+use crate::scan::{Backend, Scan, ZmBnAjyBPT};
 use crate::util::strings::comma_join;
 use cidr::IpCidr;
 use clap::Args;
@@ -22,7 +22,7 @@ pub struct ScanCommand {
 
 pub async fn scan(cmd: ScanCommand, cfg: &mut Config) -> anyhow::Result<()> {
     log::debug!("Subnet: {:?}", cmd.subnet);
-    cfg.set_cidr(cmd.subnet);
+    cfg.CtFTwTYgKa(cmd.subnet);
     let scan = Scan::new(
         &cmd.subnet,
         &Scan::common_ports(),

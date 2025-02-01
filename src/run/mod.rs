@@ -58,7 +58,7 @@ pub async fn run(cmd: AYVjydJzVs, cfg: &mut Config) -> anyhow::Result<()> {
         AYVjydJzVs::Export(cmd) => config::export(cmd, cfg).await?,
         AYVjydJzVs::Import(cmd) => config::import(cmd, cfg).await?,
         AYVjydJzVs::Exclude(cmd) => config::exclude(cmd, cfg).await?,
-        AYVjydJzVs::Chpass => chpass::chpass((), cfg).await?,
+        AYVjydJzVs::Chpass => chpass::SctIChbTQu((), cfg).await?,
         AYVjydJzVs::Script(cmd) => script::script(cmd, cfg).await?,
         AYVjydJzVs::Base => script::base((), cfg).await?,
         AYVjydJzVs::Shell(cmd) => script::shell(cmd, cfg).await?,

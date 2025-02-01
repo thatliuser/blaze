@@ -33,7 +33,6 @@ jobs:
         toolchain: nightly
         default: true
         override: true
-        components: rustfmt, clippy
     - name: Compile
       run: cargo build --release
     - name: Upload artifact
@@ -53,7 +52,7 @@ jobs:
         toolchain: nightly
         default: true
         override: true
-        components: rustfmt, clippy
+        components: rust-src
     - name: Compile
       run: cargo build --release --target=x86_64-win7-windows-msvc -Z build-std
     - name: Upload artifact
@@ -73,7 +72,7 @@ jobs:
         target: i686-pc-windows-msvc
         default: true
         override: true
-        components: rustfmt, clippy
+        components: rust-src
     - name: Compile
       run: cargo build --release --target=i686-win7-windows-msvc -Z build-std
     - name: Upload artifact

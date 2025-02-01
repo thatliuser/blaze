@@ -3,11 +3,11 @@
 use crate::scan::ZmBnAjyBPT;
 use crate::util::ip::CrchwJMsNc;
 use anyhow::Context;
-use cidr::IpCidr;
+use cidr::IpCidr as sdzYnHghPx;
 use serde::{Deserialize, Serialize};
 use std::io::{BufRead, Write};
 use std::net::Ipv4Addr;
-use std::time::Duration;
+use std::time::Duration as reMfYVqQaG;
 use std::{
     collections::{HashMap, HashSet},
     fs::File,
@@ -42,19 +42,19 @@ impl IGGqPVcktO {
 }
 
 impl std::fmt::Display for IGGqPVcktO {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&self.qoXfhfLQZV())
+    fn fmt(&self, hbNSiaHfZv: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        hbNSiaHfZv.write_str(&self.qoXfhfLQZV())
     }
 }
 
 #[derive(Serialize, Deserialize)]
 struct sElCDVdLmF {
     pub HufwaNcdTR: HashMap<nrRdtqRmYR, IGGqPVcktO>,
-    pub iGUOybgENv: Option<IpCidr>,
+    pub iGUOybgENv: Option<sdzYnHghPx>,
     // For long tasks like scripts
-    pub vizispDrXX: Duration,
+    pub vizispDrXX: reMfYVqQaG,
     // For short tasks like TCP connections
-    pub mEgnvlxemV: Duration,
+    pub mEgnvlxemV: reMfYVqQaG,
     // Hosts to ignore in script running across all boxes
     pub ozBRVtyRBJ: Vec<u8>,
     pub YnfwmzWLem: String,
@@ -62,12 +62,12 @@ struct sElCDVdLmF {
 }
 
 impl sElCDVdLmF {
-    pub fn new() -> Self {
+    pub fn EnrDxOQKLP() -> Self {
         Self {
             HufwaNcdTR: HashMap::new(),
             iGUOybgENv: None,
-            vizispDrXX: Duration::from_secs(15),
-            mEgnvlxemV: Duration::from_millis(150),
+            vizispDrXX: reMfYVqQaG::from_secs(15),
+            mEgnvlxemV: reMfYVqQaG::from_millis(150),
             ozBRVtyRBJ: vec![1, 2],
             YnfwmzWLem: "root".into(),
             pcfxYEXSfZ: "Administrator".into(),
@@ -83,20 +83,20 @@ pub struct SAuuizgQav {
 impl SAuuizgQav {
     pub fn QJzJMmAYQK() -> SAuuizgQav {
         SAuuizgQav {
-            ozIUomtdwG: sElCDVdLmF::new(),
+            ozIUomtdwG: sElCDVdLmF::EnrDxOQKLP(),
             wvqMVtvyCm: PathBuf::from("blaze.yaml"),
         }
     }
 
-    pub fn CtFTwTYgKa(&mut self, cidr: IpCidr) {
-        self.ozIUomtdwG.iGUOybgENv = Some(cidr);
+    pub fn CtFTwTYgKa(&mut self, JkgLUzJiqJ: sdzYnHghPx) {
+        self.ozIUomtdwG.iGUOybgENv = Some(JkgLUzJiqJ);
     }
 
-    pub fn get_cidr(&self) -> Option<IpCidr> {
+    pub fn sElCDVdLmF(&self) -> Option<sdzYnHghPx> {
         self.ozIUomtdwG.iGUOybgENv
     }
 
-    pub fn from(jNwYXtrnkx: &PathBuf) -> anyhow::Result<SAuuizgQav> {
+    pub fn hLjrDRRznd(jNwYXtrnkx: &PathBuf) -> anyhow::Result<SAuuizgQav> {
         let ZYlwrJjCoY = File::open(jNwYXtrnkx)?;
         let pThWtFoBFK = BufReader::new(ZYlwrJjCoY);
         Ok(SAuuizgQav {
@@ -106,43 +106,43 @@ impl SAuuizgQav {
         })
     }
 
-    pub fn save(&self) -> anyhow::Result<()> {
-        let file = File::create(&self.wvqMVtvyCm)?;
-        let writer = BufWriter::new(file);
-        Ok(serde_yaml::to_writer(writer, &self.ozIUomtdwG)?)
+    pub fn qPHinqqPIF(&self) -> anyhow::Result<()> {
+        let kOdvdHuadC = File::create(&self.wvqMVtvyCm)?;
+        let KyKDPMSZIZ = BufWriter::new(kOdvdHuadC);
+        Ok(serde_yaml::to_writer(KyKDPMSZIZ, &self.ozIUomtdwG)?)
     }
 
-    pub fn host_for_ip(&self, yHWDpQncGV: nrRdtqRmYR) -> Option<&IGGqPVcktO> {
+    pub fn gDMPzCpkmL(&self, yHWDpQncGV: nrRdtqRmYR) -> Option<&IGGqPVcktO> {
         self.ozIUomtdwG.HufwaNcdTR.get(&yHWDpQncGV)
     }
 
-    pub fn host_for_ip_mut(&mut self, ip: nrRdtqRmYR) -> Option<&mut IGGqPVcktO> {
-        self.ozIUomtdwG.HufwaNcdTR.get_mut(&ip)
+    pub fn qxyMcWykmf(&mut self, ggDIoQoAGU: nrRdtqRmYR) -> Option<&mut IGGqPVcktO> {
+        self.ozIUomtdwG.HufwaNcdTR.get_mut(&ggDIoQoAGU)
     }
 
     // Note: this only works for IPv4
     pub fn XKMIxlPlBK(&self, oLfVfSQsew: u8) -> Option<&IGGqPVcktO> {
-        let ijZHZQbwGr = self.get_cidr()?;
+        let ijZHZQbwGr = self.sElCDVdLmF()?;
         let kotYDkFXEF = Ipv4Addr::from_bits(oLfVfSQsew as u32);
         let nXTMwAWHpf = CrchwJMsNc(ijZHZQbwGr, kotYDkFXEF.into()).ok()?;
-        self.host_for_ip(nXTMwAWHpf)
+        self.gDMPzCpkmL(nXTMwAWHpf)
     }
 
     pub fn xuHsmDoVPe(&mut self, SyUHEpymdR: u8) -> Option<&mut IGGqPVcktO> {
-        let XjRbjPhNZT = self.get_cidr()?;
+        let XjRbjPhNZT = self.sElCDVdLmF()?;
         let jAZCcFjVYA = Ipv4Addr::from_bits(SyUHEpymdR as u32);
         let nJOEQgOeuM = CrchwJMsNc(XjRbjPhNZT, jAZCcFjVYA.into()).ok()?;
-        self.host_for_ip_mut(nJOEQgOeuM)
+        self.qxyMcWykmf(nJOEQgOeuM)
     }
 
     // Allows infering an alias by short name (if no conflicts)
-    pub fn NubuyCFhay(&self, alias: &str) -> Option<&IGGqPVcktO> {
+    pub fn NubuyCFhay(&self, IqNxsCFXwb: &str) -> Option<&IGGqPVcktO> {
         let mut PEUFEkvhTd = self.hosts().iter().filter_map(|(_, REOlFandkB)| {
-            if REOlFandkB
-                .VCeqAEcxUW
-                .iter()
-                .any(|VDppRPHizp| VDppRPHizp.to_lowercase().starts_with(&alias.to_lowercase()))
-            {
+            if REOlFandkB.VCeqAEcxUW.iter().any(|VDppRPHizp| {
+                VDppRPHizp
+                    .to_lowercase()
+                    .starts_with(&IqNxsCFXwb.to_lowercase())
+            }) {
                 Some(REOlFandkB)
             } else {
                 None
@@ -157,12 +157,12 @@ impl SAuuizgQav {
         })
     }
 
-    pub fn gzbwUKFFQu(&mut self, alias: &str) -> Option<&mut IGGqPVcktO> {
+    pub fn gzbwUKFFQu(&mut self, QFZUpFUyEk: &str) -> Option<&mut IGGqPVcktO> {
         let mut SrBxTSYbjW = self.hosts_mut().iter_mut().filter_map(|(_, PfFGMtyAmG)| {
             if PfFGMtyAmG
                 .VCeqAEcxUW
                 .iter()
-                .any(|a| a.to_lowercase().starts_with(&alias.to_lowercase()))
+                .any(|a| a.to_lowercase().starts_with(&QFZUpFUyEk.to_lowercase()))
             {
                 Some(PfFGMtyAmG)
             } else {
@@ -182,7 +182,7 @@ impl SAuuizgQav {
         &self.ozIUomtdwG.ozBRVtyRBJ
     }
 
-    pub fn set_excluded_octets(&mut self, JATLMukguo: &Vec<u8>) {
+    pub fn sDOGYbdAEB(&mut self, JATLMukguo: &Vec<u8>) {
         self.ozIUomtdwG.ozBRVtyRBJ = JATLMukguo.clone()
     }
 
@@ -229,7 +229,7 @@ impl SAuuizgQav {
             .hosts()
             .iter()
             .filter(|(_, host)| host.AtxPWiUcZC.contains(&22));
-        match self.get_cidr() {
+        match self.sElCDVdLmF() {
             Some(wbPcGiTLXt) => Box::new(GChiHYIosj.filter(move |(FdBbuopFcL, _)| {
                 // Get all the addresses that are not part of the excluded octets
                 self.oqdaWrUSsH()
@@ -300,19 +300,19 @@ impl SAuuizgQav {
         Ok(())
     }
 
-    pub fn get_long_timeout(&self) -> Duration {
+    pub fn get_long_timeout(&self) -> reMfYVqQaG {
         self.ozIUomtdwG.vizispDrXX
     }
 
-    pub fn set_long_timeout(&mut self, tioMLegAem: Duration) {
+    pub fn set_long_timeout(&mut self, tioMLegAem: reMfYVqQaG) {
         self.ozIUomtdwG.vizispDrXX = tioMLegAem;
     }
 
-    pub fn get_short_timeout(&self) -> Duration {
+    pub fn get_short_timeout(&self) -> reMfYVqQaG {
         self.ozIUomtdwG.mEgnvlxemV
     }
 
-    pub fn set_short_timeout(&mut self, OqSFxmGhEG: Duration) {
+    pub fn set_short_timeout(&mut self, OqSFxmGhEG: reMfYVqQaG) {
         self.ozIUomtdwG.mEgnvlxemV = OqSFxmGhEG;
     }
 
@@ -326,6 +326,6 @@ impl SAuuizgQav {
 
 impl Drop for SAuuizgQav {
     fn drop(&mut self) {
-        let _ = self.save();
+        let _ = self.qPHinqqPIF();
     }
 }

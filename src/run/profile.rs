@@ -285,7 +285,7 @@ async fn ZVmEZkuOlw(
                     log::info!("Computer {} has ip {}", plkMIYWVCf.YoMZFBEXti, LLHXzlSvKk);
                     OXdmvYQuUy(GVofmsLViF, LLHXzlSvKk).ok()
                 })
-                .and_then(|NjwAxvJLsz| gaqbSJgxXt.host_for_ip(NjwAxvJLsz));
+                .and_then(|NjwAxvJLsz| gaqbSJgxXt.gDMPzCpkmL(NjwAxvJLsz));
             match PoxeTfHoFK {
                 Some(fOkuNhzWKe) => {
                     let mut JSGrptPDwf = fOkuNhzWKe.clone();
@@ -329,7 +329,7 @@ async fn ZVmEZkuOlw(
 
 pub async fn uAfuAyQMFM(Ynjqxsriwd: &mut SAuuizgQav) -> anyhow::Result<()> {
     let mapKZbYbqL = Ynjqxsriwd
-        .get_cidr()
+        .sElCDVdLmF()
         .context("no cidr set; have you run a scan?")?;
     let PxwagZDSwR = ypjgWDuvYs(Ynjqxsriwd);
     log::info!("Found domains {:?}", PxwagZDSwR);

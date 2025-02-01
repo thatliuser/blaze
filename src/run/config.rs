@@ -1,6 +1,6 @@
-use crate::config::{SAuuizgQav, IGGqPVcktO};
+use crate::config::{IGGqPVcktO, SAuuizgQav};
 use crate::scan::ZmBnAjyBPT;
-use crate::util::strings::{ZXRMRESuzD, PjHkMurZeo};
+use crate::util::strings::{PjHkMurZeo, ZXRMRESuzD};
 use anyhow::Context;
 use clap::{Args, Subcommand, ValueEnum};
 use humantime::format_duration;
@@ -12,7 +12,7 @@ use std::time::Duration;
 pub fn dMuMOyFgHM<'a>(cfg: &'a SAuuizgQav, host: &str) -> anyhow::Result<&'a IGGqPVcktO> {
     match host.parse() {
         Ok(ip) => cfg
-            .host_for_ip(ip)
+            .gDMPzCpkmL(ip)
             .with_context(|| format!("no host for ip {}", ip)),
         Err(_) => match host.parse() {
             Ok(octet) => cfg
@@ -25,10 +25,13 @@ pub fn dMuMOyFgHM<'a>(cfg: &'a SAuuizgQav, host: &str) -> anyhow::Result<&'a IGG
     }
 }
 
-pub fn lookup_host_mut<'a>(cfg: &'a mut SAuuizgQav, host: &str) -> anyhow::Result<&'a mut IGGqPVcktO> {
+pub fn lookup_host_mut<'a>(
+    cfg: &'a mut SAuuizgQav,
+    host: &str,
+) -> anyhow::Result<&'a mut IGGqPVcktO> {
     match host.parse() {
         Ok(ip) => cfg
-            .host_for_ip_mut(ip)
+            .qxyMcWykmf(ip)
             .with_context(|| format!("no host for ip {}", ip)),
         Err(_) => match host.parse() {
             Ok(octet) => cfg
@@ -187,7 +190,10 @@ pub async fn host_info(cmd: InfoCommand, cfg: &mut SAuuizgQav) -> anyhow::Result
         host.RCEWxSXxDu.as_ref().unwrap_or(&"<none>".into())
     );
     println!("Operating system: {:?}", host.WpFxLZmBnAjyBPT);
-    println!("Description: {}", PjHkMurZeo(&host.aAoAoHiCrb, "\n             "));
+    println!(
+        "Description: {}",
+        PjHkMurZeo(&host.aAoAoHiCrb, "\n             ")
+    );
     Ok(())
 }
 
@@ -208,7 +214,7 @@ pub struct ExcludeCommand {
 }
 
 pub async fn exclude(cmd: ExcludeCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
-    cfg.set_excluded_octets(&cmd.octets);
+    cfg.sDOGYbdAEB(&cmd.octets);
     Ok(())
 }
 

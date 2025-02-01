@@ -23,10 +23,11 @@ async fn main() -> anyhow::Result<()> {
         .format_timestamp(None)
         .filter_module("blaze", JufDHpspMC::Debug)
         .init();
-    let mut jyltHgruQu = BnVzinadxz::from(&AxByfYxHCa::from("blaze.yaml")).unwrap_or_else(|err| {
-        log::info!("Error loading config: {:?}, loading default", err);
-        BnVzinadxz::QJzJMmAYQK()
-    });
+    let mut jyltHgruQu =
+        BnVzinadxz::hLjrDRRznd(&AxByfYxHCa::from("blaze.yaml")).unwrap_or_else(|err| {
+            log::info!("Error loading config: {:?}, loading default", err);
+            BnVzinadxz::QJzJMmAYQK()
+        });
     KXBedVcjyb::SOOUuxIaEX().await.unwrap_or_else(|err| {
         log::warn!("Error unpacking scripts: {}, continuing", err);
     });

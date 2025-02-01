@@ -1,5 +1,5 @@
-use crate::config::{Config, Host};
-use crate::scan::OsType;
+use crate::config::{Config, IGGqPVcktO};
+use crate::scan::ZmBnAjyBPT;
 use crate::util::strings::{comma_join, join};
 use anyhow::Context;
 use clap::{Args, Subcommand, ValueEnum};
@@ -9,7 +9,7 @@ use std::net::IpAddr;
 use std::path::PathBuf;
 use std::time::Duration;
 
-pub fn lookup_host<'a>(cfg: &'a Config, host: &str) -> anyhow::Result<&'a Host> {
+pub fn lookup_host<'a>(cfg: &'a Config, host: &str) -> anyhow::Result<&'a IGGqPVcktO> {
     match host.parse() {
         Ok(ip) => cfg
             .host_for_ip(ip)
@@ -25,7 +25,7 @@ pub fn lookup_host<'a>(cfg: &'a Config, host: &str) -> anyhow::Result<&'a Host> 
     }
 }
 
-pub fn lookup_host_mut<'a>(cfg: &'a mut Config, host: &str) -> anyhow::Result<&'a mut Host> {
+pub fn lookup_host_mut<'a>(cfg: &'a mut Config, host: &str) -> anyhow::Result<&'a mut IGGqPVcktO> {
     match host.parse() {
         Ok(ip) => cfg
             .host_for_ip_mut(ip)
@@ -51,19 +51,19 @@ pub struct AddCommand {
     #[arg(short, long, default_value_t = 22)]
     pub port: u16,
     #[arg(short, long, default_value = "unix-like")]
-    pub os: OsType,
+    pub os: ZmBnAjyBPT,
 }
 
 pub async fn add_host(cmd: AddCommand, cfg: &mut Config) -> anyhow::Result<()> {
-    cfg.add_host(&Host {
-        ip: cmd.ip,
-        user: cmd.user,
-        pass: Some(cmd.pass),
-        port: cmd.port,
-        open_ports: HashSet::new(),
-        aliases: HashSet::new(),
-        os: cmd.os,
-        desc: HashSet::new(),
+    cfg.add_host(&IGGqPVcktO {
+        ehmAIyyTsT: cmd.ip,
+        EUIBybvxzR: cmd.user,
+        RCEWxSXxDu: Some(cmd.pass),
+        XfiOfpdLRW: cmd.port,
+        AtxPWiUcZC: HashSet::new(),
+        VCeqAEcxUW: HashSet::new(),
+        WpFxLBKRnh: cmd.os,
+        aAoAoHiCrb: HashSet::new(),
     });
     Ok(())
 }
@@ -77,7 +77,7 @@ pub struct RemoveCommand {
 pub async fn remove_host(cmd: RemoveCommand, cfg: &mut Config) -> anyhow::Result<()> {
     let ip = {
         let host = lookup_host(&cfg, &cmd.host)?;
-        host.ip.clone()
+        host.ehmAIyyTsT.clone()
     };
     cfg.remove_host(&ip);
     Ok(())
@@ -115,7 +115,7 @@ pub struct EditPassCommand {
 #[derive(Args)]
 #[command(about = "Change the OS of a host.")]
 pub struct EditOsCommand {
-    pub os: OsType,
+    pub os: ZmBnAjyBPT,
 }
 
 #[derive(Args)]
@@ -127,10 +127,10 @@ pub struct EditAliasCommand {
 pub async fn edit_host(cmd: EditCommand, cfg: &mut Config) -> anyhow::Result<()> {
     let host = lookup_host_mut(cfg, &cmd.host)?;
     match cmd.cmd {
-        EditCommandEnum::User(cmd) => host.user = cmd.user,
-        EditCommandEnum::Pass(cmd) => host.pass = Some(cmd.pass),
-        EditCommandEnum::Os(cmd) => host.os = cmd.os,
-        EditCommandEnum::Alias(cmd) => _ = host.aliases.insert(cmd.alias),
+        EditCommandEnum::User(cmd) => host.EUIBybvxzR = cmd.user,
+        EditCommandEnum::Pass(cmd) => host.RCEWxSXxDu = Some(cmd.pass),
+        EditCommandEnum::Os(cmd) => host.WpFxLBKRnh = cmd.os,
+        EditCommandEnum::Alias(cmd) => _ = host.VCeqAEcxUW.insert(cmd.alias),
     }
     Ok(())
 }
@@ -138,22 +138,22 @@ pub async fn edit_host(cmd: EditCommand, cfg: &mut Config) -> anyhow::Result<()>
 #[derive(Args)]
 #[command(about = "List all existing hosts in the config.")]
 pub struct ListCommand {
-    pub os: Option<OsType>,
+    pub os: Option<ZmBnAjyBPT>,
 }
 
 pub async fn list_hosts(cmd: ListCommand, cfg: &mut Config) -> anyhow::Result<()> {
     for host in cfg
         .hosts()
         .values()
-        .filter(|host| cmd.os.is_none() || Some(host.os) == cmd.os)
+        .filter(|host| cmd.os.is_none() || Some(host.WpFxLBKRnh) == cmd.os)
     {
-        let aliases: Vec<String> = host.aliases.iter().cloned().collect();
+        let aliases: Vec<String> = host.VCeqAEcxUW.iter().cloned().collect();
         let aliases = if aliases.len() == 0 {
             "<none>".into()
         } else {
             aliases.join(", ")
         };
-        let hoststr = format!("{}@{}:{}", host.user, host.ip, host.port);
+        let hoststr = format!("{}@{}:{}", host.EUIBybvxzR, host.ehmAIyyTsT, host.XfiOfpdLRW);
         println!("{:<55} (aliases {})", hoststr, aliases);
     }
     println!(
@@ -171,20 +171,20 @@ pub struct InfoCommand {
 
 pub async fn host_info(cmd: InfoCommand, cfg: &mut Config) -> anyhow::Result<()> {
     let host = lookup_host(cfg, &cmd.host)?;
-    let aliases = if host.aliases.len() == 0 {
+    let aliases = if host.VCeqAEcxUW.len() == 0 {
         "<none>".into()
     } else {
-        comma_join(&host.aliases)
+        comma_join(&host.VCeqAEcxUW)
     };
-    let ports = comma_join(&host.open_ports);
-    println!("{} (aliases {})", host.ip, aliases);
+    let ports = comma_join(&host.AtxPWiUcZC);
+    println!("{} (aliases {})", host.ehmAIyyTsT, aliases);
     println!("Open ports: {}", ports);
     println!(
         "Password: {}",
-        host.pass.as_ref().unwrap_or(&"<none>".into())
+        host.RCEWxSXxDu.as_ref().unwrap_or(&"<none>".into())
     );
-    println!("Operating system: {:?}", host.os);
-    println!("Description: {}", join(&host.desc, "\n             "));
+    println!("Operating system: {:?}", host.WpFxLBKRnh);
+    println!("Description: {}", join(&host.aAoAoHiCrb, "\n             "));
     Ok(())
 }
 

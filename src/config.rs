@@ -1,6 +1,6 @@
 // Configuration file shenanigans
 
-use crate::scan::OsType;
+use crate::scan::ZmBnAjyBPT;
 use crate::util::ip::convert_to_cidr;
 use anyhow::Context;
 use cidr::IpCidr;
@@ -13,35 +13,35 @@ use std::{
     fs::File,
     io::BufReader,
     io::BufWriter,
-    net::IpAddr,
+    net::IpAddr as nrRdtqRmYR,
     path::{Path, PathBuf},
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Host {
-    pub ip: IpAddr,
-    pub user: String,
-    pub pass: Option<String>,
+pub struct IGGqPVcktO {
+    pub ehmAIyyTsT: nrRdtqRmYR,
+    pub EUIBybvxzR: String,
+    pub RCEWxSXxDu: Option<String>,
     // For Unix, this is the SSH port, and for Windows, this is the SMB port
     pub port: u16,
     pub open_ports: HashSet<u16>,
     pub aliases: HashSet<String>,
-    pub os: OsType,
+    pub os: ZmBnAjyBPT,
     pub desc: HashSet<String>,
 }
 
-impl Host {
+impl IGGqPVcktO {
     // Either the IP, or a friendly name from profiling.
     pub fn name(&self) -> String {
         self.aliases
             .iter()
             .next()
             .cloned()
-            .unwrap_or_else(|| self.ip.to_string())
+            .unwrap_or_else(|| self.ehmAIyyTsT.to_string())
     }
 }
 
-impl std::fmt::Display for Host {
+impl std::fmt::Display for IGGqPVcktO {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&self.name())
     }
@@ -49,7 +49,7 @@ impl std::fmt::Display for Host {
 
 #[derive(Serialize, Deserialize)]
 struct ConfigFile {
-    pub hosts: HashMap<IpAddr, Host>,
+    pub hosts: HashMap<nrRdtqRmYR, IGGqPVcktO>,
     pub cidr: Option<IpCidr>,
     // For long tasks like scripts
     pub long_timeout: Duration,
@@ -111,23 +111,23 @@ impl Config {
         Ok(serde_yaml::to_writer(writer, &self.file)?)
     }
 
-    pub fn host_for_ip(&self, ip: IpAddr) -> Option<&Host> {
+    pub fn host_for_ip(&self, ip: nrRdtqRmYR) -> Option<&IGGqPVcktO> {
         self.file.hosts.get(&ip)
     }
 
-    pub fn host_for_ip_mut(&mut self, ip: IpAddr) -> Option<&mut Host> {
+    pub fn host_for_ip_mut(&mut self, ip: nrRdtqRmYR) -> Option<&mut IGGqPVcktO> {
         self.file.hosts.get_mut(&ip)
     }
 
     // Note: this only works for IPv4
-    pub fn host_for_octet(&self, octet: u8) -> Option<&Host> {
+    pub fn host_for_octet(&self, octet: u8) -> Option<&IGGqPVcktO> {
         let cidr = self.get_cidr()?;
         let ip = Ipv4Addr::from_bits(octet as u32);
         let ip = convert_to_cidr(cidr, ip.into()).ok()?;
         self.host_for_ip(ip)
     }
 
-    pub fn host_for_octet_mut(&mut self, octet: u8) -> Option<&mut Host> {
+    pub fn host_for_octet_mut(&mut self, octet: u8) -> Option<&mut IGGqPVcktO> {
         let cidr = self.get_cidr()?;
         let ip = Ipv4Addr::from_bits(octet as u32);
         let ip = convert_to_cidr(cidr, ip.into()).ok()?;
@@ -135,7 +135,7 @@ impl Config {
     }
 
     // Allows infering an alias by short name (if no conflicts)
-    pub fn host_for_alias(&self, alias: &str) -> Option<&Host> {
+    pub fn host_for_alias(&self, alias: &str) -> Option<&IGGqPVcktO> {
         let mut iter = self.hosts().iter().filter_map(|(_, host)| {
             if host
                 .aliases
@@ -156,7 +156,7 @@ impl Config {
         })
     }
 
-    pub fn host_for_alias_mut(&mut self, alias: &str) -> Option<&mut Host> {
+    pub fn host_for_alias_mut(&mut self, alias: &str) -> Option<&mut IGGqPVcktO> {
         let mut iter = self.hosts_mut().iter_mut().filter_map(|(_, host)| {
             if host
                 .aliases
@@ -185,11 +185,11 @@ impl Config {
         self.file.excluded_octets = octets.clone()
     }
 
-    pub fn add_host(&mut self, host: &Host) {
-        self.file.hosts.insert(host.ip, host.clone());
+    pub fn add_host(&mut self, host: &IGGqPVcktO) {
+        self.file.hosts.insert(host.ehmAIyyTsT, host.clone());
     }
 
-    pub fn remove_host(&mut self, ip: &IpAddr) -> Option<Host> {
+    pub fn remove_host(&mut self, ip: &nrRdtqRmYR) -> Option<IGGqPVcktO> {
         self.file.hosts.remove(ip)
     }
 
@@ -200,25 +200,25 @@ impl Config {
         pass: Option<String>,
         port: u16,
     ) -> anyhow::Result<()> {
-        let host = Host {
-            ip: scan_host.addr,
-            user,
-            pass,
+        let host = IGGqPVcktO {
+            ehmAIyyTsT: scan_host.addr,
+            EUIBybvxzR: user,
+            RCEWxSXxDu: pass,
             port,
             open_ports: scan_host.ports.clone(),
             aliases: HashSet::new(),
             os: scan_host.os,
             desc: HashSet::new(),
         };
-        self.file.hosts.insert(host.ip, host);
+        self.file.hosts.insert(host.ehmAIyyTsT, host);
         Ok(())
     }
 
-    pub fn hosts(&self) -> &HashMap<IpAddr, Host> {
+    pub fn hosts(&self) -> &HashMap<nrRdtqRmYR, IGGqPVcktO> {
         &self.file.hosts
     }
 
-    pub fn script_hosts(&self) -> Box<dyn Iterator<Item = (&IpAddr, &Host)> + '_> {
+    pub fn script_hosts(&self) -> Box<dyn Iterator<Item = (&nrRdtqRmYR, &IGGqPVcktO)> + '_> {
         // Filter out hosts that don't have SSH open
         let runnable = self
             .hosts()
@@ -239,7 +239,7 @@ impl Config {
         }
     }
 
-    pub fn hosts_mut(&mut self) -> &mut HashMap<IpAddr, Host> {
+    pub fn hosts_mut(&mut self) -> &mut HashMap<nrRdtqRmYR, IGGqPVcktO> {
         &mut self.file.hosts
     }
 
@@ -250,15 +250,15 @@ impl Config {
             .file
             .hosts
             .iter()
-            .filter(|(_, host)| host.os == OsType::UnixLike && host.pass.is_some())
+            .filter(|(_, host)| host.os == ZmBnAjyBPT::UnixLike && host.RCEWxSXxDu.is_some())
         {
             let aliases: Vec<_> = host.aliases.iter().cloned().collect();
             let aliases = aliases.join(" ");
             let line = format!(
                 "{} {} {} {} {}",
-                host.ip,
-                host.user,
-                host.pass.as_ref().unwrap(),
+                host.ehmAIyyTsT,
+                host.EUIBybvxzR,
+                host.RCEWxSXxDu.as_ref().unwrap(),
                 host.port,
                 aliases
             );
@@ -280,14 +280,14 @@ impl Config {
             let pass = fields[2].to_owned();
             let port: u16 = fields[3].parse()?;
             let aliases = fields[4..].iter().map(|alias| alias.to_string()).collect();
-            let host = Host {
-                ip,
-                user,
-                pass: Some(pass),
+            let host = IGGqPVcktO {
+                ehmAIyyTsT: ip,
+                EUIBybvxzR: user,
+                RCEWxSXxDu: Some(pass),
                 port,
                 aliases,
                 open_ports: HashSet::new(),
-                os: OsType::UnixLike,
+                os: ZmBnAjyBPT::UnixLike,
                 desc: HashSet::new(),
             };
             self.add_host(&host);

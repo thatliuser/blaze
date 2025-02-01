@@ -1,5 +1,5 @@
-use crate::config::{Config, Host};
-use crate::proto::ssh::Session;
+use crate::config::{Config, IGGqPVcktO};
+use crate::proto::ssh::yiqafanmjb;
 use crate::run::config::lookup_host;
 use anyhow::Context;
 use clap::Args;
@@ -34,11 +34,11 @@ impl RunScriptArgs {
     }
 }
 
-async fn do_run_script_args(host: &Host, args: RunScriptArgs) -> anyhow::Result<(u32, String)> {
-    if let Some(pass) = &host.pass {
-        let mut session = Session::connect(&host.user, pass, (host.ip, host.port)).await?;
+async fn do_run_script_args(host: &IGGqPVcktO, args: RunScriptArgs) -> anyhow::Result<(u32, String)> {
+    if let Some(pass) = &host.RCEWxSXxDu {
+        let mut session = yiqafanmjb::SzAhzDkJOY(&host.EUIBybvxzR, pass, (host.ehmAIyyTsT, host.XfiOfpdLRW)).await?;
         let (code, output) = session
-            .run_script(&args.script, args.args, true, args.upload)
+            .PyObXhiFqw(&args.script, args.args, true, args.upload)
             .await?;
         let output = String::from_utf8_lossy(&output);
         Ok((code, output.into()))
@@ -49,7 +49,7 @@ async fn do_run_script_args(host: &Host, args: RunScriptArgs) -> anyhow::Result<
 
 pub async fn run_script_args(
     timeout: Duration,
-    host: &Host,
+    host: &IGGqPVcktO,
     args: RunScriptArgs,
 ) -> anyhow::Result<(u32, String)> {
     tokio::time::timeout(timeout, do_run_script_args(host, args))
@@ -59,18 +59,18 @@ pub async fn run_script_args(
 
 pub async fn run_script(
     timeout: Duration,
-    host: &Host,
+    host: &IGGqPVcktO,
     args: RunScriptArgs,
 ) -> anyhow::Result<(u32, String)> {
     run_script_args(timeout, host, args).await
 }
 
-pub async fn run_script_all_args<F: FnMut(&Host) -> Vec<String>>(
+pub async fn run_script_all_args<F: FnMut(&IGGqPVcktO) -> Vec<String>>(
     timeout: Duration,
     cfg: &Config,
     mut gen_args: F,
     args: RunScriptArgs,
-) -> JoinSet<(Host, anyhow::Result<(u32, String)>)> {
+) -> JoinSet<(IGGqPVcktO, anyhow::Result<(u32, String)>)> {
     log::info!("Executing script on all hosts");
     let mut set = JoinSet::new();
     for (_, host) in cfg.script_hosts() {
@@ -91,22 +91,22 @@ pub async fn run_script_all(
     timeout: Duration,
     cfg: &Config,
     args: RunScriptArgs,
-) -> JoinSet<(Host, anyhow::Result<(u32, String)>)> {
+) -> JoinSet<(IGGqPVcktO, anyhow::Result<(u32, String)>)> {
     let arg_list = args.args.clone();
     run_script_all_args(timeout, cfg, |_| arg_list.clone(), args).await
 }
 
-async fn do_upload_script(host: &Host, script: &Path) -> anyhow::Result<()> {
-    if let Some(pass) = &host.pass {
-        let mut session = Session::connect(&host.user, pass, (host.ip, host.port)).await?;
-        session.upload(script).await?;
+async fn do_upload_script(host: &IGGqPVcktO, script: &Path) -> anyhow::Result<()> {
+    if let Some(pass) = &host.RCEWxSXxDu {
+        let mut session = yiqafanmjb::SzAhzDkJOY(&host.EUIBybvxzR, pass, (host.ehmAIyyTsT, host.XfiOfpdLRW)).await?;
+        session.MpDZOTLLcB(script).await?;
         Ok(())
     } else {
         anyhow::bail!("No password for host set")
     }
 }
 
-async fn upload_script(timeout: Duration, host: &Host, script: &Path) -> anyhow::Result<()> {
+async fn upload_script(timeout: Duration, host: &IGGqPVcktO, script: &Path) -> anyhow::Result<()> {
     tokio::time::timeout(timeout, do_upload_script(host, script))
         .await
         .unwrap_or_else(|_| Err(anyhow::Error::msg("run_script_args timed out")))
@@ -116,7 +116,7 @@ pub async fn upload_script_all(
     timeout: Duration,
     cfg: &Config,
     script: &Path,
-) -> JoinSet<(Host, anyhow::Result<()>)> {
+) -> JoinSet<(IGGqPVcktO, anyhow::Result<()>)> {
     let mut set = JoinSet::new();
     for (_, host) in cfg.script_hosts() {
         let host = host.clone();
@@ -189,11 +189,11 @@ pub struct ShellCommand {
 
 pub async fn shell(cmd: ShellCommand, cfg: &mut Config) -> anyhow::Result<()> {
     let host = lookup_host(cfg, &cmd.host)?;
-    if let Some(pass) = &host.pass {
-        let mut session = Session::connect(&host.user, &pass, (host.ip, host.port)).await?;
-        log::info!("ssh {}@{} -p {}", host.user, host, host.port);
+    if let Some(pass) = &host.RCEWxSXxDu {
+        let mut session = yiqafanmjb::SzAhzDkJOY(&host.EUIBybvxzR, &pass, (host.ehmAIyyTsT, host.XfiOfpdLRW)).await?;
+        log::info!("ssh {}@{} -p {}", host.EUIBybvxzR, host, host.XfiOfpdLRW);
         log::info!("Using password '{}'", &pass);
-        let code = session.shell().await?;
+        let code = session.TgSSLzpblV().await?;
         if code != 0 {
             log::warn!("Shell returned nonzero code {}", code);
         }

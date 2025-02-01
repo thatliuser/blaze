@@ -1,6 +1,6 @@
 use crate::config::Config;
 use crate::run::config::lookup_host;
-use crate::scan::{Backend, OsType, Scan};
+use crate::scan::{Backend, ZmBnAjyBPT, Scan};
 use crate::util::strings::comma_join;
 use cidr::IpCidr;
 use clap::Args;
@@ -34,8 +34,8 @@ pub async fn scan(cmd: ScanCommand, cfg: &mut Config) -> anyhow::Result<()> {
     let windows_root = cmd.windows_root.unwrap_or(cfg.windows_root().into());
     for host in scan.hosts {
         let user = match host.os {
-            OsType::UnixLike => &linux_root,
-            OsType::Windows => &windows_root,
+            ZmBnAjyBPT::UnixLike => &linux_root,
+            ZmBnAjyBPT::Windows => &windows_root,
         }
         .clone();
         log::info!(
@@ -64,7 +64,7 @@ pub async fn rescan(cmd: RescanCommand, cfg: &mut Config) -> anyhow::Result<()> 
     ports.extend(cmd.ports.unwrap_or(Vec::new()));
     log::debug!("Rescanning for host {}", host);
     let scan = Scan::new(
-        &IpCidr::new_host(host.ip),
+        &IpCidr::new_host(host.ehmAIyyTsT),
         &ports,
         cmd.backend,
         cfg.get_short_timeout(),
@@ -75,7 +75,7 @@ pub async fn rescan(cmd: RescanCommand, cfg: &mut Config) -> anyhow::Result<()> 
     }
     let scanned = &scan.hosts[0];
     log::info!("Got ports {}", comma_join(&scanned.ports));
-    host.open_ports = scanned.ports.clone();
+    host.AtxPWiUcZC = scanned.ports.clone();
     cfg.add_host(&host);
     Ok(())
 }
@@ -95,7 +95,7 @@ pub struct PortCheckCommand {
 pub async fn port_check(cmd: PortCheckCommand, cfg: &mut Config) -> anyhow::Result<()> {
     let host = lookup_host(cfg, &cmd.host)?;
     let scan = Scan::new(
-        &IpCidr::new_host(host.ip),
+        &IpCidr::new_host(host.ehmAIyyTsT),
         &cmd.ports,
         cmd.backend,
         cfg.get_short_timeout(),

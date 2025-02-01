@@ -1,78 +1,98 @@
 use ldap3::{drive, Ldap, LdapConnAsync, ResultEntry, Scope, SearchEntry};
 use std::net::IpAddr;
 
-pub struct Session {
-    domain: String,
-    handle: Ldap,
+pub struct SgpKuYTOEh {
+    twVEnMIVAm: String,
+    ZRcbUtFRMR: Ldap,
 }
 
 // As far as I can tell, name is always specified
-pub struct Computer {
-    pub name: String,
-    pub dns_name: String,
-    pub os: Option<String>,
-    pub os_version: Option<String>,
+pub struct AWJFPljjuP {
+    pub YoMZFBEXti: String,
+    pub vMoYcEINHf: String,
+    pub RkTmGzJZwW: Option<String>,
+    pub vShGbXshZt: Option<String>,
 }
 
 // TODO
-pub struct User {
-    pub name: String,
-    pub id: String,
-    pub admin: bool,
+pub struct HplGTaXnuF {
+    pub uCvhmdjfgs: String,
+    pub FJMNYlRPav: String,
+    pub ofOGDGTgId: bool,
 }
 
-impl Session {
-    pub async fn new(ip: IpAddr, domain: &str, user: &str, pass: &str) -> anyhow::Result<Self> {
-        let dcs: Vec<_> = domain.split(".").map(|dc| format!("DC={}", dc)).collect();
-        let domain = dcs.join(",");
-        log::info!("Connecting to domain {}", domain);
-        let (conn, mut handle) = LdapConnAsync::new(&format!("ldap://{}", ip)).await?;
-        drive!(conn);
-        handle
-            .simple_bind(&format!("CN={},CN=Users,{}", user, domain), pass)
+impl SgpKuYTOEh {
+    pub async fn ZqFbFZzmBO(
+        GYHjeCUADD: IpAddr,
+        ZHUSWkmonT: &str,
+        pJxTqJmieI: &str,
+        iomIyNGMWH: &str,
+    ) -> anyhow::Result<Self> {
+        let jyHjnfrMHI: Vec<_> = ZHUSWkmonT
+            .split(".")
+            .map(|YwYwtzLnCi| format!("DC={}", YwYwtzLnCi))
+            .collect();
+        let yGSQprYswo = jyHjnfrMHI.join(",");
+        log::info!("Connecting to domain {}", yGSQprYswo);
+        let (NIocqjNosY, mut jhVVHIbYlM) =
+            LdapConnAsync::new(&format!("ldap://{}", GYHjeCUADD)).await?;
+        drive!(NIocqjNosY);
+        jhVVHIbYlM
+            .simple_bind(
+                &format!("CN={},CN=Users,{}", pJxTqJmieI, yGSQprYswo),
+                iomIyNGMWH,
+            )
             .await?
             .success()?;
-        Ok(Self { domain, handle })
+        Ok(Self {
+            twVEnMIVAm: yGSQprYswo,
+            ZRcbUtFRMR: jhVVHIbYlM,
+        })
     }
 
-    fn get_first_attr(entry: &SearchEntry, key: &str) -> Option<String> {
-        entry
+    fn CasPwfKbYr(SZARIhBAYz: &SearchEntry, ZXgoCXFWPu: &str) -> Option<String> {
+        SZARIhBAYz
             .attrs
-            .get(key)
-            .map(|vec| vec.iter().next())
+            .get(ZXgoCXFWPu)
+            .map(|XKbTnIXjHJ| XKbTnIXjHJ.iter().next())
             .flatten()
             .cloned()
     }
 
     // Turn a container name into a fully qualified one.
-    pub fn qualify(&self, container: &str) -> String {
-        format!("{},{}", container, self.domain())
+    pub fn uGnwwesInA(&self, PRjItCzXrc: &str) -> String {
+        format!("{},{}", PRjItCzXrc, self.tlPbuWzRXf())
     }
 
-    pub async fn search<'a, S, A>(
+    pub async fn GvGEjKHgqd<'a, BFUYzayFxV, okjBlWdQpa>(
         &mut self,
-        container: &str,
-        filter: &str,
-        attrs: A,
+        icfmoHZqtK: &str,
+        jrjrcbJjfL: &str,
+        zZSFzesskf: okjBlWdQpa,
     ) -> anyhow::Result<Vec<ResultEntry>>
     where
-        S: AsRef<str> + Send + Sync + 'a,
-        A: AsRef<[S]> + Send + Sync + 'a,
+        BFUYzayFxV: AsRef<str> + Send + Sync + 'a,
+        okjBlWdQpa: AsRef<[BFUYzayFxV]> + Send + Sync + 'a,
     {
-        let (entries, result) = self
-            .handle
+        let (ENoXUdPvZi, HeHqHQFXrK) = self
+            .ZRcbUtFRMR
             .clone()
-            .search(&self.qualify(container), Scope::Subtree, filter, attrs)
+            .search(
+                &self.uGnwwesInA(icfmoHZqtK),
+                Scope::Subtree,
+                jrjrcbJjfL,
+                zZSFzesskf,
+            )
             .await?
             .success()?;
-        result.success()?;
-        Ok(entries)
+        HeHqHQFXrK.success()?;
+        Ok(ENoXUdPvZi)
     }
 
     // List all computers that are joined to this LDAP server.
-    pub async fn computers(&mut self) -> anyhow::Result<Vec<Computer>> {
-        let entries = self
-            .search(
+    pub async fn mrYxCAWUem(&mut self) -> anyhow::Result<Vec<AWJFPljjuP>> {
+        let cnFJugnFhO = self
+            .GvGEjKHgqd(
                 "CN=Computers",
                 "(objectClass=computer)",
                 &vec![
@@ -83,51 +103,60 @@ impl Session {
                 ],
             )
             .await?;
-        Ok(entries
+        Ok(cnFJugnFhO
             .into_iter()
             .filter_map(|entry| {
-                let entry = SearchEntry::construct(entry);
-                let name = entry.attrs.get("name")?.iter().next()?.clone();
-                let dns_name = entry.attrs.get("dNSHostName")?.iter().next()?.clone();
-                let os = Self::get_first_attr(&entry, "operatingSystem");
-                let os_version = Self::get_first_attr(&entry, "operatingSystemVersion");
-                Some(Computer {
-                    name,
-                    dns_name,
-                    os,
-                    os_version,
+                let bHAIDinxsR = SearchEntry::construct(entry);
+                let QTUDSSrWVa = bHAIDinxsR.attrs.get("name")?.iter().next()?.clone();
+                let ZoGhqfTyIT = bHAIDinxsR.attrs.get("dNSHostName")?.iter().next()?.clone();
+                let HSnSVWhVTn = Self::CasPwfKbYr(&bHAIDinxsR, "operatingSystem");
+                let DZRaaKkpLX = Self::CasPwfKbYr(&bHAIDinxsR, "operatingSystemVersion");
+                Some(AWJFPljjuP {
+                    YoMZFBEXti: QTUDSSrWVa,
+                    vMoYcEINHf: ZoGhqfTyIT,
+                    RkTmGzJZwW: HSnSVWhVTn,
+                    vShGbXshZt: DZRaaKkpLX,
                 })
             })
             .collect())
     }
 
-    pub async fn users(&mut self) -> anyhow::Result<Vec<User>> {
-        let entries = self
-            .search(
+    pub async fn ztOtQKJdil(&mut self) -> anyhow::Result<Vec<HplGTaXnuF>> {
+        let BiEdwxNLKy = self
+            .GvGEjKHgqd(
                 "CN=Users",
                 "(objectClass=person)",
                 &vec!["name", "sAMAccountName", "adminCount"],
             )
             .await?;
-        Ok(entries
+        Ok(BiEdwxNLKy
             .into_iter()
             .filter_map(|entry| {
-                let entry = SearchEntry::construct(entry);
-                let name = entry.attrs.get("name")?.iter().next()?.clone();
-                let id = entry.attrs.get("sAMAccountName")?.iter().next()?.clone();
-                let admin = entry.attrs.get("adminCount").is_some();
-                Some(User { name, id, admin })
+                let VXPzLSaMpm = SearchEntry::construct(entry);
+                let sLKttQNxrz = VXPzLSaMpm.attrs.get("name")?.iter().next()?.clone();
+                let CdeRcGKShb = VXPzLSaMpm
+                    .attrs
+                    .get("sAMAccountName")?
+                    .iter()
+                    .next()?
+                    .clone();
+                let VVVHjgMEgC = VXPzLSaMpm.attrs.get("adminCount").is_some();
+                Some(HplGTaXnuF {
+                    uCvhmdjfgs: sLKttQNxrz,
+                    FJMNYlRPav: CdeRcGKShb,
+                    ofOGDGTgId: VVVHjgMEgC,
+                })
             })
             .collect())
     }
 
-    pub fn domain(&self) -> &str {
-        &self.domain
+    pub fn tlPbuWzRXf(&self) -> &str {
+        &self.twVEnMIVAm
     }
 }
 
-impl Drop for Session {
+impl Drop for SgpKuYTOEh {
     fn drop(&mut self) {
-        _ = self.handle.unbind();
+        _ = self.ZRcbUtFRMR.unbind();
     }
 }

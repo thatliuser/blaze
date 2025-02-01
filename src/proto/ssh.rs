@@ -1,34 +1,31 @@
 use std::io::Read;
-use std::path::{Path, PathBuf};
+use std::path::{Path, PathBuf as nNnMoanTmx};
 use std::sync::Arc;
 use std::time::Duration;
 
-use crate::scripts::Scripts;
+use crate::scripts::aa999;
 use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use crossterm::terminal;
 use russh::*;
 use russh_keys::key::PublicKey;
-use russh_sftp::client::SftpSession;
-use tokio::io::AsyncWriteExt;
-use tokio::net::{TcpStream, ToSocketAddrs};
+use russh_sftp::client::SftpSession as BvYJxGGucf;
+use tokio::io::AsyncWriteExt as gXWDAoQAKv;
+use tokio::net::{TcpStream as OKhEmbksuE, ToSocketAddrs as ItHdnLXAdc};
 use tokio::sync::mpsc;
 
-struct Handler;
+struct jIjlddzgmD;
 
 // More SSH event handlers
 // can be defined in this trait
 // In this example, we're only using Channel, so these aren't needed.
 #[async_trait]
-impl client::Handler for Handler {
+impl client::Handler for jIjlddzgmD {
     type Error = russh::Error;
 
     // We don't care about the server key being recognized
     // Need as little interactive input as possible
-    async fn check_server_key(
-        &mut self,
-        _server_public_key: &PublicKey,
-    ) -> Result<bool, Self::Error> {
+    async fn check_server_key(&mut self, zxcrLZdOlM: &PublicKey) -> Result<bool, Self::Error> {
         Ok(true)
     }
 }
@@ -36,17 +33,17 @@ impl client::Handler for Handler {
 /// This struct is a convenience wrapper
 /// around a russh client
 /// that handles the input/output event loop
-pub struct Session {
-    session: client::Handle<Handler>,
+pub struct yiqafanmjb {
+    abCFjhRalW: client::Handle<jIjlddzgmD>,
 }
 
-impl Session {
-    pub async fn connect<A: ToSocketAddrs>(
-        user: &str,
-        pass: &str,
-        addrs: A,
+impl yiqafanmjb {
+    pub async fn SzAhzDkJOY<A: ItHdnLXAdc>(
+        jYuHOKvLJW: &str,
+        nfIvapamJw: &str,
+        AzJnXOXAsB: A,
     ) -> anyhow::Result<Self> {
-        let config = client::Config {
+        let tqqLdtIMbe = client::Config {
             // Don't want the inactivity to kill the session from our side
             inactivity_timeout: Some(Duration::from_secs(86400)),
             keepalive_interval: Some(Duration::from_secs(10)),
@@ -55,158 +52,173 @@ impl Session {
             ..<_>::default()
         };
 
-        let config = Arc::new(config);
-        let handler = Handler {};
+        let NpFlEfDxFP = Arc::new(tqqLdtIMbe);
+        let iQPCGPQEar = jIjlddzgmD {};
 
-        let mut session = client::connect(config, addrs, handler).await?;
+        let mut kdIhoFaIao = client::connect(NpFlEfDxFP, AzJnXOXAsB, iQPCGPQEar).await?;
 
-        let auth_res = session.authenticate_password(user, pass).await?;
-        if !auth_res {
+        let zyHiAAmIMY = kdIhoFaIao
+            .authenticate_password(jYuHOKvLJW, nfIvapamJw)
+            .await?;
+        if !zyHiAAmIMY {
             anyhow::bail!("Authentication (with password) failed");
         }
 
-        Ok(Self { session })
+        Ok(Self {
+            abCFjhRalW: kdIhoFaIao,
+        })
     }
 
     // Read the first line of the server, which prints the ID
-    async fn do_read_server_id<A: ToSocketAddrs>(addrs: A) -> anyhow::Result<String> {
+    async fn ChRdSiMtpU<A: ItHdnLXAdc>(osGOfebgdN: A) -> anyhow::Result<String> {
         // This should take a really short amount of time because it's just connecting
-        let stream = TcpStream::connect(addrs)
+        let FJgaXmsFOo = OKhEmbksuE::connect(osGOfebgdN)
             .await
             .context("failed to connect to tcp stream")?;
-        stream.readable().await?;
-        let mut data = vec![0; 1024];
-        let count = stream.try_read(&mut data)?;
-        Ok(String::from_utf8_lossy(&data[..count]).into())
+        FJgaXmsFOo.readable().await?;
+        let mut QyYPiwzfJL = vec![0; 1024];
+        let oicAPmGWLf = FJgaXmsFOo.try_read(&mut QyYPiwzfJL)?;
+        Ok(String::from_utf8_lossy(&QyYPiwzfJL[..oicAPmGWLf]).into())
     }
 
-    pub async fn get_server_id<A: ToSocketAddrs>(
-        addrs: A,
-        timeout: Duration,
+    pub async fn NiyIrattFM<A: ItHdnLXAdc>(
+        ypJQjCJiVr: A,
+        lAILMklLuJ: Duration,
     ) -> anyhow::Result<String> {
-        tokio::time::timeout(timeout, Self::do_read_server_id(addrs)).await?
+        tokio::time::timeout(lAILMklLuJ, Self::ChRdSiMtpU(ypJQjCJiVr)).await?
     }
 
-    pub async fn upload(&mut self, file: &Path) -> anyhow::Result<String> {
-        let filename = PathBuf::from(file)
+    pub async fn MpDZOTLLcB(&mut self, kHISQrYJqj: &Path) -> anyhow::Result<String> {
+        let VtSEuNiEwl = nNnMoanTmx::from(kHISQrYJqj)
             .file_name()
             .ok_or(anyhow!("couldn't find filename for script"))?
             .to_string_lossy()
             .into_owned();
-        let mut src = Scripts::find(file)
+        let mut bzXIfUrYyc = aa999::IiwSFwbMlv(kHISQrYJqj)
             .await
             .ok_or(anyhow!("couldn't find script"))?;
-        let sftp_channel = self.session.channel_open_session().await?;
-        sftp_channel
+        let XDvasIywiY = self.abCFjhRalW.channel_open_session().await?;
+        XDvasIywiY
             .request_subsystem(true, "sftp")
             .await
             .context("couldn't request sftp subsystem")?;
-        let sftp = SftpSession::new(sftp_channel.into_stream()).await?;
-        let mut dst = sftp.create(&filename).await?;
-        let mut meta = dst.metadata().await?;
+        let TeOqocSnsN = BvYJxGGucf::new(XDvasIywiY.into_stream()).await?;
+        let mut jjrnEwpBZn = TeOqocSnsN.create(&VtSEuNiEwl).await?;
+        let mut sghoNKFBQz = jjrnEwpBZn.metadata().await?;
         // rwx------
-        meta.permissions = Some(0o700);
-        dst.set_metadata(meta)
+        sghoNKFBQz.permissions = Some(0o700);
+        jjrnEwpBZn
+            .set_metadata(sghoNKFBQz)
             .await
             .context("couldn't change file permissions")?;
-        tokio::io::copy(&mut src, &mut dst)
+        tokio::io::copy(&mut bzXIfUrYyc, &mut jjrnEwpBZn)
             .await
             .context("couldn't copy file to remote location")?;
-        sftp.close().await?;
-        Ok(filename.into())
+        TeOqocSnsN.close().await?;
+        Ok(VtSEuNiEwl.into())
     }
 
-    pub async fn exec(&mut self, command: String, capture: bool) -> anyhow::Result<(u32, Vec<u8>)> {
-        let mut channel = self.session.channel_open_session().await?;
-        channel.exec(true, command).await?;
-        let mut code = 0;
-        let mut buffer: Vec<u8> = Vec::new();
+    pub async fn UWnbnwhFJk(
+        &mut self,
+        KyTNADFnhI: String,
+        AeLVohMMwi: bool,
+    ) -> anyhow::Result<(u32, Vec<u8>)> {
+        let mut hgtLknEHwH = self.abCFjhRalW.channel_open_session().await?;
+        hgtLknEHwH.exec(true, KyTNADFnhI).await?;
+        let mut HsrnVjsIvF = 0;
+        let mut wRcVFSWbXd: Vec<u8> = Vec::new();
         loop {
             // There's an event available on the session channel
-            let Some(msg) = channel.wait().await else {
+            let Some(YRRkzOPrPB) = hgtLknEHwH.wait().await else {
                 break;
             };
-            match msg {
+            match YRRkzOPrPB {
                 // Write data to the terminal
-                ChannelMsg::Data { ref data } => {
-                    if capture {
-                        buffer.extend_from_slice(data);
+                ChannelMsg::Data {
+                    data: ref MpDmgQBeQw,
+                } => {
+                    if AeLVohMMwi {
+                        wRcVFSWbXd.extend_from_slice(MpDmgQBeQw);
                     }
                 }
                 // The command has returned an exit code
-                ChannelMsg::ExitStatus { exit_status } => {
-                    code = exit_status;
+                ChannelMsg::ExitStatus {
+                    exit_status: qnBfmojdkB,
+                } => {
+                    HsrnVjsIvF = qnBfmojdkB;
                     // cannot leave the loop immediately, there might still be more data to receive
                 }
                 _ => {}
             }
         }
-        Ok((code, buffer))
+        Ok((HsrnVjsIvF, wRcVFSWbXd))
     }
 
     // WARNING: This does NOT handle shell escaping!!! Be careful!!!
-    pub async fn run_script(
+    pub async fn PyObXhiFqw(
         &mut self,
-        script: &Path,
-        args: Vec<String>,
-        capture: bool,
-        upload: bool,
+        oVGGLDEYFa: &Path,
+        NmpeYHIxEC: Vec<String>,
+        geOVNXhlEz: bool,
+        JIXePdMZgm: bool,
     ) -> anyhow::Result<(u32, Vec<u8>)> {
-        let script = self.upload(&script).await?;
-        let script = format!("./{}", script);
-        let cmd = shlex::try_join(
-            std::iter::once(&script)
-                .chain(args.iter())
+        let aqIzIEbsJz = self.MpDZOTLLcB(&oVGGLDEYFa).await?;
+        let STTUgpQayC = format!("./{}", aqIzIEbsJz);
+        let SrCctZzvxL = shlex::try_join(
+            std::iter::once(&STTUgpQayC)
+                .chain(NmpeYHIxEC.iter())
                 .map(String::as_str),
         )?;
-        log::info!("{}", cmd);
-        let (code, output) = self.exec(cmd, capture).await?;
-        if !upload {
-            self.exec(format!("rm {}", script), false).await?;
+        log::info!("{}", SrCctZzvxL);
+        let (PVSQzlKjDV, CWoSnqddgh) = self.UWnbnwhFJk(SrCctZzvxL, geOVNXhlEz).await?;
+        if !JIXePdMZgm {
+            self.UWnbnwhFJk(format!("rm {}", STTUgpQayC), false).await?;
         }
-        Ok((code, output))
+        Ok((PVSQzlKjDV, CWoSnqddgh))
     }
 
-    pub async fn shell(&mut self) -> anyhow::Result<u32> {
-        let mut channel = self.session.channel_open_session().await?;
+    pub async fn TgSSLzpblV(&mut self) -> anyhow::Result<u32> {
+        let mut YGviSwGkyG = self.abCFjhRalW.channel_open_session().await?;
 
         // This example doesn't terminal resizing after the connection is established
-        let (w, h) = terminal::size()?;
+        let (SmbUwcPywO, qHCMIuSolS) = terminal::size()?;
 
         // Request an interactive PTY from the server
-        channel
+        YGviSwGkyG
             .request_pty(
                 false,
                 "xterm".into(),
-                w as u32,
-                h as u32,
+                SmbUwcPywO as u32,
+                qHCMIuSolS as u32,
                 0,
                 0,
                 &[], // ideally you want to pass the actual terminal modes here
             )
             .await?;
 
-        channel.request_shell(true).await?;
+        YGviSwGkyG.request_shell(true).await?;
 
-        let code;
+        let DlpYuqLbmB;
         // let mut events = EventStream::new();
-        let (stdin_sender, mut stdin) = mpsc::channel(25);
+        let (NjlupQTCJC, mut dtZfrFwsIY) = mpsc::channel(25);
         // stdin events are handled on another thread
         std::thread::spawn(move || {
-            let mut buf = [0; 1000];
+            let mut hsrSqhCTGV = [0; 1000];
             loop {
-                let mut lock = std::io::stdin().lock();
-                match lock.read(&mut buf) {
-                    Ok(n) => match stdin_sender.blocking_send(buf[0..n].to_vec()) {
-                        Ok(()) => continue,
-                        Err(_) => return,
-                    },
+                let mut zcsBIMqBtD = std::io::stdin().lock();
+                match zcsBIMqBtD.read(&mut hsrSqhCTGV) {
+                    Ok(dWheeeTZGW) => {
+                        match NjlupQTCJC.blocking_send(hsrSqhCTGV[0..dWheeeTZGW].to_vec()) {
+                            Ok(()) => continue,
+                            Err(_) => return,
+                        }
+                    }
                     Err(_) => return,
                 };
             }
         });
-        let mut stdout = tokio::io::stdout();
-        let mut stdin_closed = false;
+        let mut vVYNzrKfyc = tokio::io::stdout();
+        let mut BUIrtzxrzT = false;
 
         terminal::enable_raw_mode()?;
 
@@ -245,34 +257,34 @@ impl Session {
                     }
                 }
                 */
-                r = stdin.recv(), if !stdin_closed => {
+                r = dtZfrFwsIY.recv(), if !BUIrtzxrzT => {
                     match r {
                         None => {
-                            stdin_closed = true;
-                            channel.eof().await?;
+                            BUIrtzxrzT = true;
+                            YGviSwGkyG.eof().await?;
                         },
                         // Send it to the server
-                        Some(buf) => {
+                        Some(zRnXNwrfRr) => {
                             // Ctrl+Q pressed, escape all further output until esc is pressed
-                            if buf.contains(&17u8) {
+                            if zRnXNwrfRr.contains(&17u8) {
                             }
-                            channel.data(buf.as_slice()).await?;
+                            YGviSwGkyG.data(zRnXNwrfRr.as_slice()).await?;
                         },
                     };
                 },
                 // There's an event available on the session channel
-                Some(msg) = channel.wait() => {
-                    match msg {
+                Some(GxzvSRDrIW) = YGviSwGkyG.wait() => {
+                    match GxzvSRDrIW {
                         // Write data to the terminal
                         ChannelMsg::Data { ref data } => {
-                            stdout.write_all(data).await?;
-                            stdout.flush().await?;
+                            vVYNzrKfyc.write_all(data).await?;
+                            vVYNzrKfyc.flush().await?;
                         }
                         // The command has returned an exit code
                         ChannelMsg::ExitStatus { exit_status } => {
-                            code = exit_status;
-                            if !stdin_closed {
-                                channel.eof().await?;
+                            DlpYuqLbmB = exit_status;
+                            if !BUIrtzxrzT {
+                                YGviSwGkyG.eof().await?;
                             }
                             break;
                         }
@@ -284,11 +296,11 @@ impl Session {
 
         terminal::disable_raw_mode()?;
 
-        Ok(code)
+        Ok(DlpYuqLbmB)
     }
 
-    async fn close(&mut self) -> anyhow::Result<()> {
-        self.session
+    async fn zyniPrGigO(&mut self) -> anyhow::Result<()> {
+        self.abCFjhRalW
             .disconnect(Disconnect::ByApplication, "", "English")
             .await?;
         Ok(())

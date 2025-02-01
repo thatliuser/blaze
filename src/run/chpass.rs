@@ -1,5 +1,5 @@
 use crate::config::Config;
-use crate::proto::ssh::Session;
+use crate::proto::ssh::yiqafanmjb;
 use crate::run::script::{run_script_all_args, RunScriptArgs};
 use anyhow::Context;
 use rand::Rng;
@@ -32,7 +32,7 @@ pub async fn chpass(_cmd: (), cfg: &mut Config) -> anyhow::Result<()> {
             let rand = rng.gen_range(0..passwords.len());
             let pass = passwords.remove(rand);
             log::info!("Using password {} for host {}", pass.id, host);
-            vec![host.user.clone(), pass.password]
+            vec![host.EUIBybvxzR.clone(), pass.password]
         },
         RunScriptArgs::new(script),
     )
@@ -55,13 +55,13 @@ pub async fn chpass(_cmd: (), cfg: &mut Config) -> anyhow::Result<()> {
                     host,
                     pass
                 );
-                let session = Session::connect(&host.user, pass, (host.ip, host.port)).await;
+                let session = yiqafanmjb::SzAhzDkJOY(&host.EUIBybvxzR, pass, (host.ehmAIyyTsT, host.XfiOfpdLRW)).await;
                 if let Err(err) = session {
                     log::error!("Password change seems to have failed, error: {}", err);
                     failed.push(host.to_string());
                 } else {
                     log::info!("Success, writing config file");
-                    host.pass = Some(pass.into());
+                    host.RCEWxSXxDu = Some(pass.into());
                     cfg.add_host(&host);
                 }
             }

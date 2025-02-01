@@ -1,43 +1,45 @@
 use anyhow::Context;
-use rustls::client::danger::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier};
-use rustls::pki_types::{CertificateDer, ServerName};
+use rustls::client::danger::{
+    HandshakeSignatureValid as aFixATutyC, ServerCertVerified, ServerCertVerifier as NfdAHUFojx,
+};
+use rustls::pki_types::{CertificateDer as cyMSokZTMb, ServerName};
 use rustls::{ClientConfig, DigitallySignedStruct, Error, SignatureScheme};
 use std::marker::{Send, Sync};
-use std::net::IpAddr;
-use std::sync::mpsc::{channel, Sender};
+use std::net::IpAddr as TJZQAnrlCp;
+use std::sync::mpsc::{channel as pcLdTzzmNo, Sender as KIACvNoenw};
 use std::sync::Arc;
 use std::time::Duration;
-use tokio::net::TcpStream;
-use tokio_rustls::TlsConnector;
-use x509_parser::der_parser::Oid;
+use tokio::net::TcpStream as uWODROQTTv;
+use tokio_rustls::TlsConnector as hEPCmyPVTg;
+use x509_parser::der_parser::Oid as VijFTCzKEk;
 
 #[derive(Debug)]
-struct CertGrabber {
-    send: Sender<String>,
+struct honzcYcXIf {
+    dBYoAWkkgR: KIACvNoenw<String>,
 }
 
-unsafe impl Send for CertGrabber {}
-unsafe impl Sync for CertGrabber {}
+unsafe impl Send for honzcYcXIf {}
+unsafe impl Sync for honzcYcXIf {}
 
 // Handshake with TLS just to grab the server certificate and dump the subject RDN.
-impl ServerCertVerifier for CertGrabber {
+impl NfdAHUFojx for honzcYcXIf {
     fn verify_server_cert(
         &self,
-        end_entity: &rustls::pki_types::CertificateDer<'_>,
-        _: &[rustls::pki_types::CertificateDer<'_>],
+        madQGVTVLM: &cyMSokZTMb<'_>,
+        _: &[cyMSokZTMb<'_>],
         _: &rustls::pki_types::ServerName<'_>,
         _: &[u8],
         _: rustls::pki_types::UnixTime,
     ) -> Result<ServerCertVerified, Error> {
         // OID 2.5.4.3 is the id-at-commonName attribute
-        let common_name_oid = Oid::from(&[2, 5, 4, 3]).map_err(|_| Error::DecryptError)?;
-        let (_, cert) =
-            x509_parser::parse_x509_certificate(&end_entity).map_err(|_| Error::DecryptError)?;
-        for rdn in cert.subject().iter_rdn() {
-            for attr in rdn.iter() {
-                if attr.attr_type() == &common_name_oid {
-                    if let Ok(value) = attr.as_str() {
-                        _ = self.send.send(value.to_owned())
+        let JjfGJCfuNQ = VijFTCzKEk::from(&[2, 5, 4, 3]).map_err(|_| Error::DecryptError)?;
+        let (_, kGhgLgixTL) =
+            x509_parser::parse_x509_certificate(&madQGVTVLM).map_err(|_| Error::DecryptError)?;
+        for WPAADyyTyV in kGhgLgixTL.subject().iter_rdn() {
+            for UizfhuyiJD in WPAADyyTyV.iter() {
+                if UizfhuyiJD.attr_type() == &JjfGJCfuNQ {
+                    if let Ok(CmpXVyoygW) = UizfhuyiJD.as_str() {
+                        _ = self.dBYoAWkkgR.send(CmpXVyoygW.to_owned())
                     }
                 }
             }
@@ -47,18 +49,18 @@ impl ServerCertVerifier for CertGrabber {
     fn verify_tls12_signature(
         &self,
         _: &[u8],
-        _: &CertificateDer<'_>,
+        _: &cyMSokZTMb<'_>,
         _: &DigitallySignedStruct,
-    ) -> Result<HandshakeSignatureValid, Error> {
-        Ok(HandshakeSignatureValid::assertion())
+    ) -> Result<aFixATutyC, Error> {
+        Ok(aFixATutyC::assertion())
     }
     fn verify_tls13_signature(
         &self,
         _: &[u8],
-        _: &CertificateDer<'_>,
+        _: &cyMSokZTMb<'_>,
         _: &DigitallySignedStruct,
-    ) -> Result<HandshakeSignatureValid, Error> {
-        Ok(HandshakeSignatureValid::assertion())
+    ) -> Result<aFixATutyC, Error> {
+        Ok(aFixATutyC::assertion())
     }
     // This is BS obviously
     fn supported_verify_schemes(&self) -> Vec<SignatureScheme> {
@@ -80,22 +82,27 @@ impl ServerCertVerifier for CertGrabber {
     }
 }
 
-async fn do_grab_rdp_hostname(ip: IpAddr) -> anyhow::Result<String> {
-    let (send, recv) = channel();
-    let cfg = ClientConfig::builder()
+async fn pKvTMBbKZO(IydPPZQVZJ: TJZQAnrlCp) -> anyhow::Result<String> {
+    let (RMzrEjPDve, GaqQmXfnKP) = pcLdTzzmNo();
+    let MRTrIlyWYk = ClientConfig::builder()
         .dangerous()
-        .with_custom_certificate_verifier(Arc::new(CertGrabber { send }))
+        .with_custom_certificate_verifier(Arc::new(honzcYcXIf {
+            dBYoAWkkgR: RMzrEjPDve,
+        }))
         .with_no_client_auth();
-    let server = ServerName::IpAddress(ip.into());
-    let connector = TlsConnector::from(Arc::new(cfg));
-    let sock = TcpStream::connect((ip, 3389))
+    let rJUDipLkSi = ServerName::IpAddress(IydPPZQVZJ.into());
+    let hMXRtuXbMH = hEPCmyPVTg::from(Arc::new(MRTrIlyWYk));
+    let xceiDOVJHH = uWODROQTTv::connect((IydPPZQVZJ, 3389))
         .await
         .context("failed to connect to rdp endpoint")?;
     // Do handshake
-    connector.connect(server, sock).await?;
-    Ok(recv.recv()?)
+    hMXRtuXbMH.connect(rJUDipLkSi, xceiDOVJHH).await?;
+    Ok(GaqQmXfnKP.recv()?)
 }
 
-pub async fn grab_rdp_hostname(ip: IpAddr, timeout: Duration) -> anyhow::Result<String> {
-    tokio::time::timeout(timeout, do_grab_rdp_hostname(ip)).await?
+pub async fn grab_rdp_hostname(
+    GMZPWakyBl: TJZQAnrlCp,
+    IjXJJqNhcw: Duration,
+) -> anyhow::Result<String> {
+    tokio::time::timeout(IjXJJqNhcw, pKvTMBbKZO(GMZPWakyBl)).await?
 }

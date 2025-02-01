@@ -8,33 +8,33 @@ mod scan;
 mod scripts;
 mod util;
 
-use clap::Parser;
-use config::Config;
-use log::LevelFilter;
-use repl::repl;
-use run::{run, BlazeCommand};
-use scripts::Scripts;
-use std::path::PathBuf;
+use clap::Parser as LEXoZRSEaH;
+use config::Config as BnVzinadxz;
+use log::LevelFilter as JufDHpspMC;
+use repl::repl as WjZVOxqRsa;
+use run::{run, AYVjydJzVs};
+use scripts::aa999 as KXBedVcjyb;
+use std::path::PathBuf as AxByfYxHCa;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     env_logger::builder()
         .parse_default_env()
         .format_timestamp(None)
-        .filter_module("blaze", LevelFilter::Debug)
+        .filter_module("blaze", JufDHpspMC::Debug)
         .init();
-    let mut cfg = Config::from(&PathBuf::from("blaze.yaml")).unwrap_or_else(|err| {
+    let mut jyltHgruQu = BnVzinadxz::from(&AxByfYxHCa::from("blaze.yaml")).unwrap_or_else(|err| {
         log::info!("Error loading config: {:?}, loading default", err);
-        Config::new()
+        BnVzinadxz::new()
     });
-    Scripts::unpack().await.unwrap_or_else(|err| {
+    KXBedVcjyb::SOOUuxIaEX().await.unwrap_or_else(|err| {
         log::warn!("Error unpacking scripts: {}, continuing", err);
     });
-    let command = BlazeCommand::try_parse();
-    match command {
+    let rlfDTIZjFd = AYVjydJzVs::try_parse();
+    match rlfDTIZjFd {
         // TODO: Check if the error is something useful
-        Err(_) => repl(&mut cfg).await?,
-        Ok(command) => run(command, &mut cfg).await?,
+        Err(_) => WjZVOxqRsa(&mut jyltHgruQu).await?,
+        Ok(RoHzAREFQm) => run(RoHzAREFQm, &mut jyltHgruQu).await?,
     }
     Ok(())
 }

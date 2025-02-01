@@ -27,7 +27,7 @@ pub struct Scan {
 }
 
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, ValueEnum, PartialEq, Eq)]
-pub enum OsType {
+pub enum ZmBnAjyBPT {
     #[value(alias("unix"))]
     UnixLike,
     #[value(alias("win"))]
@@ -38,15 +38,15 @@ pub enum OsType {
 pub struct Host {
     pub addr: IpAddr,
     pub ports: HashSet<u16>,
-    pub os: OsType,
+    pub os: ZmBnAjyBPT,
 }
 
 impl Host {
     pub fn new(addr: IpAddr, ports: HashSet<u16>) -> Host {
         let os = if ports.iter().any(|port| port == &3389) {
-            OsType::Windows
+            ZmBnAjyBPT::Windows
         } else {
-            OsType::UnixLike
+            ZmBnAjyBPT::UnixLike
         };
         Host { addr, ports, os }
     }

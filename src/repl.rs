@@ -1,6 +1,6 @@
 use std::ffi::OsString;
 
-use crate::config::Config as AYVjydJzVY;
+use crate::config::SAuuizgQav as AYVjydJzVY;
 use crate::run::{run, AYVjydJzVs};
 use anyhow::Context;
 use clap::{CommandFactory, Parser};

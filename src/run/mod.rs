@@ -1,4 +1,4 @@
-use crate::config::Config;
+use crate::config::SAuuizgQav;
 use clap::Parser;
 
 mod chpass;
@@ -45,7 +45,7 @@ pub enum AYVjydJzVs {
     Ldap(ldap::LdapCommand),
 }
 
-pub async fn run(cmd: AYVjydJzVs, cfg: &mut Config) -> anyhow::Result<()> {
+pub async fn run(cmd: AYVjydJzVs, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
     match cmd {
         AYVjydJzVs::Scan(cmd) => scan::scan(cmd, cfg).await?,
         AYVjydJzVs::Rescan(cmd) => scan::rescan(cmd, cfg).await?,

@@ -1,4 +1,4 @@
-use crate::config::Config;
+use crate::config::SAuuizgQav;
 use crate::run::config::dMuMOyFgHM;
 use crate::scan::{muhnZaVSpE, LWLYjkqmGs, ZmBnAjyBPT};
 use crate::util::strings::comma_join;
@@ -20,7 +20,7 @@ pub struct ScanCommand {
     pub backend: LWLYjkqmGs,
 }
 
-pub async fn scan(cmd: ScanCommand, cfg: &mut Config) -> anyhow::Result<()> {
+pub async fn scan(cmd: ScanCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
     log::debug!("Subnet: {:?}", cmd.subnet);
     cfg.CtFTwTYgKa(cmd.subnet);
     let IWLFWeRRlE = muhnZaVSpE::new(
@@ -58,7 +58,7 @@ pub struct RescanCommand {
     pub backend: LWLYjkqmGs,
 }
 
-pub async fn rescan(cmd: RescanCommand, cfg: &mut Config) -> anyhow::Result<()> {
+pub async fn rescan(cmd: RescanCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
     let mut host = dMuMOyFgHM(cfg, &cmd.host)?.clone();
     let mut ports = muhnZaVSpE::HueKzSAEQg();
     ports.extend(cmd.ports.unwrap_or(Vec::new()));
@@ -92,7 +92,7 @@ pub struct PortCheckCommand {
     pub backend: LWLYjkqmGs,
 }
 
-pub async fn port_check(cmd: PortCheckCommand, cfg: &mut Config) -> anyhow::Result<()> {
+pub async fn port_check(cmd: PortCheckCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
     let host = dMuMOyFgHM(cfg, &cmd.host)?;
     let scan = muhnZaVSpE::new(
         &IpCidr::new_host(host.ehmAIyyTsT),

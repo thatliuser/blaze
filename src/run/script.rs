@@ -1,4 +1,4 @@
-use crate::config::{Config, IGGqPVcktO};
+use crate::config::{SAuuizgQav, IGGqPVcktO};
 use crate::proto::ssh::yiqafanmjb;
 use crate::run::config::dMuMOyFgHM;
 use anyhow::Context;
@@ -72,7 +72,7 @@ pub async fn run_script(
 
 pub async fn run_script_all_args<F: FnMut(&IGGqPVcktO) -> Vec<String>>(
     timeout: Duration,
-    cfg: &Config,
+    cfg: &SAuuizgQav,
     mut gen_args: F,
     args: RunScriptArgs,
 ) -> JoinSet<(IGGqPVcktO, anyhow::Result<(u32, String)>)> {
@@ -94,7 +94,7 @@ pub async fn run_script_all_args<F: FnMut(&IGGqPVcktO) -> Vec<String>>(
 
 pub async fn run_script_all(
     timeout: Duration,
-    cfg: &Config,
+    cfg: &SAuuizgQav,
     args: RunScriptArgs,
 ) -> JoinSet<(IGGqPVcktO, anyhow::Result<(u32, String)>)> {
     let arg_list = args.args.clone();
@@ -121,7 +121,7 @@ async fn upload_script(timeout: Duration, host: &IGGqPVcktO, script: &Path) -> a
 
 pub async fn upload_script_all(
     timeout: Duration,
-    cfg: &Config,
+    cfg: &SAuuizgQav,
     script: &Path,
 ) -> JoinSet<(IGGqPVcktO, anyhow::Result<()>)> {
     let mut set = JoinSet::new();
@@ -144,7 +144,7 @@ pub struct ScriptCommand {
     pub args: Vec<String>,
 }
 
-pub async fn script(cmd: ScriptCommand, cfg: &mut Config) -> anyhow::Result<()> {
+pub async fn script(cmd: ScriptCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
     match cmd.host {
         Some(host) => {
             let host = dMuMOyFgHM(&cfg, &host)?;
@@ -194,7 +194,7 @@ pub struct ShellCommand {
     pub host: String,
 }
 
-pub async fn shell(cmd: ShellCommand, cfg: &mut Config) -> anyhow::Result<()> {
+pub async fn shell(cmd: ShellCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
     let host = dMuMOyFgHM(cfg, &cmd.host)?;
     if let Some(pass) = &host.RCEWxSXxDu {
         let mut session =
@@ -219,7 +219,7 @@ pub struct UploadCommand {
     pub host: Option<String>,
 }
 
-pub async fn upload(cmd: UploadCommand, cfg: &mut Config) -> anyhow::Result<()> {
+pub async fn upload(cmd: UploadCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
     let timeout = cfg.get_long_timeout();
     match cmd.host {
         Some(host) => {
@@ -244,7 +244,7 @@ pub async fn upload(cmd: UploadCommand, cfg: &mut Config) -> anyhow::Result<()> 
     }
 }
 async fn run_base_script_args(
-    cfg: &mut Config,
+    cfg: &mut SAuuizgQav,
     name: &str,
     args: Vec<String>,
 ) -> anyhow::Result<()> {
@@ -260,11 +260,11 @@ async fn run_base_script_args(
     .await
 }
 
-async fn run_base_script(cfg: &mut Config, name: &str) -> anyhow::Result<()> {
+async fn run_base_script(cfg: &mut SAuuizgQav, name: &str) -> anyhow::Result<()> {
     run_base_script_args(cfg, name, vec![]).await
 }
 
-pub async fn base(_cmd: (), cfg: &mut Config) -> anyhow::Result<()> {
+pub async fn base(_cmd: (), cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
     log::info!("Running hardening scripts");
     run_base_script(cfg, "php").await?;
     run_base_script(cfg, "ssh").await?;

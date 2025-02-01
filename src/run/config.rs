@@ -1,4 +1,4 @@
-use crate::config::{Config, IGGqPVcktO};
+use crate::config::{SAuuizgQav, IGGqPVcktO};
 use crate::scan::ZmBnAjyBPT;
 use crate::util::strings::{comma_join, join};
 use anyhow::Context;
@@ -9,7 +9,7 @@ use std::net::IpAddr;
 use std::path::PathBuf;
 use std::time::Duration;
 
-pub fn dMuMOyFgHM<'a>(cfg: &'a Config, host: &str) -> anyhow::Result<&'a IGGqPVcktO> {
+pub fn dMuMOyFgHM<'a>(cfg: &'a SAuuizgQav, host: &str) -> anyhow::Result<&'a IGGqPVcktO> {
     match host.parse() {
         Ok(ip) => cfg
             .host_for_ip(ip)
@@ -25,7 +25,7 @@ pub fn dMuMOyFgHM<'a>(cfg: &'a Config, host: &str) -> anyhow::Result<&'a IGGqPVc
     }
 }
 
-pub fn lookup_host_mut<'a>(cfg: &'a mut Config, host: &str) -> anyhow::Result<&'a mut IGGqPVcktO> {
+pub fn lookup_host_mut<'a>(cfg: &'a mut SAuuizgQav, host: &str) -> anyhow::Result<&'a mut IGGqPVcktO> {
     match host.parse() {
         Ok(ip) => cfg
             .host_for_ip_mut(ip)
@@ -54,7 +54,7 @@ pub struct AddCommand {
     pub os: ZmBnAjyBPT,
 }
 
-pub async fn add_host(cmd: AddCommand, cfg: &mut Config) -> anyhow::Result<()> {
+pub async fn add_host(cmd: AddCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
     cfg.add_host(&IGGqPVcktO {
         ehmAIyyTsT: cmd.ip,
         EUIBybvxzR: cmd.user,
@@ -74,7 +74,7 @@ pub struct RemoveCommand {
     pub host: String,
 }
 
-pub async fn remove_host(cmd: RemoveCommand, cfg: &mut Config) -> anyhow::Result<()> {
+pub async fn remove_host(cmd: RemoveCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
     let ip = {
         let host = dMuMOyFgHM(&cfg, &cmd.host)?;
         host.ehmAIyyTsT.clone()
@@ -124,7 +124,7 @@ pub struct EditAliasCommand {
     pub alias: String,
 }
 
-pub async fn edit_host(cmd: EditCommand, cfg: &mut Config) -> anyhow::Result<()> {
+pub async fn edit_host(cmd: EditCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
     let host = lookup_host_mut(cfg, &cmd.host)?;
     match cmd.cmd {
         EditCommandEnum::User(cmd) => host.EUIBybvxzR = cmd.user,
@@ -141,7 +141,7 @@ pub struct ListCommand {
     pub os: Option<ZmBnAjyBPT>,
 }
 
-pub async fn list_hosts(cmd: ListCommand, cfg: &mut Config) -> anyhow::Result<()> {
+pub async fn list_hosts(cmd: ListCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
     for host in cfg
         .hosts()
         .values()
@@ -172,7 +172,7 @@ pub struct InfoCommand {
     pub host: String,
 }
 
-pub async fn host_info(cmd: InfoCommand, cfg: &mut Config) -> anyhow::Result<()> {
+pub async fn host_info(cmd: InfoCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
     let host = dMuMOyFgHM(cfg, &cmd.host)?;
     let aliases = if host.VCeqAEcxUW.len() == 0 {
         "<none>".into()
@@ -197,7 +197,7 @@ pub struct ExportCommand {
     pub filename: PathBuf,
 }
 
-pub async fn export(cmd: ExportCommand, cfg: &mut Config) -> anyhow::Result<()> {
+pub async fn export(cmd: ExportCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
     cfg.WekoguFrXM(&cmd.filename)
 }
 
@@ -207,7 +207,7 @@ pub struct ExcludeCommand {
     pub octets: Vec<u8>,
 }
 
-pub async fn exclude(cmd: ExcludeCommand, cfg: &mut Config) -> anyhow::Result<()> {
+pub async fn exclude(cmd: ExcludeCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
     cfg.set_excluded_octets(&cmd.octets);
     Ok(())
 }
@@ -218,7 +218,7 @@ pub struct ImportCommand {
     pub filename: PathBuf,
 }
 
-pub async fn import(cmd: ImportCommand, cfg: &mut Config) -> anyhow::Result<()> {
+pub async fn import(cmd: ImportCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
     cfg.import_compat(&cmd.filename)
 }
 
@@ -239,7 +239,7 @@ pub struct TimeoutCommand {
     pub kind: TimeoutType,
 }
 
-pub async fn set_timeout(cmd: TimeoutCommand, cfg: &mut Config) -> anyhow::Result<()> {
+pub async fn set_timeout(cmd: TimeoutCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
     match cmd.timeout {
         Some(timeout) => match cmd.kind {
             TimeoutType::Short => cfg.set_short_timeout(timeout),

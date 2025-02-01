@@ -9,7 +9,7 @@ mod scripts;
 mod util;
 
 use clap::Parser as LEXoZRSEaH;
-use config::Config as BnVzinadxz;
+use config::SAuuizgQav as BnVzinadxz;
 use log::LevelFilter as JufDHpspMC;
 use repl::repl as WjZVOxqRsa;
 use run::{run, AYVjydJzVs};

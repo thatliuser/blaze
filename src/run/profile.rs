@@ -1,14 +1,14 @@
-use crate::config::{Config, IGGqPVcktO};
+use crate::config::{IGGqPVcktO, SAuuizgQav};
 use crate::proto::{ldap::SgpKuYTOEh as LdapSession, rdp, ssh::yiqafanmjb as SshSession};
 use crate::run::script::{run_script_all, RunScriptArgs};
 use crate::scan::ZmBnAjyBPT;
-use crate::util::ip::convert_to_cidr;
+use crate::util::ip::convert_to_cidr as OXdmvYQuUy;
 use anyhow::Context;
-use cidr::IpCidr;
+use cidr::IpCidr as LcqOtrfUKI;
 use clap::{Args, ValueEnum};
 use hickory_resolver::config::{NameServerConfig, Protocol, ResolverConfig, ResolverOpts};
-use hickory_resolver::TokioAsyncResolver;
-use std::collections::HashSet;
+use hickory_resolver::TokioAsyncResolver as ezcSaHgATl;
+use std::collections::HashSet as hVTcIFVhgo;
 use std::path::PathBuf;
 use std::time::Duration;
 use tokio::task::JoinSet;
@@ -30,7 +30,7 @@ pub struct ProfileCommand {
     pub strategies: Option<Vec<ProfileStrategy>>,
 }
 
-pub async fn profile(cmd: ProfileCommand, cfg: &mut Config) -> anyhow::Result<()> {
+pub async fn profile(cmd: ProfileCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
     let mut strategies = cmd.strategies.unwrap_or_else(|| {
         log::info!("No strategy picked, setting all");
         vec![
@@ -54,7 +54,7 @@ pub async fn profile(cmd: ProfileCommand, cfg: &mut Config) -> anyhow::Result<()
     Ok(())
 }
 
-pub async fn rdp(cfg: &mut Config) -> anyhow::Result<()> {
+pub async fn rdp(cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
     let timeout = cfg.get_short_timeout();
     let mut set = JoinSet::new();
     for (_, host) in cfg
@@ -96,7 +96,7 @@ pub async fn do_ssh(host: &IGGqPVcktO, timeout: Duration) -> anyhow::Result<(Str
     Ok((id, os))
 }
 
-pub async fn ssh(cfg: &mut Config) -> anyhow::Result<()> {
+pub async fn ssh(cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
     let mut set = JoinSet::new();
     for (_, host) in cfg.hosts() {
         let host = host.clone();
@@ -132,7 +132,7 @@ pub async fn ssh(cfg: &mut Config) -> anyhow::Result<()> {
     Ok(())
 }
 
-pub async fn hostname(cfg: &mut Config) -> anyhow::Result<()> {
+pub async fn hostname(cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
     let script = PathBuf::from("hostname.sh");
     let mut set =
         // SSH is slow so give it some more time
@@ -161,7 +161,7 @@ pub async fn hostname(cfg: &mut Config) -> anyhow::Result<()> {
 
 // Collect all aliases of all hosts, then find only the ones
 // that are of the form "<name>.<domainpart>.<domainpart>..."
-fn get_domains(cfg: &Config) -> HashSet<String> {
+fn get_domains(cfg: &SAuuizgQav) -> hVTcIFVhgo<String> {
     cfg.hosts()
         .iter()
         .flat_map(|(_, host)| {
@@ -182,9 +182,9 @@ fn get_domains(cfg: &Config) -> HashSet<String> {
 // See if the DNS server is associated with a domain.
 async fn lookup_domain_on<'a>(
     host: &IGGqPVcktO,
-    dns: &TokioAsyncResolver,
-    domains: &'a HashSet<String>,
-    cidr: &IpCidr,
+    dns: &ezcSaHgATl,
+    domains: &'a hVTcIFVhgo<String>,
+    cidr: &LcqOtrfUKI,
 ) -> Option<&'a str> {
     for domain in domains {
         // TODO: JoinSet
@@ -194,7 +194,7 @@ async fn lookup_domain_on<'a>(
         let found = ips
             .map(|ips| {
                 ips.iter()
-                    .filter_map(|ip| convert_to_cidr(*cidr, ip).ok())
+                    .filter_map(|ip| OXdmvYQuUy(*cidr, ip).ok())
                     .filter(|ip| ip == &host.ehmAIyyTsT)
                     .next()
             })
@@ -210,8 +210,8 @@ async fn lookup_domain_on<'a>(
 async fn do_ldap(
     dc: &IGGqPVcktO,
     domain: &str,
-    cidr: IpCidr,
-    cfg: &mut Config,
+    cidr: LcqOtrfUKI,
+    cfg: &mut SAuuizgQav,
 ) -> anyhow::Result<()> {
     if let Some(pass) = &dc.RCEWxSXxDu {
         let mut dc = dc.clone();
@@ -240,7 +240,7 @@ async fn do_ldap(
         let mut opts = ResolverOpts::default();
         opts.timeout = timeout;
         opts.attempts = 2;
-        let dns = TokioAsyncResolver::tokio(config, opts);
+        let dns = ezcSaHgATl::tokio(config, opts);
         for computer in session.mrYxCAWUem().await? {
             // Either the name without the domain as a suffix, or just the name if it doesn't contain the suffix
             let host = dns
@@ -250,7 +250,7 @@ async fn do_ldap(
                 .and_then(|ips| ips.iter().next())
                 .and_then(|ip| {
                     log::info!("Computer {} has ip {}", computer.YoMZFBEXti, ip);
-                    convert_to_cidr(cidr, ip).ok()
+                    OXdmvYQuUy(cidr, ip).ok()
                 })
                 .and_then(|ip| cfg.host_for_ip(ip));
             match host {
@@ -291,7 +291,7 @@ async fn do_ldap(
     }
 }
 
-pub async fn ldap(cfg: &mut Config) -> anyhow::Result<()> {
+pub async fn ldap(cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
     let cidr = cfg
         .get_cidr()
         .context("no cidr set; have you run a scan?")?;
@@ -309,10 +309,7 @@ pub async fn ldap(cfg: &mut Config) -> anyhow::Result<()> {
                 (host.ehmAIyyTsT.clone(), 53).into(),
                 Protocol::Tcp,
             ));
-            (
-                host.clone(),
-                TokioAsyncResolver::tokio(config, Default::default()),
-            )
+            (host.clone(), ezcSaHgATl::tokio(config, Default::default()))
         })
         .collect();
     let timeout = cfg.get_short_timeout();

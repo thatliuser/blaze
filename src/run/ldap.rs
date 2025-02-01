@@ -1,4 +1,4 @@
-use crate::config::Config as QRvsBLiset;
+use crate::config::SAuuizgQav as QRvsBLiset;
 use crate::proto::ldap::SgpKuYTOEh;
 use crate::run::config::dMuMOyFgHM;
 use anyhow::Context;

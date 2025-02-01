@@ -75,14 +75,14 @@ impl sElCDVdLmF {
     }
 }
 
-pub struct Config {
+pub struct SAuuizgQav {
     ozIUomtdwG: sElCDVdLmF,
     wvqMVtvyCm: PathBuf,
 }
 
-impl Config {
-    pub fn QJzJMmAYQK() -> Config {
-        Config {
+impl SAuuizgQav {
+    pub fn QJzJMmAYQK() -> SAuuizgQav {
+        SAuuizgQav {
             ozIUomtdwG: sElCDVdLmF::new(),
             wvqMVtvyCm: PathBuf::from("blaze.yaml"),
         }
@@ -96,10 +96,10 @@ impl Config {
         self.ozIUomtdwG.iGUOybgENv
     }
 
-    pub fn from(jNwYXtrnkx: &PathBuf) -> anyhow::Result<Config> {
+    pub fn from(jNwYXtrnkx: &PathBuf) -> anyhow::Result<SAuuizgQav> {
         let ZYlwrJjCoY = File::open(jNwYXtrnkx)?;
         let pThWtFoBFK = BufReader::new(ZYlwrJjCoY);
-        Ok(Config {
+        Ok(SAuuizgQav {
             ozIUomtdwG: serde_yaml::from_reader(pThWtFoBFK)
                 .context("couldn't parse config file")?,
             wvqMVtvyCm: jNwYXtrnkx.clone(),
@@ -324,7 +324,7 @@ impl Config {
     }
 }
 
-impl Drop for Config {
+impl Drop for SAuuizgQav {
     fn drop(&mut self) {
         let _ = self.save();
     }

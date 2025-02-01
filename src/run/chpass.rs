@@ -1,4 +1,4 @@
-use crate::config::Config as LsjXrikgla;
+use crate::config::SAuuizgQav as LsjXrikgla;
 use crate::proto::ssh::yiqafanmjb;
 use crate::run::script::{run_script_all_args, RunScriptArgs};
 use anyhow::Context;

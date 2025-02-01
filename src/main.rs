@@ -134,21 +134,21 @@ mod ZumChqTorR {
         }
         pub fn gzbwUKFFQu(&mut self, QFZUpFUyEk: &str) -> Option<&mut IGGqPVcktO> {
             let mut SrBxTSYbjW = self.mzZwchcbES().iter_mut().filter_map(|(_, PfFGMtyAmG)| {
-                if PfFGMtyAmG
-                    .VCeqAEcxUW
-                    .iter()
-                    .any(|a| a.to_lowercase().starts_with(&QFZUpFUyEk.to_lowercase()))
-                {
+                if PfFGMtyAmG.VCeqAEcxUW.iter().any(|nQwzlSXFOm| {
+                    nQwzlSXFOm
+                        .to_lowercase()
+                        .starts_with(&QFZUpFUyEk.to_lowercase())
+                }) {
                     Some(PfFGMtyAmG)
                 } else {
                     None
                 }
             });
-            SrBxTSYbjW.next().and_then(|host| {
+            SrBxTSYbjW.next().and_then(|oWlBQOlRYD| {
                 if let Some(_) = SrBxTSYbjW.next() {
                     None
                 } else {
-                    Some(host)
+                    Some(oWlBQOlRYD)
                 }
             })
         }
@@ -195,13 +195,13 @@ mod ZumChqTorR {
             let GChiHYIosj = self
                 .GRFIrbPhOM()
                 .iter()
-                .filter(|(_, host)| host.AtxPWiUcZC.contains(&22));
+                .filter(|(_, TAAEoFOwVO)| TAAEoFOwVO.AtxPWiUcZC.contains(&22));
             match self.sElCDVdLmF() {
                 Some(wbPcGiTLXt) => Box::new(GChiHYIosj.filter(move |(FdBbuopFcL, _)| {
                     self.oqdaWrUSsH()
                         .iter()
-                        .filter_map(|octet| {
-                            let iekepJRXpb = Ipv4Addr::from_bits(*octet as u32);
+                        .filter_map(|URkNEAjpLT| {
+                            let iekepJRXpb = Ipv4Addr::from_bits(*URkNEAjpLT as u32);
                             CrchwJMsNc(wbPcGiTLXt, iekepJRXpb.into()).ok()
                         })
                         .all(|kopykQhMGp| kopykQhMGp != **FdBbuopFcL)
@@ -215,17 +215,18 @@ mod ZumChqTorR {
         pub fn WekoguFrXM(&self, filename: &Path) -> anyhow::Result<()> {
             let file = VZlCLjqPDi::create(filename)?;
             let mut writer = wCyuyMHIae::new(file);
-            for (_, host) in self.ozIUomtdwG.HufwaNcdTR.iter().filter(|(_, host)| {
-                host.WpFxLZmBnAjyBPT == ZmBnAjyBPT::UnixLike && host.RCEWxSXxDu.is_some()
+            for (_, TCrqmYbzSh) in self.ozIUomtdwG.HufwaNcdTR.iter().filter(|(_, vZuJQeFpAN)| {
+                vZuJQeFpAN.WpFxLZmBnAjyBPT == ZmBnAjyBPT::UnixLike
+                    && vZuJQeFpAN.RCEWxSXxDu.is_some()
             }) {
-                let aliases: Vec<_> = host.VCeqAEcxUW.iter().cloned().collect();
+                let aliases: Vec<_> = TCrqmYbzSh.VCeqAEcxUW.iter().cloned().collect();
                 let aliases = aliases.join(" ");
                 let line = format!(
                     "{} {} {} {} {}",
-                    host.ehmAIyyTsT,
-                    host.EUIBybvxzR,
-                    host.RCEWxSXxDu.as_ref().unwrap(),
-                    host.XfiOfpdLRW,
+                    TCrqmYbzSh.ehmAIyyTsT,
+                    TCrqmYbzSh.EUIBybvxzR,
+                    TCrqmYbzSh.RCEWxSXxDu.as_ref().unwrap(),
+                    TCrqmYbzSh.XfiOfpdLRW,
                     aliases
                 );
                 writeln!(writer, "{}", line.trim())?;
@@ -246,7 +247,7 @@ mod ZumChqTorR {
                 let ATBNsINRid: u16 = CzAHGdQfJK[3].parse()?;
                 let LzhuxEaLLI = CzAHGdQfJK[4..]
                     .iter()
-                    .map(|alias| alias.to_string())
+                    .map(|setVRUGvFH| setVRUGvFH.to_string())
                     .collect();
                 let gHerdsWuoN = IGGqPVcktO {
                     ehmAIyyTsT: UPAikksqfq,
@@ -289,11 +290,14 @@ mod ZumChqTorR {
 }
 mod swLTSvogNs {
     pub mod tjhkiRloKW {
-        use ldap3::{drive, Ldap, LdapConnAsync, ResultEntry, Scope, SearchEntry};
+        use ldap3::{
+            drive, Ldap as uAlatkpjir, LdapConnAsync, ResultEntry as CrBIwEHntb,
+            Scope as MsyFeMnpiF, SearchEntry as neTraJpcQB,
+        };
         use std::net::IpAddr;
         pub struct SgpKuYTOEh {
             twVEnMIVAm: String,
-            ZRcbUtFRMR: Ldap,
+            ZRcbUtFRMR: uAlatkpjir,
         }
         pub struct AWJFPljjuP {
             pub YoMZFBEXti: String,
@@ -334,7 +338,7 @@ mod swLTSvogNs {
                     ZRcbUtFRMR: jhVVHIbYlM,
                 })
             }
-            fn CasPwfKbYr(SZARIhBAYz: &SearchEntry, ZXgoCXFWPu: &str) -> Option<String> {
+            fn CasPwfKbYr(SZARIhBAYz: &neTraJpcQB, ZXgoCXFWPu: &str) -> Option<String> {
                 SZARIhBAYz
                     .attrs
                     .get(ZXgoCXFWPu)
@@ -350,7 +354,7 @@ mod swLTSvogNs {
                 icfmoHZqtK: &str,
                 jrjrcbJjfL: &str,
                 zZSFzesskf: okjBlWdQpa,
-            ) -> anyhow::Result<Vec<ResultEntry>>
+            ) -> anyhow::Result<Vec<CrBIwEHntb>>
             where
                 BFUYzayFxV: AsRef<str> + Send + Sync + 'a,
                 okjBlWdQpa: AsRef<[BFUYzayFxV]> + Send + Sync + 'a,
@@ -360,7 +364,7 @@ mod swLTSvogNs {
                     .clone()
                     .search(
                         &self.uGnwwesInA(icfmoHZqtK),
-                        Scope::Subtree,
+                        MsyFeMnpiF::Subtree,
                         jrjrcbJjfL,
                         zZSFzesskf,
                     )
@@ -384,8 +388,8 @@ mod swLTSvogNs {
                     .await?;
                 Ok(cnFJugnFhO
                     .into_iter()
-                    .filter_map(|entry| {
-                        let bHAIDinxsR = SearchEntry::construct(entry);
+                    .filter_map(|VgbCUnftdY| {
+                        let bHAIDinxsR = neTraJpcQB::construct(VgbCUnftdY);
                         let QTUDSSrWVa = bHAIDinxsR.attrs.get("name")?.iter().next()?.clone();
                         let ZoGhqfTyIT =
                             bHAIDinxsR.attrs.get("dNSHostName")?.iter().next()?.clone();
@@ -410,8 +414,8 @@ mod swLTSvogNs {
                     .await?;
                 Ok(BiEdwxNLKy
                     .into_iter()
-                    .filter_map(|entry| {
-                        let VXPzLSaMpm = SearchEntry::construct(entry);
+                    .filter_map(|LKUSCJhefU| {
+                        let VXPzLSaMpm = neTraJpcQB::construct(LKUSCJhefU);
                         let sLKttQNxrz = VXPzLSaMpm.attrs.get("name")?.iter().next()?.clone();
                         let CdeRcGKShb = VXPzLSaMpm
                             .attrs
@@ -445,7 +449,7 @@ mod swLTSvogNs {
             ServerCertVerifier as NfdAHUFojx,
         };
         use rustls::pki_types::{CertificateDer as cyMSokZTMb, ServerName};
-        use rustls::{ClientConfig, DigitallySignedStruct, Error, SignatureScheme};
+        use rustls::{ClientConfig as vbRzFIzWzR, DigitallySignedStruct, Error, SignatureScheme};
         use std::marker::{Send, Sync};
         use std::net::IpAddr as TJZQAnrlCp;
         use std::sync::mpsc::{channel as pcLdTzzmNo, Sender as KIACvNoenw};
@@ -520,7 +524,7 @@ mod swLTSvogNs {
         }
         async fn pKvTMBbKZO(IydPPZQVZJ: TJZQAnrlCp) -> anyhow::Result<String> {
             let (RMzrEjPDve, GaqQmXfnKP) = pcLdTzzmNo();
-            let MRTrIlyWYk = ClientConfig::builder()
+            let MRTrIlyWYk = vbRzFIzWzR::builder()
                 .dangerous()
                 .with_custom_certificate_verifier(Arc::new(honzcYcXIf {
                     dBYoAWkkgR: RMzrEjPDve,
@@ -534,7 +538,7 @@ mod swLTSvogNs {
             hMXRtuXbMH.connect(rJUDipLkSi, xceiDOVJHH).await?;
             Ok(GaqQmXfnKP.recv()?)
         }
-        pub async fn grab_rdp_hostname(
+        pub async fn DNydrgTkzf(
             GMZPWakyBl: TJZQAnrlCp,
             IjXJJqNhcw: Duration,
         ) -> anyhow::Result<String> {
@@ -542,7 +546,7 @@ mod swLTSvogNs {
         }
     }
     pub mod mGPrLlRuJE {
-        use crate::SaORjcyRVh::aa999;
+        use crate::SaORjcyRVh::NWTiOLQiSb;
         use anyhow::{anyhow, Context};
         use async_trait::async_trait;
         use crossterm::terminal;
@@ -619,7 +623,7 @@ mod swLTSvogNs {
                     .ok_or(anyhow!("couldn't find filename for script"))?
                     .to_string_lossy()
                     .into_owned();
-                let mut bzXIfUrYyc = aa999::IiwSFwbMlv(kHISQrYJqj)
+                let mut bzXIfUrYyc = NWTiOLQiSb::IiwSFwbMlv(kHISQrYJqj)
                     .await
                     .ok_or(anyhow!("couldn't find script"))?;
                 let XDvasIywiY = self.abCFjhRalW.channel_open_session().await?;
@@ -778,7 +782,7 @@ mod YtpbyjEmII {
                 0,
                 BhPwyGeArS
                     .into_iter()
-                    .map(|m| m.get_value().to_string_lossy().into())
+                    .map(|wYjcKspYhQ| wYjcKspYhQ.get_value().to_string_lossy().into())
                     .collect(),
             ))
         }
@@ -787,7 +791,7 @@ mod YtpbyjEmII {
     async fn lIizjWrzIH(mYbaggWKRJ: AYVjydJzVs, BnFloOBjbZ: &mut AYVjydJzVY) -> anyhow::Result<()> {
         tokio::select! { mjcGNZIfRY = tokio :: signal :: ctrl_c () => mjcGNZIfRY . context ("couldn't read ctrl+c handler") , FLiQqxwpYd = prkPEdaRee (mYbaggWKRJ , BnFloOBjbZ) => FLiQqxwpYd , }
     }
-    pub async fn repl(nOhQyhVWpm: &mut AYVjydJzVY) -> anyhow::Result<()> {
+    pub async fn fPDCOAZOqR(nOhQyhVWpm: &mut AYVjydJzVY) -> anyhow::Result<()> {
         let XQfJxTzsGl = IvpTCyinne::builder()
             .history_ignore_dups(true)?
             .history_ignore_space(false)
@@ -1250,7 +1254,7 @@ mod yTfuPFijth {
                     Ok(())
                 }
                 LdapCommandEnum::Users => iBuYIGNWNp(yxTKtnhDXN).await,
-                LdapCommandEnum::Search(cmd) => JhWoEgPBTs(cmd, yxTKtnhDXN).await,
+                LdapCommandEnum::Search(BeYGcRYjFo) => JhWoEgPBTs(BeYGcRYjFo, yxTKtnhDXN).await,
             }
         }
         async fn iBuYIGNWNp(mut OhLofMEoiN: SgpKuYTOEh) -> anyhow::Result<()> {
@@ -1302,9 +1306,7 @@ mod yTfuPFijth {
         }
     }
     mod UoXbFBgQay {
-        use crate::swLTSvogNs::{
-            mGPrLlRuJE::yiqafanmjb as SshSession, tjhkiRloKW::SgpKuYTOEh as LdapSession, vkMEpvhBjv,
-        };
+        use crate::swLTSvogNs::{mGPrLlRuJE::yiqafanmjb, tjhkiRloKW::SgpKuYTOEh, vkMEpvhBjv};
         use crate::yTfuPFijth::OkfEqSwBbQ::{bshZjBMFZq, nLKRHGCIYY};
         use crate::RwhTHuZJWW::ZmBnAjyBPT;
         use crate::XnwjfBIAxG::nygzfkJpcK::CrchwJMsNc as OXdmvYQuUy;
@@ -1365,7 +1367,7 @@ mod yTfuPFijth {
                 BTuFRygfzN.spawn(async move {
                     (
                         sVOVWyVGia.clone(),
-                        vkMEpvhBjv::grab_rdp_hostname(sVOVWyVGia.ehmAIyyTsT, lEtrHSmzBc).await,
+                        vkMEpvhBjv::DNydrgTkzf(sVOVWyVGia.ehmAIyyTsT, lEtrHSmzBc).await,
                     )
                 });
             }
@@ -1390,11 +1392,12 @@ mod yTfuPFijth {
             Ok(())
         }
         pub async fn ACvtzPOmfG(
-            host: &IGGqPVcktO,
-            timeout: Duration,
+            DsNlSjpIHg: &IGGqPVcktO,
+            SRkzCpMLKQ: Duration,
         ) -> anyhow::Result<(String, ZmBnAjyBPT)> {
             let ExCiITyPyC =
-                SshSession::NiyIrattFM((host.ehmAIyyTsT, host.XfiOfpdLRW), timeout).await?;
+                yiqafanmjb::NiyIrattFM((DsNlSjpIHg.ehmAIyyTsT, DsNlSjpIHg.XfiOfpdLRW), SRkzCpMLKQ)
+                    .await?;
             let dnVnEUdtIZ = if ExCiITyPyC.to_lowercase().contains("windows") {
                 ZmBnAjyBPT::Windows
             } else {
@@ -1539,7 +1542,7 @@ mod yTfuPFijth {
                 let mHhDOeTgkY = gaqbSJgxXt.DpuPGGptIC();
                 let mut iaFMOAbNZT = tokio::time::timeout(
                     mHhDOeTgkY,
-                    LdapSession::ZqFbFZzmBO(
+                    SgpKuYTOEh::ZqFbFZzmBO(
                         UKOPexzmOw.ehmAIyyTsT,
                         lrhvgiNwYI,
                         &UKOPexzmOw.EUIBybvxzR,
@@ -1692,7 +1695,7 @@ mod yTfuPFijth {
         ) -> anyhow::Result<()> {
             log::debug!("Subnet: {:?}", yhAxXVivdV.subnet);
             HznbPSouOE.CtFTwTYgKa(yhAxXVivdV.subnet);
-            let IWLFWeRRlE = muhnZaVSpE::new(
+            let IWLFWeRRlE = muhnZaVSpE::szKGOIdLRv(
                 &yhAxXVivdV.subnet,
                 &muhnZaVSpE::HueKzSAEQg(),
                 yhAxXVivdV.backend,
@@ -1741,7 +1744,7 @@ mod yTfuPFijth {
             let mut ewmMYwSeHi = muhnZaVSpE::HueKzSAEQg();
             ewmMYwSeHi.extend(CJdETqbEMr.ports.unwrap_or(Vec::new()));
             log::debug!("Rescanning for host {}", fkDBfhISqC);
-            let yybFzXsEeY = muhnZaVSpE::new(
+            let yybFzXsEeY = muhnZaVSpE::szKGOIdLRv(
                 &QCXkNrsNjZ::new_host(fkDBfhISqC.ehmAIyyTsT),
                 &ewmMYwSeHi,
                 CJdETqbEMr.backend,
@@ -1770,7 +1773,7 @@ mod yTfuPFijth {
             aNdHIWsHOD: &mut wIHVcrelvN,
         ) -> anyhow::Result<()> {
             let uZAwvXBvfT = dMuMOyFgHM(aNdHIWsHOD, &gsOHscoRwV.host)?;
-            let AcsAhfNoEv = muhnZaVSpE::new(
+            let AcsAhfNoEv = muhnZaVSpE::szKGOIdLRv(
                 &QCXkNrsNjZ::new_host(uZAwvXBvfT.ehmAIyyTsT),
                 &gsOHscoRwV.ports,
                 gsOHscoRwV.backend,
@@ -1784,7 +1787,7 @@ mod yTfuPFijth {
             let (HbtbQnkxeX, KXjPttaXNP): (Vec<u16>, _) = gsOHscoRwV
                 .ports
                 .iter()
-                .partition(|port| TziKwOjepU.EsDudBsHYo.contains(port));
+                .partition(|KZtaOfMYho| TziKwOjepU.EsDudBsHYo.contains(KZtaOfMYho));
             log::info!("Open   ports: {}", ezxlyekUUR(HbtbQnkxeX));
             log::info!("Closed ports: {}", ezxlyekUUR(KXjPttaXNP));
             Ok(())
@@ -1972,21 +1975,25 @@ mod yTfuPFijth {
                     )
                     .await;
                     while let Some(SpOMPSSUiH) = oSMtfESmVX.join_next().await {
-                        SpOMPSSUiH
-                            .context("Error running script")
-                            .map(|(host, result)| match result {
+                        SpOMPSSUiH.context("Error running script").map(
+                            |(anvtevyOty, jcunRsOUky)| match jcunRsOUky {
                                 Ok((KmpYDeqGYl, kEZgpqOYlF)) => {
                                     log::info!(
                                         "Script on host {} returned code {} with output: {}",
-                                        host,
+                                        anvtevyOty,
                                         KmpYDeqGYl,
                                         kEZgpqOYlF
                                     );
                                 }
-                                Err(err) => {
-                                    log::error!("Error running script on host {}: {}", host, err);
+                                Err(YYRUHCpBAU) => {
+                                    log::error!(
+                                        "Error running script on host {}: {}",
+                                        anvtevyOty,
+                                        YYRUHCpBAU
+                                    );
                                 }
-                            })?;
+                            },
+                        )?;
                     }
                 }
             }
@@ -1996,20 +2003,28 @@ mod yTfuPFijth {
         pub struct ShellCommand {
             pub host: String,
         }
-        pub async fn mUtJRRwTXl(cmd: ShellCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
-            let host = dMuMOyFgHM(cfg, &cmd.host)?;
-            if let Some(pass) = &host.RCEWxSXxDu {
-                let mut session = yiqafanmjb::SzAhzDkJOY(
-                    &host.EUIBybvxzR,
-                    &pass,
-                    (host.ehmAIyyTsT, host.XfiOfpdLRW),
+        pub async fn mUtJRRwTXl(
+            HYTPQpJHyQ: ShellCommand,
+            QcIiJwMDYN: &mut SAuuizgQav,
+        ) -> anyhow::Result<()> {
+            let BbEYAnMuWe = dMuMOyFgHM(QcIiJwMDYN, &HYTPQpJHyQ.host)?;
+            if let Some(tfhEQMbVSa) = &BbEYAnMuWe.RCEWxSXxDu {
+                let mut NvjtdvRpZx = yiqafanmjb::SzAhzDkJOY(
+                    &BbEYAnMuWe.EUIBybvxzR,
+                    &tfhEQMbVSa,
+                    (BbEYAnMuWe.ehmAIyyTsT, BbEYAnMuWe.XfiOfpdLRW),
                 )
                 .await?;
-                log::info!("ssh {}@{} -p {}", host.EUIBybvxzR, host, host.XfiOfpdLRW);
-                log::info!("Using password '{}'", &pass);
-                let code = session.TgSSLzpblV().await?;
-                if code != 0 {
-                    log::warn!("Shell returned nonzero code {}", code);
+                log::info!(
+                    "ssh {}@{} -p {}",
+                    BbEYAnMuWe.EUIBybvxzR,
+                    BbEYAnMuWe,
+                    BbEYAnMuWe.XfiOfpdLRW
+                );
+                log::info!("Using password '{}'", &tfhEQMbVSa);
+                let pbVmSzeZHH = NvjtdvRpZx.TgSSLzpblV().await?;
+                if pbVmSzeZHH != 0 {
+                    log::warn!("Shell returned nonzero code {}", pbVmSzeZHH);
                 }
             } else {
                 log::error!("Host does not have a password set! Please set it first.");
@@ -2021,23 +2036,31 @@ mod yTfuPFijth {
             pub file: PathBuf,
             pub host: Option<String>,
         }
-        pub async fn GqXtopYwYh(cmd: UploadCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
-            let timeout = cfg.BHfMBVoJEQ();
-            match cmd.host {
-                Some(host) => {
-                    let host = dMuMOyFgHM(cfg, &host)?;
-                    GKiPEGaUzu(timeout, host, &cmd.file).await
+        pub async fn GqXtopYwYh(
+            jBhPRscBPt: UploadCommand,
+            kBgGuzyaab: &mut SAuuizgQav,
+        ) -> anyhow::Result<()> {
+            let ESrNzHpjQm = kBgGuzyaab.BHfMBVoJEQ();
+            match jBhPRscBPt.host {
+                Some(mzkaGPnADY) => {
+                    let ejMCzVdGUx = dMuMOyFgHM(kBgGuzyaab, &mzkaGPnADY)?;
+                    GKiPEGaUzu(ESrNzHpjQm, ejMCzVdGUx, &jBhPRscBPt.file).await
                 }
                 None => {
-                    let mut set = PspoJTFfOR(timeout, cfg, &cmd.file).await;
-                    while let Some(joined) = set.join_next().await {
-                        let (host, result) = joined.context("Failed to run upload command")?;
-                        match result {
+                    let mut TtzXIbijqd = PspoJTFfOR(ESrNzHpjQm, kBgGuzyaab, &jBhPRscBPt.file).await;
+                    while let Some(ARabYEOOMn) = TtzXIbijqd.join_next().await {
+                        let (QOFJIqnkMk, LupCExHvYK) =
+                            ARabYEOOMn.context("Failed to run upload command")?;
+                        match LupCExHvYK {
                             Ok(()) => {
-                                log::info!("Successfully uploaded script to host {}", host);
+                                log::info!("Successfully uploaded script to host {}", QOFJIqnkMk);
                             }
-                            Err(err) => {
-                                log::error!("Failed to upload script on host {}: {}", host, err);
+                            Err(WlWaulZaWb) => {
+                                log::error!(
+                                    "Failed to upload script on host {}: {}",
+                                    QOFJIqnkMk,
+                                    WlWaulZaWb
+                                );
                             }
                         }
                     }
@@ -2046,39 +2069,39 @@ mod yTfuPFijth {
             }
         }
         async fn vRncYFMMan(
-            cfg: &mut SAuuizgQav,
-            name: &str,
-            args: Vec<String>,
+            yiWsvncdMP: &mut SAuuizgQav,
+            NlrQEGHHRn: &str,
+            wZPmsbrWCf: Vec<String>,
         ) -> anyhow::Result<()> {
             HXyBXfzzHg(
                 ScriptCommand {
-                    script: PathBuf::from(format!("{}.sh", name)),
+                    script: PathBuf::from(format!("{}.sh", NlrQEGHHRn)),
                     host: None,
                     upload: false,
-                    args,
+                    args: wZPmsbrWCf,
                 },
-                cfg,
+                yiWsvncdMP,
             )
             .await
         }
-        async fn XemAlWCFkh(cfg: &mut SAuuizgQav, name: &str) -> anyhow::Result<()> {
-            vRncYFMMan(cfg, name, vec![]).await
+        async fn XemAlWCFkh(ncUuwVrpMC: &mut SAuuizgQav, gAxyrJHpIf: &str) -> anyhow::Result<()> {
+            vRncYFMMan(ncUuwVrpMC, gAxyrJHpIf, vec![]).await
         }
-        pub async fn cnePEnxSFe(_cmd: (), cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
+        pub async fn cnePEnxSFe(aUbpxoWzku: (), daAAzkFBqm: &mut SAuuizgQav) -> anyhow::Result<()> {
             log::info!("Running hardening scripts");
-            XemAlWCFkh(cfg, "php").await?;
-            XemAlWCFkh(cfg, "ssh").await?;
-            XemAlWCFkh(cfg, "lockdown").await?;
+            XemAlWCFkh(daAAzkFBqm, "php").await?;
+            XemAlWCFkh(daAAzkFBqm, "ssh").await?;
+            XemAlWCFkh(daAAzkFBqm, "lockdown").await?;
             GqXtopYwYh(
                 UploadCommand {
                     file: PathBuf::from("firewall_template.sh"),
                     host: None,
                 },
-                cfg,
+                daAAzkFBqm,
             )
             .await?;
-            vRncYFMMan(cfg, "initial_backup", vec!["/etc/backup".into()]).await?;
-            XemAlWCFkh(cfg, "ident").await?;
+            vRncYFMMan(daAAzkFBqm, "initial_backup", vec!["/etc/backup".into()]).await?;
+            XemAlWCFkh(daAAzkFBqm, "ident").await?;
             Ok(())
         }
     }
@@ -2121,25 +2144,45 @@ mod yTfuPFijth {
         YuNNENOlnq: &mut SAuuizgQav,
     ) -> anyhow::Result<()> {
         match CdzHbkJMar {
-            AYVjydJzVs::Scan(cmd) => JGeqoefCzA::OItdOMmWWV(cmd, YuNNENOlnq).await?,
-            AYVjydJzVs::Rescan(cmd) => JGeqoefCzA::dXilcTbWCk(cmd, YuNNENOlnq).await?,
-            AYVjydJzVs::PortCheck(cmd) => JGeqoefCzA::jOGtEZVMnI(cmd, YuNNENOlnq).await?,
-            AYVjydJzVs::Add(cmd) => prlaGhOsIe::XsdkkHPidi(cmd, YuNNENOlnq).await?,
-            AYVjydJzVs::Remove(cmd) => prlaGhOsIe::rlmyMMQjGO(cmd, YuNNENOlnq).await?,
-            AYVjydJzVs::List(cmd) => prlaGhOsIe::vkMacxgkoZ(cmd, YuNNENOlnq).await?,
-            AYVjydJzVs::Info(cmd) => prlaGhOsIe::uKVYdOeOkX(cmd, YuNNENOlnq).await?,
-            AYVjydJzVs::Timeout(cmd) => prlaGhOsIe::BMsGldHZJH(cmd, YuNNENOlnq).await?,
-            AYVjydJzVs::Export(cmd) => prlaGhOsIe::EUvRweneUS(cmd, YuNNENOlnq).await?,
-            AYVjydJzVs::Import(cmd) => prlaGhOsIe::AckqVUCmOe(cmd, YuNNENOlnq).await?,
-            AYVjydJzVs::Exclude(cmd) => prlaGhOsIe::VXnPdYKOMT(cmd, YuNNENOlnq).await?,
+            AYVjydJzVs::Scan(STiGhLbruT) => JGeqoefCzA::OItdOMmWWV(STiGhLbruT, YuNNENOlnq).await?,
+            AYVjydJzVs::Rescan(xwscQyPkfy) => {
+                JGeqoefCzA::dXilcTbWCk(xwscQyPkfy, YuNNENOlnq).await?
+            }
+            AYVjydJzVs::PortCheck(ranmdCpaaC) => {
+                JGeqoefCzA::jOGtEZVMnI(ranmdCpaaC, YuNNENOlnq).await?
+            }
+            AYVjydJzVs::Add(gWdTLJUDUX) => prlaGhOsIe::XsdkkHPidi(gWdTLJUDUX, YuNNENOlnq).await?,
+            AYVjydJzVs::Remove(xdbvsNFAvD) => {
+                prlaGhOsIe::rlmyMMQjGO(xdbvsNFAvD, YuNNENOlnq).await?
+            }
+            AYVjydJzVs::List(vNCoiQhXhp) => prlaGhOsIe::vkMacxgkoZ(vNCoiQhXhp, YuNNENOlnq).await?,
+            AYVjydJzVs::Info(qcFtTddBJZ) => prlaGhOsIe::uKVYdOeOkX(qcFtTddBJZ, YuNNENOlnq).await?,
+            AYVjydJzVs::Timeout(AxrnQtpLuq) => {
+                prlaGhOsIe::BMsGldHZJH(AxrnQtpLuq, YuNNENOlnq).await?
+            }
+            AYVjydJzVs::Export(sQqHGEqNak) => {
+                prlaGhOsIe::EUvRweneUS(sQqHGEqNak, YuNNENOlnq).await?
+            }
+            AYVjydJzVs::Import(AMGtoLJLFz) => {
+                prlaGhOsIe::AckqVUCmOe(AMGtoLJLFz, YuNNENOlnq).await?
+            }
+            AYVjydJzVs::Exclude(GQbXAdTKmn) => {
+                prlaGhOsIe::VXnPdYKOMT(GQbXAdTKmn, YuNNENOlnq).await?
+            }
             AYVjydJzVs::Chpass => cnvYOFcqad::SctIChbTQu((), YuNNENOlnq).await?,
-            AYVjydJzVs::Script(cmd) => OkfEqSwBbQ::HXyBXfzzHg(cmd, YuNNENOlnq).await?,
+            AYVjydJzVs::Script(vPprHejCyD) => {
+                OkfEqSwBbQ::HXyBXfzzHg(vPprHejCyD, YuNNENOlnq).await?
+            }
             AYVjydJzVs::Base => OkfEqSwBbQ::cnePEnxSFe((), YuNNENOlnq).await?,
-            AYVjydJzVs::Shell(cmd) => OkfEqSwBbQ::mUtJRRwTXl(cmd, YuNNENOlnq).await?,
-            AYVjydJzVs::Upload(cmd) => OkfEqSwBbQ::GqXtopYwYh(cmd, YuNNENOlnq).await?,
-            AYVjydJzVs::Edit(cmd) => prlaGhOsIe::aAkucCRoyG(cmd, YuNNENOlnq).await?,
-            AYVjydJzVs::Profile(cmd) => UoXbFBgQay::XAzfUKbpUB(cmd, YuNNENOlnq).await?,
-            AYVjydJzVs::Ldap(cmd) => LvoiAvJSBy::TupzFuCqIz(cmd, YuNNENOlnq).await?,
+            AYVjydJzVs::Shell(MSyIjvacih) => OkfEqSwBbQ::mUtJRRwTXl(MSyIjvacih, YuNNENOlnq).await?,
+            AYVjydJzVs::Upload(HPTNQfbpBx) => {
+                OkfEqSwBbQ::GqXtopYwYh(HPTNQfbpBx, YuNNENOlnq).await?
+            }
+            AYVjydJzVs::Edit(spRnSunlJJ) => prlaGhOsIe::aAkucCRoyG(spRnSunlJJ, YuNNENOlnq).await?,
+            AYVjydJzVs::Profile(DrfKptZbuq) => {
+                UoXbFBgQay::XAzfUKbpUB(DrfKptZbuq, YuNNENOlnq).await?
+            }
+            AYVjydJzVs::Ldap(RigbvgmJAz) => LvoiAvJSBy::TupzFuCqIz(RigbvgmJAz, YuNNENOlnq).await?,
         }
         Ok(())
     }
@@ -2150,7 +2193,7 @@ mod RwhTHuZJWW {
     use cidr::IpCidr as DmBvnkKrgC;
     use clap::ValueEnum;
     use nmap_xml_parser::{
-        host::{Address, Host as NmapHost},
+        host::{Address, Host as sSyKnRiYHf},
         NmapResults,
     };
     use rustscan::input::ScanOrder as ZMlePtTbsP;
@@ -2183,26 +2226,26 @@ mod RwhTHuZJWW {
         pub dciExZZqwj: ZmBnAjyBPT,
     }
     impl JSBnVRVdkm {
-        pub fn new(addr: LkRZFMCrmB, ports: HashSet<u16>) -> JSBnVRVdkm {
-            let os = if ports.iter().any(|port| port == &3389) {
+        pub fn onrEHZFidu(HqVIKLUMao: LkRZFMCrmB, ZpzwJfJoFA: HashSet<u16>) -> JSBnVRVdkm {
+            let WTiZMvwMXY = if ZpzwJfJoFA.iter().any(|lRGXrEwibb| lRGXrEwibb == &3389) {
                 ZmBnAjyBPT::Windows
             } else {
                 ZmBnAjyBPT::UnixLike
             };
             JSBnVRVdkm {
-                TLxIayDIUv: addr,
-                EsDudBsHYo: ports,
-                dciExZZqwj: os,
+                TLxIayDIUv: HqVIKLUMao,
+                EsDudBsHYo: ZpzwJfJoFA,
+                dciExZZqwj: WTiZMvwMXY,
             }
         }
     }
-    impl TryFrom<&NmapHost> for JSBnVRVdkm {
+    impl TryFrom<&sSyKnRiYHf> for JSBnVRVdkm {
         type Error = anyhow::Error;
-        fn try_from(CyZpxHlJPT: &NmapHost) -> anyhow::Result<Self> {
+        fn try_from(CyZpxHlJPT: &sSyKnRiYHf) -> anyhow::Result<Self> {
             let AmCNryevTj = CyZpxHlJPT
                 .addresses()
-                .filter_map(|addr| match addr {
-                    Address::IpAddr(addr) => Some(addr),
+                .filter_map(|QSyEwHDhMV| match QSyEwHDhMV {
+                    Address::IpAddr(zCuzYaLQGG) => Some(zCuzYaLQGG),
                     _ => None,
                 })
                 .next()
@@ -2210,9 +2253,9 @@ mod RwhTHuZJWW {
             let RNtvcsxxJn: HashSet<u16> = CyZpxHlJPT
                 .port_info
                 .ports()
-                .map(|port| port.port_number)
+                .map(|MfMHFRVwFe| MfMHFRVwFe.port_number)
                 .collect();
-            Ok(JSBnVRVdkm::new(AmCNryevTj.clone(), RNtvcsxxJn))
+            Ok(JSBnVRVdkm::onrEHZFidu(AmCNryevTj.clone(), RNtvcsxxJn))
         }
     }
     #[derive(Clone, Debug, ValueEnum)]
@@ -2262,7 +2305,7 @@ mod RwhTHuZJWW {
                 NmapResults::parse(&YESsppUQUH).context("nmap output file not parseable")?;
             Ok(rzkqjQuGWb
                 .hosts()
-                .filter_map(|host| host.try_into().ok())
+                .filter_map(|bAxouvyXfX| bAxouvyXfX.try_into().ok())
                 .collect())
         }
         async fn rgKeWYJYZP(
@@ -2270,7 +2313,10 @@ mod RwhTHuZJWW {
             XcgfhLlSEH: &Vec<u16>,
             NrJbnZamBA: Duration,
         ) -> anyhow::Result<Vec<JSBnVRVdkm>> {
-            let mPADoOoKaj: Vec<LkRZFMCrmB> = JFopwwZlJp.iter().map(|c| c.address()).collect();
+            let mPADoOoKaj: Vec<LkRZFMCrmB> = JFopwwZlJp
+                .iter()
+                .map(|tkWGyObOSy| tkWGyObOSy.address())
+                .collect();
             let cdSLzavwdC = mJKxHEXdvo::pick(&None, Some(XcgfhLlSEH.clone()), ZMlePtTbsP::Serial);
             let vBatVxUkBN = txTwVUoVdl::new(
                 &mPADoOoKaj,
@@ -2290,16 +2336,16 @@ mod RwhTHuZJWW {
                 PjHkMurZeo(XcgfhLlSEH, ",")
             );
             let mut BZoUwuNdgZ = yNSnqqaRKD::<LkRZFMCrmB, HashSet<u16>>::new();
-            vBatVxUkBN.run().await.iter().for_each(|addr| {
-                let ip = addr.ip();
+            vBatVxUkBN.run().await.iter().for_each(|drUsqrMgKq| {
+                let vdnsplCIng = drUsqrMgKq.ip();
                 BZoUwuNdgZ
-                    .entry(ip)
+                    .entry(vdnsplCIng)
                     .or_insert(HashSet::new())
-                    .insert(addr.port());
+                    .insert(drUsqrMgKq.port());
             });
             Ok(BZoUwuNdgZ
                 .into_iter()
-                .map(|(addr, ports)| JSBnVRVdkm::new(addr, ports))
+                .map(|(hiJMknJTUD, ctoWPdlSBu)| JSBnVRVdkm::onrEHZFidu(hiJMknJTUD, ctoWPdlSBu))
                 .collect())
         }
         pub fn HueKzSAEQg() -> Vec<u16> {
@@ -2307,7 +2353,7 @@ mod RwhTHuZJWW {
                 22, 3389, 88, 135, 389, 445, 5985, 3306, 5432, 27017, 53, 80, 443, 8080,
             ]
         }
-        pub async fn new(
+        pub async fn szKGOIdLRv(
             VOLkQYVHNN: &DmBvnkKrgC,
             pzpmbDHubf: &Vec<u16>,
             RAGYwbBOzk: LWLYjkqmGs,
@@ -2333,8 +2379,8 @@ mod SaORjcyRVh {
     use tokio::io;
     #[derive(Embed)]
     #[folder = "scripts/"]
-    pub struct aa999;
-    impl aa999 {
+    pub struct NWTiOLQiSb;
+    impl NWTiOLQiSb {
         pub fn dKpZVtqtoo() -> DzHrEaJzDO {
             "scripts/".into()
         }
@@ -2434,8 +2480,8 @@ use clap::Parser as LEXoZRSEaH;
 use log::LevelFilter as JufDHpspMC;
 use std::path::PathBuf as AxByfYxHCa;
 use yTfuPFijth::{prkPEdaRee, AYVjydJzVs};
-use SaORjcyRVh::aa999 as KXBedVcjyb;
-use YtpbyjEmII::repl as WjZVOxqRsa;
+use SaORjcyRVh::NWTiOLQiSb as KXBedVcjyb;
+use YtpbyjEmII::fPDCOAZOqR as WjZVOxqRsa;
 use ZumChqTorR::SAuuizgQav as BnVzinadxz;
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -2445,12 +2491,12 @@ async fn main() -> anyhow::Result<()> {
         .filter_module("blaze", JufDHpspMC::Debug)
         .init();
     let mut jyltHgruQu =
-        BnVzinadxz::hLjrDRRznd(&AxByfYxHCa::from("blaze.yaml")).unwrap_or_else(|err| {
-            log::info!("Error loading config: {:?}, loading default", err);
+        BnVzinadxz::hLjrDRRznd(&AxByfYxHCa::from("blaze.yaml")).unwrap_or_else(|EAtTZTjgnA| {
+            log::info!("Error loading config: {:?}, loading default", EAtTZTjgnA);
             BnVzinadxz::QJzJMmAYQK()
         });
-    KXBedVcjyb::SOOUuxIaEX().await.unwrap_or_else(|err| {
-        log::warn!("Error unpacking scripts: {}, continuing", err);
+    KXBedVcjyb::SOOUuxIaEX().await.unwrap_or_else(|LWfJeWGBoh| {
+        log::warn!("Error unpacking scripts: {}, continuing", LWfJeWGBoh);
     });
     let rlfDTIZjFd = AYVjydJzVs::try_parse();
     match rlfDTIZjFd {

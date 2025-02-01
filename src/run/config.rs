@@ -58,7 +58,7 @@ pub struct AddCommand {
 }
 
 pub async fn add_host(cmd: AddCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()> {
-    cfg.add_host(&IGGqPVcktO {
+    cfg.HnkMAlBSbZ(&IGGqPVcktO {
         ehmAIyyTsT: cmd.ip,
         EUIBybvxzR: cmd.user,
         RCEWxSXxDu: Some(cmd.pass),

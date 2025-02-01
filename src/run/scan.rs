@@ -91,7 +91,7 @@ pub async fn dXilcTbWCk(
     let BmFvJQaHNF = &yybFzXsEeY.vuUyZghFip[0];
     log::info!("Got ports {}", ezxlyekUUR(&BmFvJQaHNF.EsDudBsHYo));
     fkDBfhISqC.AtxPWiUcZC = BmFvJQaHNF.EsDudBsHYo.clone();
-    TlmeXEtzDM.add_host(&fkDBfhISqC);
+    TlmeXEtzDM.HnkMAlBSbZ(&fkDBfhISqC);
     Ok(())
 }
 

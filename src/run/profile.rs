@@ -79,7 +79,7 @@ pub async fn KbmRaYlTbY(fiVAYjtXQD: &mut SAuuizgQav) -> anyhow::Result<()> {
             Ok(NuZCHmXRzB) => {
                 log::info!("Got name {} for host {}", NuZCHmXRzB, tsfbNYcmXQ);
                 tsfbNYcmXQ.VCeqAEcxUW.insert(NuZCHmXRzB);
-                fiVAYjtXQD.add_host(&tsfbNYcmXQ);
+                fiVAYjtXQD.HnkMAlBSbZ(&tsfbNYcmXQ);
             }
             Err(FbHAXQxDvM) => {
                 log::error!(
@@ -138,7 +138,7 @@ pub async fn lgcRRfVmcQ(QEInBbRyrJ: &mut SAuuizgQav) -> anyhow::Result<()> {
                 if LfgXNjVwak != DQOcFiPxCH.WpFxLZmBnAjyBPT {
                     DQOcFiPxCH.WpFxLZmBnAjyBPT = LfgXNjVwak;
                 }
-                QEInBbRyrJ.add_host(&DQOcFiPxCH);
+                QEInBbRyrJ.HnkMAlBSbZ(&DQOcFiPxCH);
             }
             Err(dSFtXdnVFY) => {
                 log::error!(
@@ -169,7 +169,7 @@ pub async fn YMzayfRIUI(vKCcRrnoZL: &mut SAuuizgQav) -> anyhow::Result<()> {
                 let EvBbHeblpH = anoAYwHDYu.trim();
                 log::info!("Got alias {} for host {}", EvBbHeblpH, aIGIXjYZFW);
                 aIGIXjYZFW.VCeqAEcxUW.insert(EvBbHeblpH.into());
-                vKCcRrnoZL.add_host(&aIGIXjYZFW);
+                vKCcRrnoZL.HnkMAlBSbZ(&aIGIXjYZFW);
             }
             Err(XMkwuQEXFp) => {
                 log::error!(
@@ -245,7 +245,7 @@ async fn ZVmEZkuOlw(
         UKOPexzmOw
             .aAoAoHiCrb
             .insert(format!("Domain controller for {}", lrhvgiNwYI));
-        gaqbSJgxXt.add_host(&UKOPexzmOw);
+        gaqbSJgxXt.HnkMAlBSbZ(&UKOPexzmOw);
         let mHhDOeTgkY = gaqbSJgxXt.get_short_timeout();
         let mut iaFMOAbNZT = tokio::time::timeout(
             mHhDOeTgkY,
@@ -310,7 +310,7 @@ async fn ZVmEZkuOlw(
                             .to_string(),
                         );
                     }
-                    gaqbSJgxXt.add_host(&JSGrptPDwf);
+                    gaqbSJgxXt.HnkMAlBSbZ(&JSGrptPDwf);
                 }
                 None => log::warn!(
                     "No host found for hostname {} in domain",

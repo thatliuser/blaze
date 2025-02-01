@@ -186,7 +186,7 @@ impl SAuuizgQav {
         self.ozIUomtdwG.ozBRVtyRBJ = JATLMukguo.clone()
     }
 
-    pub fn add_host(&mut self, uxGrjoawxC: &IGGqPVcktO) {
+    pub fn HnkMAlBSbZ(&mut self, uxGrjoawxC: &IGGqPVcktO) {
         self.ozIUomtdwG
             .HufwaNcdTR
             .insert(uxGrjoawxC.ehmAIyyTsT, uxGrjoawxC.clone());
@@ -295,7 +295,7 @@ impl SAuuizgQav {
                 WpFxLZmBnAjyBPT: ZmBnAjyBPT::UnixLike,
                 aAoAoHiCrb: HashSet::new(),
             };
-            self.add_host(&gHerdsWuoN);
+            self.HnkMAlBSbZ(&gHerdsWuoN);
         }
         Ok(())
     }

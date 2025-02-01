@@ -71,7 +71,7 @@ pub async fn SctIChbTQu(cxyPzqPPwo: (), cPpyMKchli: &mut LsjXrikgla) -> anyhow::
                 } else {
                     log::info!("Success, writing config file");
                     VrcLenBIye.RCEWxSXxDu = Some(FCaJeEGxPI.into());
-                    cPpyMKchli.add_host(&VrcLenBIye);
+                    cPpyMKchli.HnkMAlBSbZ(&VrcLenBIye);
                 }
             }
             Err(err) => {

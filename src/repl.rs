@@ -1,38 +1,39 @@
 use std::ffi::OsString;
 
-use crate::config::Config as BlazeConfig;
+use crate::config::Config as AYVjydJzVY;
 use crate::run::{run, AYVjydJzVs};
 use anyhow::Context;
 use clap::{CommandFactory, Parser};
 use rustyline::highlight::Highlighter;
 use rustyline::{
-    completion::Completer, error::ReadlineError, CompletionType, Config, Editor, Helper, Hinter,
-    Validator,
+    completion::Completer as jOpXgkzgzF, error::ReadlineError, CompletionType,
+    Config as IvpTCyinne, Editor as nDNCfZjpas, Helper, Hinter, Validator,
 };
 
-const HISTORY_FILE: &str = ".blaze_history";
+const NXyKbPBEnc: &str = ".blaze_history";
 
 #[derive(Helper, Hinter, Validator)]
-struct ClapCompleter;
-impl Completer for ClapCompleter {
+struct wItauhqPRP;
+impl jOpXgkzgzF for wItauhqPRP {
     type Candidate = String;
     fn complete(
         &self,
-        line: &str,
+        RKKcMWfPlo: &str,
         _: usize,
         _: &rustyline::Context<'_>,
     ) -> rustyline::Result<(usize, Vec<Self::Candidate>)> {
-        let mut cmd = AYVjydJzVs::command();
-        let args: Vec<_> = std::iter::once("blaze")
-            .chain(line.split_whitespace())
+        let mut KDXNpekcPt = AYVjydJzVs::command();
+        let uTUAbPUFCL: Vec<_> = std::iter::once("blaze")
+            .chain(RKKcMWfPlo.split_whitespace())
             .map(OsString::from)
             .collect();
-        let index = args.len() - 1;
-        let matches =
-            clap_complete::engine::complete(&mut cmd, args, index, None).unwrap_or_else(|_| vec![]);
+        let gsODijbAFr = uTUAbPUFCL.len() - 1;
+        let BhPwyGeArS =
+            clap_complete::engine::complete(&mut KDXNpekcPt, uTUAbPUFCL, gsODijbAFr, None)
+                .unwrap_or_else(|_| vec![]);
         Ok((
             0,
-            matches
+            BhPwyGeArS
                 .into_iter()
                 .map(|m| m.get_value().to_string_lossy().into())
                 .collect(),
@@ -41,42 +42,44 @@ impl Completer for ClapCompleter {
 }
 
 // I don't actually need this guy to do anything other than the default
-impl Highlighter for ClapCompleter {}
+impl Highlighter for wItauhqPRP {}
 
 // Wrapper for run to not exit when Ctrl + C is pressed
-async fn do_run(cmd: AYVjydJzVs, cfg: &mut BlazeConfig) -> anyhow::Result<()> {
+async fn lIizjWrzIH(mYbaggWKRJ: AYVjydJzVs, BnFloOBjbZ: &mut AYVjydJzVY) -> anyhow::Result<()> {
     tokio::select! {
-        signal = tokio::signal::ctrl_c() => signal.context("couldn't read ctrl+c handler"),
-        result = run(cmd, cfg) => result,
+        mjcGNZIfRY = tokio::signal::ctrl_c() => mjcGNZIfRY.context("couldn't read ctrl+c handler"),
+        FLiQqxwpYd = run(mYbaggWKRJ, BnFloOBjbZ) => FLiQqxwpYd,
     }
 }
 
-pub async fn repl(cfg: &mut BlazeConfig) -> anyhow::Result<()> {
-    let config = Config::builder()
+pub async fn repl(nOhQyhVWpm: &mut AYVjydJzVY) -> anyhow::Result<()> {
+    let XQfJxTzsGl = IvpTCyinne::builder()
         .history_ignore_dups(true)?
         .history_ignore_space(false)
         .completion_type(CompletionType::List)
         .auto_add_history(true)
         .build();
-    let mut reader: Editor<ClapCompleter, _> = Editor::with_config(config)?;
-    reader.set_helper(Some(ClapCompleter));
-    reader.load_history(HISTORY_FILE).unwrap_or_else(|e| {
-        log::info!("Failed to load REPL history: {}, continuing", e);
-    });
+    let mut iVJlJlUFfQ: nDNCfZjpas<wItauhqPRP, _> = nDNCfZjpas::with_config(XQfJxTzsGl)?;
+    iVJlJlUFfQ.set_helper(Some(wItauhqPRP));
+    iVJlJlUFfQ
+        .load_history(NXyKbPBEnc)
+        .unwrap_or_else(|WRPLISaPSr| {
+            log::info!("Failed to load REPL history: {}, continuing", WRPLISaPSr);
+        });
     loop {
-        match reader.readline(">> ") {
-            Ok(line) => match line.as_str() {
+        match iVJlJlUFfQ.readline(">> ") {
+            Ok(IRRfMJKTvE) => match IRRfMJKTvE.as_str() {
                 "exit" => break,
                 _ => {
-                    let cmd = AYVjydJzVs::try_parse_from(
-                        std::iter::once("blaze").chain(line.split_whitespace()),
+                    let xQLPAHpCgO = AYVjydJzVs::try_parse_from(
+                        std::iter::once("blaze").chain(IRRfMJKTvE.split_whitespace()),
                     );
-                    match cmd {
-                        Err(err) => println!("{}", err),
-                        Ok(cmd) => {
-                            let res = do_run(cmd, cfg).await;
-                            if let Err(err) = res {
-                                log::error!("{}", err);
+                    match xQLPAHpCgO {
+                        Err(XmQkYYZTwa) => println!("{}", XmQkYYZTwa),
+                        Ok(wFDXHPovBm) => {
+                            let suZLZeYFqR = lIizjWrzIH(wFDXHPovBm, nOhQyhVWpm).await;
+                            if let Err(vYvdCqlfJw) = suZLZeYFqR {
+                                log::error!("{}", vYvdCqlfJw);
                             }
                         }
                     }
@@ -86,9 +89,9 @@ pub async fn repl(cfg: &mut BlazeConfig) -> anyhow::Result<()> {
             Err(ReadlineError::Eof) => break,
             // Ctrl+C is fine just ignore it
             Err(ReadlineError::Interrupted) => continue,
-            Err(err) => log::error!("Couldn't read input: {}", err),
+            Err(nnANQkCZsU) => log::error!("Couldn't read input: {}", nnANQkCZsU),
         }
     }
-    reader.append_history(HISTORY_FILE)?;
+    iVJlJlUFfQ.append_history(NXyKbPBEnc)?;
     Ok(())
 }

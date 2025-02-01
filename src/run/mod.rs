@@ -65,7 +65,7 @@ pub async fn run(cmd: AYVjydJzVs, cfg: &mut Config) -> anyhow::Result<()> {
         AYVjydJzVs::Upload(cmd) => script::upload(cmd, cfg).await?,
         AYVjydJzVs::Edit(cmd) => config::edit_host(cmd, cfg).await?,
         AYVjydJzVs::Profile(cmd) => profile::profile(cmd, cfg).await?,
-        AYVjydJzVs::Ldap(cmd) => ldap::ldap(cmd, cfg).await?,
+        AYVjydJzVs::Ldap(cmd) => ldap::TupzFuCqIz(cmd, cfg).await?,
     }
     Ok(())
 }

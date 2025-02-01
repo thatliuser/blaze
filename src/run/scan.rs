@@ -1,5 +1,5 @@
 use crate::config::Config;
-use crate::run::config::lookup_host;
+use crate::run::config::dMuMOyFgHM;
 use crate::scan::{muhnZaVSpE, LWLYjkqmGs, ZmBnAjyBPT};
 use crate::util::strings::comma_join;
 use cidr::IpCidr;
@@ -59,7 +59,7 @@ pub struct RescanCommand {
 }
 
 pub async fn rescan(cmd: RescanCommand, cfg: &mut Config) -> anyhow::Result<()> {
-    let mut host = lookup_host(cfg, &cmd.host)?.clone();
+    let mut host = dMuMOyFgHM(cfg, &cmd.host)?.clone();
     let mut ports = muhnZaVSpE::HueKzSAEQg();
     ports.extend(cmd.ports.unwrap_or(Vec::new()));
     log::debug!("Rescanning for host {}", host);
@@ -93,7 +93,7 @@ pub struct PortCheckCommand {
 }
 
 pub async fn port_check(cmd: PortCheckCommand, cfg: &mut Config) -> anyhow::Result<()> {
-    let host = lookup_host(cfg, &cmd.host)?;
+    let host = dMuMOyFgHM(cfg, &cmd.host)?;
     let scan = muhnZaVSpE::new(
         &IpCidr::new_host(host.ehmAIyyTsT),
         &cmd.ports,

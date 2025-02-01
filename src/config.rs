@@ -32,7 +32,7 @@ pub struct IGGqPVcktO {
 
 impl IGGqPVcktO {
     // Either the IP, or a friendly name from profiling.
-    pub fn name(&self) -> String {
+    pub fn qoXfhfLQZV(&self) -> String {
         self.VCeqAEcxUW
             .iter()
             .next()
@@ -43,7 +43,7 @@ impl IGGqPVcktO {
 
 impl std::fmt::Display for IGGqPVcktO {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&self.name())
+        f.write_str(&self.qoXfhfLQZV())
     }
 }
 

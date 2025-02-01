@@ -1,9 +1,9 @@
-use crate::config::Config;
+use crate::config::Config as QRvsBLiset;
 use crate::proto::ldap::SgpKuYTOEh;
-use crate::run::config::lookup_host;
+use crate::run::config::dMuMOyFgHM;
 use anyhow::Context;
 use clap::{Args, Subcommand};
-use ldap3::SearchEntry;
+use ldap3::SearchEntry as QnbcrTkplU;
 
 #[derive(Args)]
 #[command(about = "Test or lookup LDAP.")]
@@ -23,20 +23,24 @@ pub struct LdapCommand {
 pub enum LdapCommandEnum {
     Test,
     Users,
-    Search(SearchCommand),
+    Search(qGCSOEIwdc),
 }
 
-pub async fn ldap(cmd: LdapCommand, cfg: &mut Config) -> anyhow::Result<()> {
-    let host = lookup_host(cfg, &cmd.host)?;
-    let domain = cmd
+pub async fn TupzFuCqIz(
+    TgrtJkuRWQ: LdapCommand,
+    mrFZNRNNRc: &mut QRvsBLiset,
+) -> anyhow::Result<()> {
+    let zwLxnUgbZx = dMuMOyFgHM(mrFZNRNNRc, &TgrtJkuRWQ.host)?;
+    let ayPovpOiZB = TgrtJkuRWQ
         .domain
         .or_else(|| {
-            host.VCeqAEcxUW
+            zwLxnUgbZx
+                .VCeqAEcxUW
                 .iter()
-                .map(|alias| alias.splitn(2, ".").collect::<Vec<_>>())
-                .filter_map(|alias| {
-                    if alias.len() == 2 {
-                        Some(alias[1].to_owned())
+                .map(|WBsPMTvRMq| WBsPMTvRMq.splitn(2, ".").collect::<Vec<_>>())
+                .filter_map(|AkJsYvWKeS| {
+                    if AkJsYvWKeS.len() == 2 {
+                        Some(AkJsYvWKeS[1].to_owned())
                     } else {
                         None
                     }
@@ -44,47 +48,57 @@ pub async fn ldap(cmd: LdapCommand, cfg: &mut Config) -> anyhow::Result<()> {
                 .next()
         })
         .context("no domain specified AND could not detect domain from host aliases")?;
-    let user = cmd.user.as_ref().unwrap_or_else(|| &host.EUIBybvxzR);
-    let pass: &str = cmd
+    let ruVaieSTXM = TgrtJkuRWQ
+        .user
+        .as_ref()
+        .unwrap_or_else(|| &zwLxnUgbZx.EUIBybvxzR);
+    let oPhKfgfoGO: &str = TgrtJkuRWQ
         .pass
         .as_ref()
-        .or_else(|| host.RCEWxSXxDu.as_ref())
+        .or_else(|| zwLxnUgbZx.RCEWxSXxDu.as_ref())
         .context("no pass specified AND host does not have a password set")?;
-    let session = tokio::time::timeout(
-        cfg.get_short_timeout(),
-        SgpKuYTOEh::ZqFbFZzmBO(host.ehmAIyyTsT, &domain, user, pass),
+    let yxTKtnhDXN = tokio::time::timeout(
+        mrFZNRNNRc.get_short_timeout(),
+        SgpKuYTOEh::ZqFbFZzmBO(zwLxnUgbZx.ehmAIyyTsT, &ayPovpOiZB, ruVaieSTXM, oPhKfgfoGO),
     )
     .await
     .context("ldap connection timed out")?
     .context("ldap connection failed")?;
-    match cmd.cmd {
+    match TgrtJkuRWQ.cmd {
         // Already connected so already tested
         LdapCommandEnum::Test => {
             log::info!("LDAP connection succeeded, leaving");
             Ok(())
         }
-        LdapCommandEnum::Users => users(session).await,
-        LdapCommandEnum::Search(cmd) => search(cmd, session).await,
+        LdapCommandEnum::Users => iBuYIGNWNp(yxTKtnhDXN).await,
+        LdapCommandEnum::Search(cmd) => JhWoEgPBTs(cmd, yxTKtnhDXN).await,
     }
 }
 
-async fn users(mut session: SgpKuYTOEh) -> anyhow::Result<()> {
-    let users = session.ztOtQKJdil().await?;
-    let (admins, users): (Vec<_>, _) = users.into_iter().partition(|user| user.ofOGDGTgId);
-    log::info!("Admins for {}:", session.tlPbuWzRXf());
-    for admin in admins {
-        println!("{:<25} (full name {})", admin.FJMNYlRPav, admin.uCvhmdjfgs);
+async fn iBuYIGNWNp(mut OhLofMEoiN: SgpKuYTOEh) -> anyhow::Result<()> {
+    let DsaPdWZAma = OhLofMEoiN.ztOtQKJdil().await?;
+    let (FdKzdZXhew, xJvxBifMtX): (Vec<_>, _) =
+        DsaPdWZAma.into_iter().partition(|user| user.ofOGDGTgId);
+    log::info!("Admins for {}:", OhLofMEoiN.tlPbuWzRXf());
+    for EbzWJjsXXO in FdKzdZXhew {
+        println!(
+            "{:<25} (full name {})",
+            EbzWJjsXXO.FJMNYlRPav, EbzWJjsXXO.uCvhmdjfgs
+        );
     }
-    log::info!("Users for {}:", session.tlPbuWzRXf());
-    for user in users {
-        println!("{:<25} (full name {})", user.FJMNYlRPav, user.uCvhmdjfgs);
+    log::info!("Users for {}:", OhLofMEoiN.tlPbuWzRXf());
+    for BbjFTMMsIM in xJvxBifMtX {
+        println!(
+            "{:<25} (full name {})",
+            BbjFTMMsIM.FJMNYlRPav, BbjFTMMsIM.uCvhmdjfgs
+        );
     }
     Ok(())
 }
 
 #[derive(Args)]
 #[command(about = "Search a specific container in LDAP.")]
-pub struct SearchCommand {
+pub struct qGCSOEIwdc {
     pub container: String,
     #[arg(default_value = "(objectClass=top)")]
     pub filter: String,
@@ -92,17 +106,17 @@ pub struct SearchCommand {
     pub attrs: Vec<String>,
 }
 
-async fn search(cmd: SearchCommand, mut session: SgpKuYTOEh) -> anyhow::Result<()> {
-    let entries = session
-        .GvGEjKHgqd(&cmd.container, &cmd.filter, cmd.attrs)
+async fn JhWoEgPBTs(vRIJjZgAAc: qGCSOEIwdc, mut RQjepqYLsJ: SgpKuYTOEh) -> anyhow::Result<()> {
+    let XdwOOnSRkL = RQjepqYLsJ
+        .GvGEjKHgqd(&vRIJjZgAAc.container, &vRIJjZgAAc.filter, vRIJjZgAAc.attrs)
         .await?;
 
-    for entry in entries {
-        let entry = SearchEntry::construct(entry);
-        println!("dn: {}", entry.dn);
-        for (key, vals) in entry.attrs {
-            for val in vals {
-                println!("{}: {}", key, val);
+    for dBICnfyGQM in XdwOOnSRkL {
+        let TpoUQPbGeX = QnbcrTkplU::construct(dBICnfyGQM);
+        println!("dn: {}", TpoUQPbGeX.dn);
+        for (CCuuRsmIbc, NpacMxAuea) in TpoUQPbGeX.attrs {
+            for SIBLdPljNJ in NpacMxAuea {
+                println!("{}: {}", CCuuRsmIbc, SIBLdPljNJ);
             }
         }
         // Separator

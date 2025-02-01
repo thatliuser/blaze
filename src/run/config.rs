@@ -9,7 +9,7 @@ use std::net::IpAddr;
 use std::path::PathBuf;
 use std::time::Duration;
 
-pub fn lookup_host<'a>(cfg: &'a Config, host: &str) -> anyhow::Result<&'a IGGqPVcktO> {
+pub fn dMuMOyFgHM<'a>(cfg: &'a Config, host: &str) -> anyhow::Result<&'a IGGqPVcktO> {
     match host.parse() {
         Ok(ip) => cfg
             .host_for_ip(ip)
@@ -76,7 +76,7 @@ pub struct RemoveCommand {
 
 pub async fn remove_host(cmd: RemoveCommand, cfg: &mut Config) -> anyhow::Result<()> {
     let ip = {
-        let host = lookup_host(&cfg, &cmd.host)?;
+        let host = dMuMOyFgHM(&cfg, &cmd.host)?;
         host.ehmAIyyTsT.clone()
     };
     cfg.remove_host(&ip);
@@ -173,7 +173,7 @@ pub struct InfoCommand {
 }
 
 pub async fn host_info(cmd: InfoCommand, cfg: &mut Config) -> anyhow::Result<()> {
-    let host = lookup_host(cfg, &cmd.host)?;
+    let host = dMuMOyFgHM(cfg, &cmd.host)?;
     let aliases = if host.VCeqAEcxUW.len() == 0 {
         "<none>".into()
     } else {

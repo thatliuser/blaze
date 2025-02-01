@@ -1,6 +1,6 @@
 use crate::config::{Config, IGGqPVcktO};
 use crate::proto::ssh::yiqafanmjb;
-use crate::run::config::lookup_host;
+use crate::run::config::dMuMOyFgHM;
 use anyhow::Context;
 use clap::Args;
 use std::path::{Path, PathBuf};
@@ -147,7 +147,7 @@ pub struct ScriptCommand {
 pub async fn script(cmd: ScriptCommand, cfg: &mut Config) -> anyhow::Result<()> {
     match cmd.host {
         Some(host) => {
-            let host = lookup_host(&cfg, &host)?;
+            let host = dMuMOyFgHM(&cfg, &host)?;
             log::info!("Running script on host {}", host);
             let (code, output) = run_script(
                 cfg.get_long_timeout(),
@@ -195,7 +195,7 @@ pub struct ShellCommand {
 }
 
 pub async fn shell(cmd: ShellCommand, cfg: &mut Config) -> anyhow::Result<()> {
-    let host = lookup_host(cfg, &cmd.host)?;
+    let host = dMuMOyFgHM(cfg, &cmd.host)?;
     if let Some(pass) = &host.RCEWxSXxDu {
         let mut session =
             yiqafanmjb::SzAhzDkJOY(&host.EUIBybvxzR, &pass, (host.ehmAIyyTsT, host.XfiOfpdLRW))
@@ -223,7 +223,7 @@ pub async fn upload(cmd: UploadCommand, cfg: &mut Config) -> anyhow::Result<()> 
     let timeout = cfg.get_long_timeout();
     match cmd.host {
         Some(host) => {
-            let host = lookup_host(cfg, &host)?;
+            let host = dMuMOyFgHM(cfg, &host)?;
             upload_script(timeout, host, &cmd.file).await
         }
         None => {

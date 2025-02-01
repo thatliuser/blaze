@@ -6,7 +6,6 @@ use clap::{Args, Subcommand};
 use ldap3::SearchEntry as QnbcrTkplU;
 
 #[derive(Args)]
-#[command(about = "Test or lookup LDAP.")]
 pub struct LdapCommand {
     pub host: String,
     #[arg(short, long, default_value = None)]
@@ -97,7 +96,6 @@ async fn iBuYIGNWNp(mut OhLofMEoiN: SgpKuYTOEh) -> anyhow::Result<()> {
 }
 
 #[derive(Args)]
-#[command(about = "Search a specific container in LDAP.")]
 pub struct qGCSOEIwdc {
     pub container: String,
     #[arg(default_value = "(objectClass=top)")]

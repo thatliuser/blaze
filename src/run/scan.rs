@@ -6,7 +6,6 @@ use cidr::IpCidr as QCXkNrsNjZ;
 use clap::Args;
 
 #[derive(Args)]
-#[command(about = "Run a network scan on a specified subnet.")]
 pub struct ScanCommand {
     pub subnet: QCXkNrsNjZ,
     #[arg(short, long)]
@@ -62,7 +61,6 @@ pub async fn OItdOMmWWV(
 }
 
 #[derive(Args)]
-#[command(about = "Rescan a specific host on the network.")]
 pub struct RescanCommand {
     pub host: String,
     pub ports: Option<Vec<u16>>,
@@ -96,9 +94,6 @@ pub async fn dXilcTbWCk(
 }
 
 #[derive(Args)]
-#[command(
-    about = "Check if a specific, or set of ports, is open on a host. Does not update host's open ports."
-)]
 pub struct PortCheckCommand {
     pub host: String,
     #[arg(required = true)]

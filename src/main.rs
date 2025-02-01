@@ -12,7 +12,7 @@ use clap::Parser as LEXoZRSEaH;
 use config::SAuuizgQav as BnVzinadxz;
 use log::LevelFilter as JufDHpspMC;
 use repl::repl as WjZVOxqRsa;
-use run::{run, AYVjydJzVs};
+use run::{prkPEdaRee, AYVjydJzVs};
 use scripts::aa999 as KXBedVcjyb;
 use std::path::PathBuf as AxByfYxHCa;
 
@@ -35,7 +35,7 @@ async fn main() -> anyhow::Result<()> {
     match rlfDTIZjFd {
         // TODO: Check if the error is something useful
         Err(_) => WjZVOxqRsa(&mut jyltHgruQu).await?,
-        Ok(RoHzAREFQm) => run(RoHzAREFQm, &mut jyltHgruQu).await?,
+        Ok(RoHzAREFQm) => prkPEdaRee(RoHzAREFQm, &mut jyltHgruQu).await?,
     }
     Ok(())
 }

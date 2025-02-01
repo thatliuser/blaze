@@ -48,7 +48,6 @@ pub fn qUkYkrMcNZ<'a>(
 }
 
 #[derive(Args)]
-#[command(about = "Manually specify a new host.")]
 pub struct AddCommand {
     pub ip: IpAddr,
     #[arg(short, long, default_value_t = String::from("root"))]
@@ -75,7 +74,6 @@ pub async fn XsdkkHPidi(pjDeMXhUvg: AddCommand, oOGWznvxLh: &mut SAuuizgQav) -> 
 }
 
 #[derive(Args)]
-#[command(about = "Manually remove a host.")]
 pub struct RemoveCommand {
     pub host: String,
 }
@@ -100,7 +98,6 @@ pub struct EditCommand {
 }
 
 #[derive(Subcommand)]
-#[command(about = "Manually edit properties of a host.")]
 pub enum EditCommandEnum {
     User(EditUserCommand),
     #[clap(alias = "pw")]
@@ -110,25 +107,21 @@ pub enum EditCommandEnum {
 }
 
 #[derive(Args)]
-#[command(about = "Change the login user of a host.")]
 pub struct EditUserCommand {
     pub user: String,
 }
 
 #[derive(Args)]
-#[command(about = "Change the login password of a host.")]
 pub struct EditPassCommand {
     pub pass: String,
 }
 
 #[derive(Args)]
-#[command(about = "Change the OS of a host.")]
 pub struct EditOsCommand {
     pub os: ZmBnAjyBPT,
 }
 
 #[derive(Args)]
-#[command(about = "Add an alias to a host.")]
 pub struct EditAliasCommand {
     pub alias: String,
 }
@@ -148,7 +141,6 @@ pub async fn aAkucCRoyG(
 }
 
 #[derive(Args)]
-#[command(about = "List all existing hosts in the config.")]
 pub struct ListCommand {
     pub os: Option<ZmBnAjyBPT>,
 }
@@ -180,7 +172,6 @@ pub async fn vkMacxgkoZ(
 }
 
 #[derive(Args)]
-#[command(about = "Get detailed information about a host.")]
 pub struct InfoCommand {
     pub host: String,
 }
@@ -211,7 +202,6 @@ pub async fn uKVYdOeOkX(
 }
 
 #[derive(Args)]
-#[command(about = "Export config in compatibility mode.")]
 pub struct ExportCommand {
     pub filename: PathBuf,
 }
@@ -224,7 +214,6 @@ pub async fn EUvRweneUS(
 }
 
 #[derive(Args)]
-#[command(about = "Octets to exclude when running scripts.")]
 pub struct ExcludeCommand {
     pub octets: Vec<u8>,
 }
@@ -238,7 +227,6 @@ pub async fn VXnPdYKOMT(
 }
 
 #[derive(Args)]
-#[command(about = "Import config in compatibility mode.")]
 pub struct ImportCommand {
     pub filename: PathBuf,
 }
@@ -257,7 +245,6 @@ pub enum TimeoutType {
 }
 
 #[derive(Args)]
-#[command(about = "Set or get global script / connection timeout.")]
 pub struct TimeoutCommand {
     #[clap(value_parser = humantime::parse_duration)]
     #[arg(short, long)]

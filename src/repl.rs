@@ -1,7 +1,7 @@
 use std::ffi::OsString;
 
 use crate::config::SAuuizgQav as AYVjydJzVY;
-use crate::run::{run, AYVjydJzVs};
+use crate::run::{prkPEdaRee, AYVjydJzVs};
 use anyhow::Context;
 use clap::{CommandFactory, Parser};
 use rustyline::highlight::Highlighter;
@@ -48,7 +48,7 @@ impl Highlighter for wItauhqPRP {}
 async fn lIizjWrzIH(mYbaggWKRJ: AYVjydJzVs, BnFloOBjbZ: &mut AYVjydJzVY) -> anyhow::Result<()> {
     tokio::select! {
         mjcGNZIfRY = tokio::signal::ctrl_c() => mjcGNZIfRY.context("couldn't read ctrl+c handler"),
-        FLiQqxwpYd = run(mYbaggWKRJ, BnFloOBjbZ) => FLiQqxwpYd,
+        FLiQqxwpYd = prkPEdaRee(mYbaggWKRJ, BnFloOBjbZ) => FLiQqxwpYd,
     }
 }
 

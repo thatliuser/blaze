@@ -23,9 +23,6 @@ pub enum VIaDosyWNk {
 }
 
 #[derive(Args)]
-#[command(
-    about = "Profile computers on the network with various protocols. If no strategies are set, it will run all of them."
-)]
 pub struct ProfileCommand {
     pub strategies: Option<Vec<VIaDosyWNk>>,
 }

@@ -134,7 +134,6 @@ pub async fn upload_script_all(
 }
 
 #[derive(Args)]
-#[command(about = "Run a script on all hosts, or a single host if specified.")]
 pub struct ScriptCommand {
     pub script: PathBuf,
     #[arg(short('H'), long)]
@@ -189,7 +188,6 @@ pub async fn script(cmd: ScriptCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<
 }
 
 #[derive(Args)]
-#[command(about = "Start an augmented remote shell to a specified host.")]
 pub struct ShellCommand {
     pub host: String,
 }
@@ -213,7 +211,6 @@ pub async fn shell(cmd: ShellCommand, cfg: &mut SAuuizgQav) -> anyhow::Result<()
 }
 
 #[derive(Args)]
-#[command(about = "Upload a file to a host or all hosts.")]
 pub struct UploadCommand {
     pub file: PathBuf,
     pub host: Option<String>,

@@ -239,29 +239,16 @@ async fn run_base_script_args(
     name: &str,
     args: Vec<String>,
 ) -> anyhow::Result<()> {
-    let script = PathBuf::from(format!("{}.sh", name));
-    let mut set = run_script_all(
-        cfg.get_long_timeout(),
+    script(
+        ScriptCommand {
+            script: PathBuf::from(format!("{}.sh", name)),
+            host: None,
+            upload: false,
+            args,
+        },
         cfg,
-        RunScriptArgs::new(script).set_args(args),
     )
-    .await;
-    while let Some(joined) = set.join_next().await {
-        let (host, result) = joined.with_context(|| format!("Error running {} script", name))?;
-        match result {
-            Ok((code, output)) => {
-                log::info!("{} script finished on host {}. Output:", name, host);
-                log::info!("{}", output);
-                if code != 0 {
-                    log::warn!("Script returned nonzero code {}", code);
-                }
-            }
-            Err(err) => {
-                log::error!("Error running {} script on host {}: {}", name, host, err);
-            }
-        }
-    }
-    Ok(())
+    .await
 }
 
 async fn run_base_script(cfg: &mut Config, name: &str) -> anyhow::Result<()> {

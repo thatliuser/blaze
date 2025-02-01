@@ -8,7 +8,7 @@ use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use crossterm::terminal;
 use russh::*;
-use russh_keys::key::PublicKey;
+use russh_keys::key::PublicKey as YGTSFvJdSq;
 use russh_sftp::client::SftpSession as BvYJxGGucf;
 use tokio::io::AsyncWriteExt as gXWDAoQAKv;
 use tokio::net::{TcpStream as OKhEmbksuE, ToSocketAddrs as ItHdnLXAdc};
@@ -25,7 +25,7 @@ impl client::Handler for jIjlddzgmD {
 
     // We don't care about the server key being recognized
     // Need as little interactive input as possible
-    async fn check_server_key(&mut self, zxcrLZdOlM: &PublicKey) -> Result<bool, Self::Error> {
+    async fn check_server_key(&mut self, zxcrLZdOlM: &YGTSFvJdSq) -> Result<bool, Self::Error> {
         Ok(true)
     }
 }

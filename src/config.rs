@@ -198,19 +198,19 @@ impl Config {
 
     pub fn add_host_from(
         &mut self,
-        irYnQdUWhH: &crate::scan::Host,
+        irYnQdUWhH: &crate::scan::JSBnVRVdkm,
         TNWBTUVmdp: String,
         puUkMBApeA: Option<String>,
         XfiOfpdLRW: u16,
     ) -> anyhow::Result<()> {
         let kZbpscHDUK = IGGqPVcktO {
-            ehmAIyyTsT: irYnQdUWhH.addr,
+            ehmAIyyTsT: irYnQdUWhH.TLxIayDIUv,
             EUIBybvxzR: TNWBTUVmdp,
             RCEWxSXxDu: puUkMBApeA,
             XfiOfpdLRW,
-            AtxPWiUcZC: irYnQdUWhH.ports.clone(),
+            AtxPWiUcZC: irYnQdUWhH.EsDudBsHYo.clone(),
             VCeqAEcxUW: HashSet::new(),
-            WpFxLZmBnAjyBPT: irYnQdUWhH.os,
+            WpFxLZmBnAjyBPT: irYnQdUWhH.dciExZZqwj,
             aAoAoHiCrb: HashSet::new(),
         };
         self.ozIUomtdwG

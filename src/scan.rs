@@ -15,15 +15,15 @@ use serde::{Deserialize, Serialize};
 use std::{
     collections::{HashMap, HashSet},
     fmt::{Display, Formatter},
-    net::IpAddr,
+    net::IpAddr as LkRZFMCrmB,
     process::Stdio,
     time::Duration,
 };
 use tokio::{fs::read_to_string, process::Command};
 
 #[derive(Clone, Debug)]
-pub struct Scan {
-    pub hosts: Vec<Host>,
+pub struct muhnZaVSpE {
+    pub vuUyZghFip: Vec<JSBnVRVdkm>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, ValueEnum, PartialEq, Eq)]
@@ -35,24 +35,28 @@ pub enum ZmBnAjyBPT {
 }
 
 #[derive(Clone, Debug)]
-pub struct Host {
-    pub addr: IpAddr,
-    pub ports: HashSet<u16>,
-    pub os: ZmBnAjyBPT,
+pub struct JSBnVRVdkm {
+    pub TLxIayDIUv: LkRZFMCrmB,
+    pub EsDudBsHYo: HashSet<u16>,
+    pub dciExZZqwj: ZmBnAjyBPT,
 }
 
-impl Host {
-    pub fn new(addr: IpAddr, ports: HashSet<u16>) -> Host {
+impl JSBnVRVdkm {
+    pub fn new(addr: LkRZFMCrmB, ports: HashSet<u16>) -> JSBnVRVdkm {
         let os = if ports.iter().any(|port| port == &3389) {
             ZmBnAjyBPT::Windows
         } else {
             ZmBnAjyBPT::UnixLike
         };
-        Host { addr, ports, os }
+        JSBnVRVdkm {
+            TLxIayDIUv: addr,
+            EsDudBsHYo: ports,
+            dciExZZqwj: os,
+        }
     }
 }
 
-impl TryFrom<&NmapHost> for Host {
+impl TryFrom<&NmapHost> for JSBnVRVdkm {
     type Error = anyhow::Error;
     fn try_from(nmap: &NmapHost) -> anyhow::Result<Self> {
         let addr = nmap
@@ -68,7 +72,7 @@ impl TryFrom<&NmapHost> for Host {
             .ports()
             .map(|port| port.port_number)
             .collect();
-        Ok(Host::new(addr.clone(), ports))
+        Ok(JSBnVRVdkm::new(addr.clone(), ports))
     }
 }
 
@@ -88,8 +92,8 @@ impl Display for Backend {
     }
 }
 
-impl Scan {
-    async fn nmap(subnet: &IpCidr, ports: &Vec<u16>) -> anyhow::Result<Vec<Host>> {
+impl muhnZaVSpE {
+    async fn nmap(subnet: &IpCidr, ports: &Vec<u16>) -> anyhow::Result<Vec<JSBnVRVdkm>> {
         let ports_arg = join(ports, ",");
         let args = vec![
             "--min-rate",
@@ -128,9 +132,9 @@ impl Scan {
         subnet: &IpCidr,
         ports: &Vec<u16>,
         timeout: Duration,
-    ) -> anyhow::Result<Vec<Host>> {
+    ) -> anyhow::Result<Vec<JSBnVRVdkm>> {
         // Copied from rustscan::address::parse_address
-        let ips: Vec<IpAddr> = subnet.iter().map(|c| c.address()).collect();
+        let ips: Vec<LkRZFMCrmB> = subnet.iter().map(|c| c.address()).collect();
         let strategy = PortStrategy::pick(&None, Some(ports.clone()), ScanOrder::Serial);
         let scanner = Scanner::new(&ips, 100, timeout, 1, true, strategy, true, vec![], false);
         log::info!(
@@ -139,7 +143,7 @@ impl Scan {
             timeout.as_millis(),
             join(ports, ",")
         );
-        let mut hosts = HashMap::<IpAddr, HashSet<u16>>::new();
+        let mut hosts = HashMap::<LkRZFMCrmB, HashSet<u16>>::new();
         scanner.run().await.iter().for_each(|addr| {
             let ip = addr.ip();
             hosts
@@ -149,7 +153,7 @@ impl Scan {
         });
         Ok(hosts
             .into_iter()
-            .map(|(addr, ports)| Host::new(addr, ports))
+            .map(|(addr, ports)| JSBnVRVdkm::new(addr, ports))
             .collect())
     }
 
@@ -167,11 +171,11 @@ impl Scan {
         ports: &Vec<u16>,
         backend: Backend,
         timeout: Duration,
-    ) -> anyhow::Result<Scan> {
-        Ok(Scan {
-            hosts: match backend {
-                Backend::Nmap => Scan::nmap(subnet, ports).await?,
-                Backend::RustScan => Scan::rustscan(subnet, ports, timeout).await?,
+    ) -> anyhow::Result<muhnZaVSpE> {
+        Ok(muhnZaVSpE {
+            vuUyZghFip: match backend {
+                Backend::Nmap => muhnZaVSpE::nmap(subnet, ports).await?,
+                Backend::RustScan => muhnZaVSpE::rustscan(subnet, ports, timeout).await?,
             },
         })
     }
@@ -183,9 +187,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_nmap() -> anyhow::Result<()> {
-        Scan::new(
+        muhnZaVSpE::new(
             &"10.100.3.0/24".parse().unwrap(),
-            &Scan::common_ports(),
+            &muhnZaVSpE::common_ports(),
             Backend::Nmap,
             Duration::from_secs(5),
         )
@@ -195,9 +199,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_rustscan() -> anyhow::Result<()> {
-        Scan::new(
+        muhnZaVSpE::new(
             &"10.100.3.0/24".parse().unwrap(),
-            &Scan::common_ports(),
+            &muhnZaVSpE::common_ports(),
             Backend::RustScan,
             Duration::from_secs(5),
         )

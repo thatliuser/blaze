@@ -1,4 +1,4 @@
-use crate::crabs::Crab;
+use crate::crabs::{Crab, CrabResult};
 use netstat2::iterate_sockets_info;
 use serde::Serialize;
 use std::collections::HashMap;
@@ -15,11 +15,13 @@ impl NetstatCrab {
 }
 
 impl Crab for NetstatCrab {
-    type Result = NetstatCrabResult;
-
-    fn run(&self) -> Self::Result {
+    fn run(&self) -> CrabResult {
         self.full_netstat_output();
         todo!()
+    }
+
+    fn priority(&self) -> u64 {
+        100
     }
 }
 

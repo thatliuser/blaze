@@ -1,10 +1,15 @@
-use crate::crabs::Crab;
+use crate::crabs::{Crab, CrabResult};
 use serde::Serialize;
 
 pub struct CredentialsCrab {}
 
 impl Crab for CredentialsCrab {
-    type Result = CredentialsCrabResult;
+    fn run(&self) -> CrabResult {
+        todo!()
+    }
+    fn priority(&self) -> u64 {
+        85
+    }
 }
 
 #[derive(Serialize)]

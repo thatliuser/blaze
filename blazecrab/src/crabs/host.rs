@@ -1,4 +1,4 @@
-use crate::crabs::Crab;
+use crate::crabs::{Crab, CrabResult};
 use serde::Serialize;
 use sysinfo::System;
 
@@ -17,9 +17,7 @@ pub struct HostCrabResult {
 }
 
 impl Crab for HostCrab {
-    type Result = HostCrabResult;
-
-    fn run(&self) -> Self::Result {
+    fn run(&self) -> CrabResult {
         let os = System::name();
         let os_version = System::os_version();
         let kernel_version = System::kernel_version();
@@ -28,7 +26,7 @@ impl Crab for HostCrab {
         let arch = System::cpu_arch();
         let container_runtime =
             in_container::get_container_runtime().map(|runtime| runtime.to_string());
-        Self::Result {
+        CrabResult::Host(HostCrabResult {
             os,
             os_version,
             kernel_version,
@@ -36,6 +34,9 @@ impl Crab for HostCrab {
             distribution,
             arch,
             container_runtime,
-        }
+        })
+    }
+    fn priority(&self) -> u64 {
+        110
     }
 }

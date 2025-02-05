@@ -1,23 +1,61 @@
 use crate::crabs::{Crab, CrabResult};
-use netstat2::iterate_sockets_info;
+use netstat2::{AddressFamilyFlags, ProtocolFlags, iterate_sockets_info};
 use serde::Serialize;
-use std::collections::HashMap;
+use std::net::IpAddr;
 use std::path::PathBuf;
-use sysinfo::System;
+use sysinfo::{Pid, System};
 
 pub struct NetstatCrab {}
 
 impl NetstatCrab {
-    pub fn full_netstat_output(&self) {
-        let info = System::new_all();
-        // iterate_sockets_info(, proto_flags)
+    pub fn full_netstat_output(&self) -> Vec<ListenSocket> {
+        let system = System::new_all();
+        let sockets =
+            iterate_sockets_info(AddressFamilyFlags::all(), ProtocolFlags::all()).unwrap();
+        sockets
+            .filter_map(Result::ok)
+            .map(|socket| {
+                let local_addr = socket.local_addr();
+                let local_port = socket.local_port();
+                let process = socket
+                    .associated_pids
+                    .iter()
+                    .filter_map(|pid| system.process(Pid::from(*pid as usize)))
+                    .next()
+                    .map(|process| {
+                        let pid = process.pid().as_u32();
+                        let name = process.name().to_string_lossy().into_owned();
+                        let path = process.exe().map(|path| path.to_owned());
+                        let cwd = process.cwd().map(|path| path.to_owned());
+                        let cmdline = process
+                            .cmd()
+                            .iter()
+                            .map(|arg| arg.to_string_lossy())
+                            .collect::<Vec<_>>()
+                            .join(" ");
+                        ProcessInfo {
+                            pid,
+                            name,
+                            path,
+                            cwd,
+                            cmdline,
+                        }
+                    });
+                ListenSocket {
+                    local_addr,
+                    local_port,
+                    process,
+                }
+            })
+            .collect()
     }
 }
 
 impl Crab for NetstatCrab {
     fn run(&self) -> CrabResult {
-        self.full_netstat_output();
-        todo!()
+        CrabResult::Netstat(NetstatCrabResult {
+            listen_sockets: self.full_netstat_output(),
+        })
     }
 
     fn priority(&self) -> u64 {
@@ -27,21 +65,21 @@ impl Crab for NetstatCrab {
 
 #[derive(Serialize)]
 pub struct NetstatCrabResult {
-    pub listen_sockets: HashMap<u16, ListenSocket>,
+    pub listen_sockets: Vec<ListenSocket>,
 }
 
 #[derive(Serialize)]
 pub struct ListenSocket {
-    local_addr: String,
+    local_addr: IpAddr,
     local_port: u16,
-    process: ProcessInfo,
+    process: Option<ProcessInfo>,
 }
 
 #[derive(Serialize)]
 pub struct ProcessInfo {
-    pid: u64,
+    pid: u32,
     name: String,
-    path: PathBuf,
-    cwd: PathBuf,
-    cmdline: Vec<String>,
+    path: Option<PathBuf>,
+    cwd: Option<PathBuf>,
+    cmdline: String,
 }

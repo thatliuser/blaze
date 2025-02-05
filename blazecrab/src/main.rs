@@ -14,11 +14,11 @@ fn main() -> anyhow::Result<()> {
     env_logger::init();
     let crabs: Vec<Box<dyn Crab>> = vec![
         Box::new(HostCrab {}),
+        Box::new(NetstatCrab {}),
         /*
         Box::new(CredentialsCrab {}),
         Box::new(MysqlCrab {}),
         Box::new(PostgresCrab {}),
-        Box::new(NetstatCrab {}),
         Box::new(HttpdCrab {}),
         Box::new(NginxCrab {}),
         */

@@ -16,6 +16,7 @@ fn main() -> anyhow::Result<()> {
     let crabs: Vec<Box<dyn Crab>> = vec![
         Box::new(HostCrab {}),
         Box::new(NetstatCrab {}),
+        // TODO: Only run this one when /var/run/docker.sock exists or DOCKER_HOST is set like in boxcrab
         Box::new(ContainerCrab {}),
         /*
         Box::new(CredentialsCrab {}),

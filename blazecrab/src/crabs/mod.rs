@@ -31,6 +31,14 @@ impl PartialEq for dyn Crab {
 
 impl PartialOrd for dyn Crab {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.priority().cmp(&other.priority()))
+        self.priority().partial_cmp(&other.priority())
+    }
+}
+
+impl Eq for dyn Crab {}
+
+impl Ord for dyn Crab {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.priority().cmp(&other.priority())
     }
 }

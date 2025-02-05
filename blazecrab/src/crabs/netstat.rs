@@ -1,5 +1,7 @@
 use crate::crabs::{Crab, CrabResult};
-use netstat2::{AddressFamilyFlags, ProtocolFlags, iterate_sockets_info};
+use netstat2::{
+    AddressFamilyFlags, ProtocolFlags, ProtocolSocketInfo, TcpState, iterate_sockets_info,
+};
 use serde::Serialize;
 use std::net::IpAddr;
 use std::path::PathBuf;
@@ -10,10 +12,19 @@ pub struct NetstatCrab {}
 impl NetstatCrab {
     pub fn full_netstat_output(&self) -> Vec<ListenSocket> {
         let system = System::new_all();
-        let sockets =
-            iterate_sockets_info(AddressFamilyFlags::all(), ProtocolFlags::all()).unwrap();
+        let sockets = iterate_sockets_info(AddressFamilyFlags::all(), ProtocolFlags::TCP).unwrap();
         sockets
             .filter_map(Result::ok)
+            .filter_map(|socket| match &socket.protocol_socket_info {
+                ProtocolSocketInfo::Tcp(tcp) => {
+                    if tcp.state == TcpState::Listen {
+                        Some(socket)
+                    } else {
+                        None
+                    }
+                }
+                ProtocolSocketInfo::Udp(_) => None,
+            })
             .map(|socket| {
                 let local_addr = socket.local_addr();
                 let local_port = socket.local_port();

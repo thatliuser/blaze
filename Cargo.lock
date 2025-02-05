@@ -523,10 +523,12 @@ dependencies = [
  "log",
  "mysql",
  "netstat2",
+ "regex-automata",
  "serde",
  "serde_json",
  "sysinfo",
  "tokio",
+ "walkdir",
 ]
 
 [[package]]

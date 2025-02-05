@@ -13,11 +13,9 @@ use std::collections::BinaryHeap;
 
 fn main() -> anyhow::Result<()> {
     env_logger::init();
-    let crabs: Vec<Box<dyn Crab>> = vec![
+    let mut crabs: Vec<Box<dyn Crab>> = vec![
         Box::new(HostCrab {}),
         Box::new(NetstatCrab {}),
-        // TODO: Only run this one when /var/run/docker.sock exists or DOCKER_HOST is set like in boxcrab
-        Box::new(ContainerCrab {}),
         /*
         Box::new(CredentialsCrab {}),
         Box::new(MysqlCrab {}),
@@ -26,6 +24,9 @@ fn main() -> anyhow::Result<()> {
         Box::new(NginxCrab {}),
         */
     ];
+    if std::env::var("DOCKER_HOST").is_ok() || std::fs::exists("/var/run/docker.sock")? {
+        crabs.push(Box::new(ContainerCrab {}));
+    }
     let mut results: Vec<CrabResult> = vec![];
     let mut queue = BinaryHeap::from(crabs);
     while let Some(crab) = queue.pop() {

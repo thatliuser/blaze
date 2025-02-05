@@ -1,6 +1,7 @@
 mod crabs;
 
 use crabs::{
+    container::ContainerCrab,
     creds::{CredentialsCrab, DatabaseCredential},
     db::{mysql::MysqlCrab, postgres::PostgresCrab},
     host::HostCrab,
@@ -15,6 +16,7 @@ fn main() -> anyhow::Result<()> {
     let crabs: Vec<Box<dyn Crab>> = vec![
         Box::new(HostCrab {}),
         Box::new(NetstatCrab {}),
+        Box::new(ContainerCrab {}),
         /*
         Box::new(CredentialsCrab {}),
         Box::new(MysqlCrab {}),

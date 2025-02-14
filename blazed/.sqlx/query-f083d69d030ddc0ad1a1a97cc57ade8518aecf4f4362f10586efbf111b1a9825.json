@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT port as \"port: u16\" FROM HostPorts WHERE cidr = ? AND ip = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "port: u16",
+        "ordinal": 0,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "f083d69d030ddc0ad1a1a97cc57ade8518aecf4f4362f10586efbf111b1a9825"
+}

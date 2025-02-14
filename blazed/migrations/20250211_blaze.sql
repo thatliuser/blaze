@@ -1,3 +1,4 @@
+-- Account tables
 CREATE TABLE IF NOT EXISTS Users(
     id   INTEGER NOT NULL PRIMARY KEY,
     name TEXT    NOT NULL,
@@ -19,6 +20,7 @@ CREATE TABLE IF NOT EXISTS UserAllowedTokens(
     FOREIGN KEY (id) REFERENCES Users(id)
 );
 
+-- Host / network tables
 CREATE TABLE IF NOT EXISTS Networks(
     -- An IPv4 or IPv6 with a mask.
     cidr              TEXT    NOT NULL PRIMARY KEY,
@@ -67,15 +69,6 @@ CREATE TABLE IF NOT EXISTS HostPorts(
     FOREIGN KEY (cidr, ip) REFERENCES Hosts(cidr, ip) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS Services(
-    cidr TEXT     NOT NULL,
-    ip   TEXT     NOT NULL,
-    port SMALLINT NOT NULL,
-    name TEXT     NOT NULL,
-    PRIMARY KEY (cidr, ip, port),
-    FOREIGN KEY (cidr, ip, port) REFERENCES HostPorts(cidr, ip, port) ON DELETE CASCADE
-);
-
 CREATE TABLE IF NOT EXISTS HostLogs(
     cidr  TEXT     NOT NULL,
     ip    TEXT     NOT NULL,
@@ -86,3 +79,49 @@ CREATE TABLE IF NOT EXISTS HostLogs(
     FOREIGN KEY (cidr, ip) REFERENCES Host(cidr, ip) ON DELETE CASCADE
 );
 
+-- Service tables
+CREATE TABLE IF NOT EXISTS Services(
+    name TEXT NOT NULL PRIMARY KEY,
+    -- Information about the service
+    info TEXT NOT NULL,
+    -- The type of service it is
+    type TEXT NOT NULL,
+    cidr TEXT,
+    ip   TEXT,
+    FOREIGN KEY (cidr, ip) REFERENCES Hosts(cidr, ip) ON DELETE CASCADE
+);
+
+-- Password tables
+CREATE TABLE IF NOT EXISTS Passwords(
+    round    INTEGER NOT NULL,
+    id       INTEGER NOT NULL,
+    password TEXT    NOT NULL,
+    -- One of 'windows', 'linux', 'misc'
+    type     TEXT    NOT NULL,
+    PRIMARY KEY (round, id)
+);
+
+CREATE TABLE IF NOT EXISTS PasswordUsages(
+    round INTEGER NOT NULL,
+    id    INTEGER NOT NULL,
+    -- Description of what it's used for
+    info  TEXT    NOT NULL,
+    FOREIGN KEY (round, id) REFERENCES Passwords(round, id)
+);
+
+CREATE TABLE IF NOT EXISTS PasswordUsageByHost(
+    round     INTEGER NOT NULL,
+    id        INTEGER NOT NULL,
+    host_cidr TEXT    NOT NULL,
+    host_ip   TEXT    NOT NULL,
+    FOREIGN KEY (round, id) REFERENCES Passwords(round, id),
+    FOREIGN KEY (host_cidr, host_ip) REFERENCES Hosts(cidr, ip)
+);
+
+CREATE TABLE IF NOT EXISTS PasswordUsageByService(
+    round   INTEGER NOT NULL,
+    id      INTEGER NOT NULL,
+    service TEXT    NOT NULL,
+    FOREIGN KEY (round, id) REFERENCES Passwords(round, id),
+    FOREIGN KEY (service) REFERENCES Services(name)
+);

@@ -1,0 +1,50 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT * FROM Networks",
+  "describe": {
+    "columns": [
+      {
+        "name": "cidr",
+        "ordinal": 0,
+        "type_info": "Text"
+      },
+      {
+        "name": "short_timeout_ms",
+        "ordinal": 1,
+        "type_info": "Integer"
+      },
+      {
+        "name": "long_timeout_ms",
+        "ordinal": 2,
+        "type_info": "Integer"
+      },
+      {
+        "name": "linux_root_user",
+        "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "windows_root_user",
+        "ordinal": 4,
+        "type_info": "Text"
+      },
+      {
+        "name": "default_pass",
+        "ordinal": 5,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "7250dccf7e6a98153cf1f744c5e6e47c0399f1007c562c42aef1b0a964ab308b"
+}

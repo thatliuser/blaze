@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO HostAliases (cidr, ip, alias) VALUES (?, ?, ?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 3
+    },
+    "nullable": []
+  },
+  "hash": "1a11cd8939763cce1cb3bc9ec0071f8e0ed9c067f0900d575a4a0d95a7f0bfbe"
+}

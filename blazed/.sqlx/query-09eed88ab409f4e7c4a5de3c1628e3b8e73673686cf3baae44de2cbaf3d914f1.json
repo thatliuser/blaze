@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO Hosts (cidr, ip, user, pass, os) VALUES (?, ?, ?, ?, ?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 5
+    },
+    "nullable": []
+  },
+  "hash": "09eed88ab409f4e7c4a5de3c1628e3b8e73673686cf3baae44de2cbaf3d914f1"
+}

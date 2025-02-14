@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO HostPorts (cidr, ip, port) VALUES (?, ?, ?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 3
+    },
+    "nullable": []
+  },
+  "hash": "01447b7416515f32d9b144dc30d85b94e265aba9869bc4e74d95072081d62b47"
+}

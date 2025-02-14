@@ -17,18 +17,11 @@ pub enum OsType {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct Service {
-    pub name: String,
-    pub port: u16,
-}
-
-#[derive(Serialize, Deserialize)]
 pub struct Host {
     pub cidr: IpCidr,
     pub ip: IpAddr,
     pub aliases: HashSet<String>,
     pub ports: HashSet<u16>,
-    pub services: HashMap<String, Service>,
     pub user: Option<String>,
     pub pass: Option<String>,
     pub os: OsType,
@@ -54,21 +47,23 @@ impl Host {
         .into_iter()
         .map(|alias| alias.alias)
         .collect();
-        let services = sqlx::query!(
-            r#"SELECT name, port as "port: u16" FROM Services WHERE cidr = ? AND ip = ?"#,
-            host.cidr,
-            host.ip
-        )
-        .fetch_all(pool)
-        .await?
-        .into_iter()
-        .map(|service| {
-            (service.name.clone(), Service {
-                name: service.name,
-                port: service.port,
+        /*
+            let services = sqlx::query!(
+                r#"SELECT name, port as "port: u16" FROM Services WHERE cidr = ? AND ip = ?"#,
+                host.cidr,
+                host.ip
+            )
+            .fetch_all(pool)
+            .await?
+            .into_iter()
+            .map(|service| {
+                (service.name.clone(), Service {
+                    name: service.name,
+                    port: service.port,
+                })
             })
-        })
-        .collect();
+            .collect();
+        */
         let ports = sqlx::query!(
             r#"SELECT port as "port: u16" FROM HostPorts WHERE cidr = ? AND ip = ?"#,
             host.cidr,
@@ -85,7 +80,7 @@ impl Host {
             ip: host.ip.parse()?,
             aliases: aliases,
             ports: ports,
-            services: services,
+            // services: services,
             user: host.user.clone(),
             pass: host.pass.clone(),
             // TODO: Fix with strum or smth

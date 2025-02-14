@@ -2,7 +2,6 @@ use axum::{Json, Router, extract::State, http::StatusCode, routing::post};
 use routes::{create_network, get_networks};
 use sqlx::{Connection, SqliteConnection, SqlitePool};
 
-mod db;
 mod models;
 mod routes;
 

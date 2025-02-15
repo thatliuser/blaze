@@ -1,6 +1,9 @@
-use axum::{Json, Router, extract::State, http::StatusCode, routing::post};
-use routes::{create_network, get_networks};
-use sqlx::{Connection, SqliteConnection, SqlitePool};
+use axum::{
+    Router,
+    routing::{get, post},
+};
+use routes::{create_network, get_networks, import_quotient};
+use sqlx::SqlitePool;
 
 mod models;
 mod routes;
@@ -15,7 +18,8 @@ async fn main() {
     let pool = SqlitePool::connect("blaze.db?mode=rwc").await.unwrap();
     sqlx::migrate!().run(&pool).await.unwrap();
     let app = Router::new()
-        .route("/networks", post(create_network).get(get_networks))
+        .route("/api/networks", post(create_network).get(get_networks))
+        .route("/api/passwords/quotient", get(import_quotient))
         .with_state(AppState { pool });
     let list = tokio::net::TcpListener::bind("127.0.0.1:8080")
         .await

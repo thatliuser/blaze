@@ -3,6 +3,7 @@ use std::{
     net::IpAddr,
     time::Duration,
 };
+use typeshare::typeshare;
 
 use cidr::IpCidr;
 use serde::{Deserialize, Serialize};
@@ -16,6 +17,7 @@ pub enum OsType {
     Other,
 }
 
+#[typeshare]
 #[derive(Serialize, Deserialize)]
 pub struct Host {
     pub cidr: IpCidr,
@@ -139,6 +141,7 @@ impl Host {
     }
 }
 
+#[typeshare]
 #[derive(Serialize, Deserialize)]
 pub struct Network {
     pub cidr: IpCidr,

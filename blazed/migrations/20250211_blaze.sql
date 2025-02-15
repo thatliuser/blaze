@@ -85,7 +85,7 @@ CREATE TABLE IF NOT EXISTS Services(
     -- Information about the service
     info TEXT NOT NULL,
     -- The type of service it is
-    type TEXT NOT NULL,
+    kind TEXT NOT NULL,
     cidr TEXT,
     ip   TEXT,
     FOREIGN KEY (cidr, ip) REFERENCES Hosts(cidr, ip) ON DELETE CASCADE
@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS Passwords(
     id       INTEGER NOT NULL,
     password TEXT    NOT NULL,
     -- One of 'windows', 'linux', 'misc'
-    type     TEXT    NOT NULL,
+    kind     TEXT    NOT NULL,
     PRIMARY KEY (round, id)
 );
 

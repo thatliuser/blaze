@@ -107,7 +107,7 @@ async fn do_import_quotient(pool: &sqlx::SqlitePool, host: &str) -> anyhow::Resu
         .context("Quotient returned an empty array of teams")?;
     for service in series.data.iter() {
         sqlx::query!(
-            "INSERT INTO Services (name, info, type) VALUES (?, ?, ?)",
+            "INSERT INTO Services (name, info, kind) VALUES (?, ?, ?)",
             service.x,
             "none!",
             "unknown"
@@ -129,6 +129,39 @@ pub async fn import_quotient(
     println!("Running import quotient");
     match do_import_quotient(&state.pool, &query.uri).await {
         Ok(()) => (StatusCode::OK, "".into()),
+        Err(err) => (StatusCode::INTERNAL_SERVER_ERROR, err.to_string()),
+    }
+}
+
+// TODO: There's more to this but IDRC about the stuff rn
+struct DbService {
+    pub name: String,
+    pub info: String,
+    pub kind: String,
+    pub cidr: Option<String>,
+    pub ip: Option<String>,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct Service {
+    pub name: String,
+}
+
+async fn do_get_services(pool: &sqlx::SqlitePool) -> anyhow::Result<String> {
+    let services: Vec<_> = sqlx::query_as!(DbService, "SELECT * FROM Services")
+        .fetch_all(pool)
+        .await?
+        .iter()
+        .map(|service| Service {
+            name: service.name.clone(),
+        })
+        .collect();
+    Ok(serde_json::to_string(&services)?)
+}
+
+pub async fn get_services(State(state): State<AppState>) -> (StatusCode, String) {
+    match do_get_services(&state.pool).await {
+        Ok(json) => (StatusCode::OK, json),
         Err(err) => (StatusCode::INTERNAL_SERVER_ERROR, err.to_string()),
     }
 }

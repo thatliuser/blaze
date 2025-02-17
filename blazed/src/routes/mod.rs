@@ -10,7 +10,7 @@ use axum::{
         StatusCode, Uri,
         uri::{PathAndQuery, Scheme},
     },
-    response::{IntoResponse, Response, Result},
+    response::{IntoResponse, Response},
 };
 use futures::future::TryFutureExt;
 use serde::{Deserialize, Serialize};
@@ -33,7 +33,7 @@ where
     }
 }
 
-pub type AppResult<T> = Result<T, AppError>;
+pub type AppResult<T> = axum::response::Result<T, AppError>;
 
 pub type JsonResponse<T> = AppResult<Json<T>>;
 
@@ -149,4 +149,31 @@ pub async fn get_services(State(state): State<AppState>) -> JsonResponse<Vec<Ser
         })
         .collect();
     Ok(Json(services))
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Password {
+    pub id: i32,
+    pub password: String,
+}
+
+pub async fn upload_passwords(
+    State(state): State<AppState>,
+    file: String,
+) -> JsonResponse<Vec<Password>> {
+    let passwords: Vec<_> = csv::Reader::from_reader(file.as_bytes())
+        .deserialize::<Password>()
+        .collect::<Result<_, _>>()?;
+    for password in passwords.iter() {
+        sqlx::query!(
+            "INSERT INTO Passwords (round, id, password, kind) VALUES (?, ?, ?, ?)",
+            0,
+            password.id,
+            password.password,
+            "misc"
+        )
+        .execute(&state.pool)
+        .await?;
+    }
+    Ok(Json(passwords))
 }

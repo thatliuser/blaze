@@ -4,6 +4,7 @@
 	let { data }: PageProps = $props();
 	console.log(data);
 </script>
+
 {#each data.item as item}
 	<ClickableTile>
 		<h1>{item.cidr}</h1>
@@ -32,4 +33,3 @@
 		/>
 	</ClickableTile>
 {/each}
-

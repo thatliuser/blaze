@@ -142,11 +142,13 @@ pub struct ListCommand {
 }
 
 pub async fn list_hosts(cmd: ListCommand, cfg: &mut Config) -> anyhow::Result<()> {
-    for host in cfg
+    let mut hosts: Vec<_> = cfg
         .hosts()
         .values()
         .filter(|host| cmd.os.is_none() || Some(host.os) == cmd.os)
-    {
+        .collect();
+    hosts.sort_by_key(|host| host.ip);
+    for host in hosts {
         let aliases: Vec<String> = host.aliases.iter().cloned().collect();
         let aliases = if aliases.len() == 0 {
             "<none>".into()

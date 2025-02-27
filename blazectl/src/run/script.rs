@@ -211,7 +211,7 @@ pub struct UploadCommand {
     pub host: Option<String>,
 }
 
-pub async fn upload(cmd: UploadCommand, cfg: &mut Config) -> anyhow::Result<()> {
+pub async fn upload(cmd: UploadCommand, cfg: &Config) -> anyhow::Result<()> {
     let timeout = cfg.get_long_timeout();
     match cmd.host {
         Some(host) => {
@@ -261,14 +261,35 @@ pub async fn base(_cmd: (), cfg: &mut Config) -> anyhow::Result<()> {
     run_base_script(cfg, "php").await?;
     run_base_script(cfg, "ssh").await?;
     run_base_script(cfg, "lockdown").await?;
-    upload(
-        UploadCommand {
-            file: PathBuf::from("firewall_template.sh"),
-            host: None,
-        },
-        cfg,
-    )
-    .await?;
+    // TODO: This is like, really stupid, and I should just support
+    // uploading multiple files over the same SSH/SFTP channel
+    // But for now I don't think I have the time to architect it, so I won't
+    let (fw, extract, parse) = tokio::join!(
+        upload(
+            UploadCommand {
+                file: PathBuf::from("firewall_template.sh"),
+                host: None,
+            },
+            cfg,
+        ),
+        upload(
+            UploadCommand {
+                file: PathBuf::from("extract_fw_logs.sh"),
+                host: None,
+            },
+            cfg,
+        ),
+        upload(
+            UploadCommand {
+                file: PathBuf::from("parse_fw_logs.sh"),
+                host: None,
+            },
+            cfg,
+        )
+    );
+    fw.context("Couldn't upload firewall template script")?;
+    extract.context("Couldn't upload firewall log extractor script")?;
+    parse.context("Couldn't upload firewall log parser script")?;
     run_base_script_args(cfg, "initial_backup", vec!["/etc/backup".into()]).await?;
     run_base_script(cfg, "ident").await?;
     Ok(())

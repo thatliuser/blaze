@@ -190,9 +190,10 @@ pub struct ShellCommand {
 pub async fn shell(cmd: ShellCommand, cfg: &mut Config) -> anyhow::Result<()> {
     let host = lookup_host(cfg, &cmd.host)?;
     if let Some(pass) = &host.pass {
-        let mut session = Session::connect(&host.user, &pass, (host.ip, host.port)).await?;
-        log::info!("ssh {}@{} -p {}", host.user, host, host.port);
+        // Print specifically the host IP because needs to be copy-pastable into terminal
+        log::info!("ssh {}@{} -p {}", host.user, host.ip, host.port);
         log::info!("Using password '{}'", &pass);
+        let mut session = Session::connect(&host.user, &pass, (host.ip, host.port)).await?;
         let code = session.shell().await?;
         if code != 0 {
             log::warn!("Shell returned nonzero code {}", code);

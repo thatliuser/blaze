@@ -37,44 +37,43 @@ pub async fn chpass(_cmd: (), cfg: &mut Config) -> anyhow::Result<()> {
         RunScriptArgs::new(script),
     )
     .await;
-    let mut failed = Vec::<String>::new();
+    let mut failed = Vec::<(String, String)>::new();
     while let Some(joined) = set.join_next().await {
         let (mut host, output) = joined.context("Error running password script")?;
         match output {
             Ok((code, pass)) => {
                 if code != 0 {
-                    log::warn!(
+                    log::trace!(
                         "Password script returned nonzero code {} for host {}",
                         code,
                         host
                     );
                 }
                 let pass = pass.trim();
-                log::info!(
+                log::trace!(
                     "Ran password script on host {}, now checking password {}",
                     host,
                     pass
                 );
                 let session = Session::connect(&host.user, pass, (host.ip, host.port)).await;
                 if let Err(err) = session {
-                    log::error!("Password change seems to have failed, error: {}", err);
-                    failed.push(host.to_string());
+                    log::trace!("Password change seems to have failed, error: {}", err);
+                    failed.push((host.to_string(), err.to_string()));
                 } else {
-                    log::info!("Success, writing config file");
+                    log::trace!("Success, writing config file");
                     host.pass = Some(pass.into());
                     cfg.add_host(&host);
                 }
             }
             Err(err) => {
-                log::error!("Error running script on host {}: {}", host, err);
-                failed.push(host.to_string());
+                log::trace!("Error running script on host {}: {}", host, err);
+                failed.push((host.to_string(), err.to_string()));
             }
         }
     }
-    log::info!(
-        "Total: {} failed password changes (hosts {:?})",
-        failed.len(),
-        failed.join(" "),
-    );
+    log::info!("Total: {} failed password changes", failed.len(),);
+    for (host, error) in failed {
+        log::info!("Host {}: {}", host, error);
+    }
     Ok(())
 }

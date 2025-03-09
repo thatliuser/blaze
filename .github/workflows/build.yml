@@ -1,65 +1,48 @@
 on: [push]
 
 jobs:
-  build-linux-musl:
-    name: Build Linux static binary
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Compile
-      id: compile
-      uses: rust-build/rust-build.action@v1.4.5
-      with:
-        TOOLCHAIN_VERSION: 1.83.0
-        RUSTTARGET: x86_64-unknown-linux-musl
-        UPLOAD_MODE: none
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: blaze-x86_64-unknown-linux-musl
-        path: |
-          ${{ steps.compile.outputs.BUILT_ARCHIVE }}
-          ${{ steps.compile.outputs.BUILT_CHECKSUM }}
-  build-windows:
-    name: Build Windows binary
-    runs-on: windows-latest
+  build:
+    name: Build ${{ matrix.target.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - os: Windows x86_64
+            runner: windows-latest
+            triple: x86_64-pc-windows-msvc
+          - os: Windows i686
+            runner: windows-latest
+            triple: i686-pc-windows-msvc
+          - os: Linux musl
+            runner: ubuntu-latest
+            triple: x86_64-unknown-linux-musl
+          - os: MacOS ARM
+            runner: macos-latest
+            triple: aarch64-apple-darwin
+          - os: MacOS x86_64
+            runner: macos-latest
+            triple: x86_64-apple-darwin
+    runs-on: ${{ matrix.target.runner }}
     steps:
     - uses: actions/checkout@v4
     - name: Install nightly rust toolchain
-      uses: actions-rs/toolchain@v1
+      uses: actions-rs/toolchain@v1.0.6
       with:
         toolchain: nightly
+        target: ${{ matrix.target.triple }}
         default: true
         override: true
     - name: Compile
       run: cargo build --release
     - name: Upload artifact
+      if: ${{ matrix.target.runner == 'windows-latest' }}
       uses: actions/upload-artifact@v4
       with:
-        name: blaze-x86_64-pc-windows-msvc.exe
+        name: blaze-${{ matrix.target.triple }}
         path: target/release/blaze.exe
-  build-macos-arm:
-    name: Build ARM macOS binary
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Compile
-      run: cargo build --release
     - name: Upload artifact
+      if: ${{ matrix.target.runner != 'windows-latest' }}
       uses: actions/upload-artifact@v4
       with:
-        name: blaze-arm64e-apple-darwin
+        name: blaze-${{ matrix.target.triple }}
         path: target/release/blaze
-  build-macos-x86:
-    name: Build x86 macOS binary
-    runs-on: macos-13
-    steps:
-    - uses: actions/checkout@v4
-    - name: Compile
-      run: cargo build --release
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: blaze-x86_64-apple-darwin
-        path: target/release/blaze
-

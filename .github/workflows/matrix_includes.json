@@ -1,0 +1,32 @@
+[
+    {
+        "os": "Windows x86_64",
+        "runner": "windows-latest",
+        "triple": "x86_64-pc-windows-msvc",
+        "tag": "windows"
+    },
+    {
+        "os": "Windows i686",
+        "runner": "windows-latest",
+        "triple": "i686-pc-windows-msvc",
+        "tag": "windows"
+    },
+    {
+        "os": "Linux musl",
+        "runner": "ubuntu-latest",
+        "triple": "x86_64-unknown-linux-musl",
+        "tag": "linux"
+    },
+    {
+        "os": "MacOS ARM",
+        "runner": "macos-latest",
+        "triple": "aarch64-apple-darwin",
+        "tag": "macos"
+    },
+    {
+        "os": "MacOS x86_64",
+        "runner": "macos-latest",
+        "triple": "x86_64-apple-darwin",
+        "tag": "macos"
+    }
+]

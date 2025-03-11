@@ -57,6 +57,12 @@ jobs:
         target: ${{ matrix.target.triple }}
         default: true
         override: true
+    - name: Install musl tools for Linux build
+      if: ${{ matrix.target.runner == 'ubuntu-latest' }}
+      uses: awalsh128/cache-apt-pkgs-action@v1
+      with:
+        packages: musl-tools # provides musl-gcc
+        version: 1.0
     - name: Restore cached rust artifacts
       uses: Swatinem/rust-cache@v2
     - name: Compile

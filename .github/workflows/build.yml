@@ -33,7 +33,7 @@ jobs:
             [?(
               '${{ github.event_name }}' == 'push' ||
               '${{ github.event.inputs.targets }}' == 'all' ||
-              '${{ github.event.inputs.targets }}' == tag
+              '${{ github.event.inputs.targets }}' == target.tag
             )]
       - name: Debug
         run: |

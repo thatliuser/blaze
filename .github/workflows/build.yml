@@ -33,23 +33,29 @@ jobs:
     - name: Install nightly rust toolchain
       uses: actions-rs/toolchain@v1.0.6
       with:
-        toolchain: nightly
+        # Pin toolchain version for better caching
+        toolchain: nightly-2025-01-26
         target: ${{ matrix.target.triple }}
         default: true
         override: true
+    - name: Restore cached rust artifacts
+      uses: Swatinem/rust-cache@v2
+      with:
+        # Only restore, don't save current state
+        save-if: 'false'
     - name: Compile
       run: cargo build --release --bin blazectl
-    - name: Cache rust artifacts
-      uses: Swatinem/rust-cache@v2
     - name: Upload artifact
       if: ${{ matrix.target.runner == 'windows-latest' }}
       uses: actions/upload-artifact@v4
       with:
         name: blaze-${{ matrix.target.triple }}
-        path: target/${{ matrix.target.triple }}/release/blazectl.exe
+        path: target/release/blazectl.exe
+    - name: Cache rust artifacts
+      uses: Swatinem/rust-cache@v2
     - name: Upload artifact
       if: ${{ matrix.target.runner != 'windows-latest' }}
       uses: actions/upload-artifact@v4
       with:
         name: blaze-${{ matrix.target.triple }}
-        path: target/${{matrix.target.triple }}/release/blazectl
+        path: target/release/blazectl

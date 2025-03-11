@@ -33,16 +33,16 @@ jobs:
         default: true
         override: true
     - name: Compile
-      run: cargo build --release
+      run: cargo build --release --bin blazectl
     - name: Upload artifact
       if: ${{ matrix.target.runner == 'windows-latest' }}
       uses: actions/upload-artifact@v4
       with:
         name: blaze-${{ matrix.target.triple }}
-        path: target/release/blaze.exe
+        path: target/${{ matrix.target.triple }}/release/blazectl.exe
     - name: Upload artifact
       if: ${{ matrix.target.runner != 'windows-latest' }}
       uses: actions/upload-artifact@v4
       with:
         name: blaze-${{ matrix.target.triple }}
-        path: target/release/blaze
+        path: target/${{matrix.target.triple }}/release/blazectl

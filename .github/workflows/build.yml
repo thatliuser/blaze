@@ -18,6 +18,7 @@ on:
           - all
 
 jobs:
+  # Thanks https://stackoverflow.com/questions/65384420/how-do-i-make-a-github-action-matrix-element-conditional
   gen-matrix:
     name: Generate build matrix
     runs-on: ubuntu-latest
@@ -34,8 +35,11 @@ jobs:
               '${{ github.event.inputs.targets }}' == 'all' ||
               '${{ github.event.inputs.targets }}' == tag
             )]
+      - name: Debug
+        run: |
+          echo 'Generated matrix:'
+          echo ${{ steps.set.outputs.matrix }}
 
-    # Thanks https://stackoverflow.com/questions/65384420/how-do-i-make-a-github-action-matrix-element-conditional
   build:
     needs: gen-matrix
     name: Build ${{ matrix.target.os }}

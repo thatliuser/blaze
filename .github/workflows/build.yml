@@ -41,9 +41,6 @@ jobs:
         override: true
     - name: Restore cached rust artifacts
       uses: Swatinem/rust-cache@v2
-      with:
-        # Only restore, don't save current state
-        save-if: 'false'
     - name: Compile
       run: cargo build --release --bin blazectl
     - name: Upload artifact
@@ -52,8 +49,6 @@ jobs:
       with:
         name: blaze-${{ matrix.target.triple }}
         path: target/release/blazectl.exe
-    - name: Cache rust artifacts
-      uses: Swatinem/rust-cache@v2
     - name: Upload artifact
       if: ${{ matrix.target.runner != 'windows-latest' }}
       uses: actions/upload-artifact@v4

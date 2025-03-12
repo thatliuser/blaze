@@ -9,14 +9,6 @@
     },
     {
         "target": {
-            "os": "Windows i686",
-            "runner": "windows-latest",
-            "triple": "i686-pc-windows-msvc",
-            "tag": "windows"
-        }
-    },
-    {
-        "target": {
             "os": "Linux musl",
             "runner": "ubuntu-latest",
             "triple": "x86_64-unknown-linux-musl",

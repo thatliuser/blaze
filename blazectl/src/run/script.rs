@@ -239,12 +239,13 @@ async fn run_base_script_args(
     cfg: &mut Config,
     name: &str,
     args: Vec<String>,
+    host: Option<String>,
     upload: bool,
 ) -> anyhow::Result<()> {
     script(
         ScriptCommand {
             script: PathBuf::from(format!("{}.sh", name)),
-            host: None,
+            host: host,
             upload: upload,
             args,
         },
@@ -253,15 +254,33 @@ async fn run_base_script_args(
     .await
 }
 
-async fn run_base_script(cfg: &mut Config, name: &str, upload: bool) -> anyhow::Result<()> {
-    run_base_script_args(cfg, name, vec![], upload).await
+async fn run_base_script(
+    cfg: &mut Config,
+    name: &str,
+    host: Option<String>,
+    upload: bool,
+) -> anyhow::Result<()> {
+    run_base_script_args(cfg, name, vec![], host, upload).await
 }
 
-pub async fn base(_cmd: (), cfg: &mut Config) -> anyhow::Result<()> {
+#[derive(Args)]
+#[command(about = "Run basic scripts across all hosts.")]
+pub struct BaseCommand {
+    pub host: Option<String>,
+}
+
+pub async fn base(cmd: BaseCommand, cfg: &mut Config) -> anyhow::Result<()> {
     log::info!("Running hardening scripts");
-    run_base_script(cfg, "php", false).await?;
-    run_base_script(cfg, "ssh", false).await?;
-    run_base_script(cfg, "firewall_template", true).await?;
+    run_base_script(cfg, "php", cmd.host.clone(), false).await?;
+    run_base_script(cfg, "ssh", cmd.host.clone(), false).await?;
+    run_base_script_args(
+        cfg,
+        "firewall_template",
+        vec!["apply".into()],
+        cmd.host.clone(),
+        true,
+    )
+    .await?;
     // TODO: This is like, really stupid, and I should just support
     // uploading multiple files over the same SSH/SFTP channel
     // But for now I don't think I have the time to architect it, so I won't
@@ -269,21 +288,28 @@ pub async fn base(_cmd: (), cfg: &mut Config) -> anyhow::Result<()> {
         upload(
             UploadCommand {
                 file: PathBuf::from("extract_fw_logs.sh"),
-                host: None,
+                host: cmd.host.clone(),
             },
             cfg,
         ),
         upload(
             UploadCommand {
                 file: PathBuf::from("parse_fw_logs.sh"),
-                host: None,
+                host: cmd.host.clone(),
             },
             cfg,
         )
     );
     extract.context("Couldn't upload firewall log extractor script")?;
     parse.context("Couldn't upload firewall log parser script")?;
-    run_base_script_args(cfg, "initial_backup", vec!["/etc/backup".into()], true).await?;
-    run_base_script(cfg, "ident", true).await?;
+    run_base_script_args(
+        cfg,
+        "initial_backup",
+        vec!["/etc/backup".into()],
+        cmd.host.clone(),
+        true,
+    )
+    .await?;
+    run_base_script(cfg, "ident", cmd.host, true).await?;
     Ok(())
 }

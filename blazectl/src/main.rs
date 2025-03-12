@@ -13,6 +13,7 @@ use config::Config;
 use log::LevelFilter;
 use repl::repl;
 use run::{run, BlazeCommand};
+use rustls::crypto::aws_lc_rs::default_provider;
 use scripts::Scripts;
 use std::path::PathBuf;
 
@@ -23,6 +24,9 @@ async fn main() -> anyhow::Result<()> {
         .format_timestamp(None)
         .filter_module("blaze", LevelFilter::Debug)
         .init();
+    default_provider()
+        .install_default()
+        .map_err(|_| anyhow::Error::msg("Failed to initialize rustls"))?;
     let mut cfg = Config::from(&PathBuf::from("blaze.yaml")).unwrap_or_else(|err| {
         log::info!("Error loading config: {:?}, loading default", err);
         Config::new()

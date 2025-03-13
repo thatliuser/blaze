@@ -49,7 +49,7 @@ impl std::fmt::Display for Host {
 #[derive(Serialize, Deserialize)]
 struct ConfigFile {
     pub hosts: HashMap<IpAddr, Host>,
-    pub cidr: HashSet<IpCidr>,
+    pub cidrs: HashSet<IpCidr>,
     // For long tasks like scripts
     pub long_timeout: Duration,
     // For short tasks like TCP connections
@@ -64,13 +64,26 @@ impl ConfigFile {
     pub fn new() -> Self {
         Self {
             hosts: HashMap::new(),
-            cidr: HashSet::new(),
+            cidrs: HashSet::new(),
             long_timeout: Duration::from_secs(15),
-            short_timeout: Duration::from_millis(150),
+            short_timeout: Duration::from_millis(300),
             excluded_octets: vec![1, 2],
             linux_root: "root".into(),
             windows_root: "Administrator".into(),
         }
+    }
+
+    // Merge two config files.
+    // This assumes the other file has priority and
+    // overwrites most of the config in the current instance.
+    pub fn merge(&mut self, other: ConfigFile) {
+        self.hosts.extend(other.hosts);
+        self.cidrs.extend(other.cidrs);
+        self.long_timeout = other.long_timeout;
+        self.short_timeout = other.short_timeout;
+        self.excluded_octets = other.excluded_octets;
+        self.linux_root = other.linux_root;
+        self.windows_root = other.windows_root;
     }
 }
 
@@ -88,15 +101,15 @@ impl Config {
     }
 
     pub fn add_cidr(&mut self, cidr: IpCidr) {
-        self.file.cidr.insert(cidr);
+        self.file.cidrs.insert(cidr);
     }
 
     pub fn remove_cidr(&mut self, cidr: IpCidr) {
-        self.file.cidr.remove(&cidr);
+        self.file.cidrs.remove(&cidr);
     }
 
     pub fn get_cidrs(&self) -> &HashSet<IpCidr> {
-        &self.file.cidr
+        &self.file.cidrs
     }
 
     pub fn from(path: &PathBuf) -> anyhow::Result<Config> {
@@ -113,7 +126,7 @@ impl Config {
         let reader = BufReader::new(file);
         let contents: ConfigFile =
             serde_yaml::from_reader(reader).context("couldn't parse config file")?;
-        self.file = contents;
+        self.file.merge(contents);
         Ok(())
     }
 

@@ -76,6 +76,13 @@ pub async fn repl(cfg: &mut BlazeConfig) -> anyhow::Result<()> {
                     match cmd {
                         Err(err) => println!("{}", err),
                         Ok(cmd) => {
+                            // Reload config, run command, resave config
+                            // TODO: This is kind of bad if we're doing a long-running operation,
+                            // because if we have two instances open, the config can be overwritten
+                            // in the middle and that might cause problems. However, the reload operation
+                            // merges a new config file with the existing one, so it's mostly fine? It's just
+                            // going to overwrite stuff like timeout
+                            cfg.reload()?;
                             let res = do_run(cmd, cfg).await.and_then(|_| cfg.save());
                             if let Err(err) = res {
                                 log::error!("{}", err);

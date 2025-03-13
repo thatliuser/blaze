@@ -8,11 +8,11 @@ mod scan;
 mod scripts;
 mod util;
 
-use clap::Parser;
+use clap::{error::ErrorKind, Parser};
 use config::Config;
 use log::LevelFilter;
 use repl::repl;
-use run::{run, BlazeCommand};
+use run::{run_cli, CliCommand};
 use rustls::crypto::aws_lc_rs::default_provider;
 use scripts::Scripts;
 use std::path::PathBuf;
@@ -34,11 +34,10 @@ async fn main() -> anyhow::Result<()> {
     Scripts::unpack().await.unwrap_or_else(|err| {
         log::warn!("Error unpacking scripts: {}, continuing", err);
     });
-    let command = BlazeCommand::try_parse();
+    let command = CliCommand::try_parse();
     match command {
-        // TODO: Check if the error is something useful
-        Err(_) => repl(&mut cfg).await?,
-        Ok(command) => run(command, &mut cfg).await?,
+        Err(err) => println!("{}", err),
+        Ok(command) => run_cli(command, &mut cfg).await?,
     }
     Ok(())
 }

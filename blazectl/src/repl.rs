@@ -1,7 +1,7 @@
 use std::ffi::OsString;
 
 use crate::config::Config as BlazeConfig;
-use crate::run::{run, BlazeCommand};
+use crate::run::{run_core, ReplCommand};
 use anyhow::Context;
 use clap::{CommandFactory, Parser};
 use rustyline::highlight::Highlighter;
@@ -22,7 +22,7 @@ impl Completer for ClapCompleter {
         _: usize,
         _: &rustyline::Context<'_>,
     ) -> rustyline::Result<(usize, Vec<Self::Candidate>)> {
-        let mut cmd = BlazeCommand::command();
+        let mut cmd = ReplCommand::command();
         let args: Vec<_> = std::iter::once("blaze")
             .chain(line.split_whitespace())
             .map(OsString::from)
@@ -44,10 +44,13 @@ impl Completer for ClapCompleter {
 impl Highlighter for ClapCompleter {}
 
 // Wrapper for run to not exit when Ctrl + C is pressed
-async fn do_run(cmd: BlazeCommand, cfg: &mut BlazeConfig) -> anyhow::Result<()> {
-    tokio::select! {
-        signal = tokio::signal::ctrl_c() => signal.context("couldn't read ctrl+c handler"),
-        result = run(cmd, cfg) => result,
+async fn do_run(cmd: ReplCommand, cfg: &mut BlazeConfig) -> anyhow::Result<()> {
+    match cmd {
+        ReplCommand::Exit => Ok(()),
+        ReplCommand::Other(cmd) => tokio::select! {
+            signal = tokio::signal::ctrl_c() => signal.context("couldn't read ctrl+c handler"),
+            result = run_core(cmd, cfg) => result,
+        },
     }
 }
 
@@ -66,9 +69,8 @@ pub async fn repl(cfg: &mut BlazeConfig) -> anyhow::Result<()> {
     loop {
         match reader.readline(">> ") {
             Ok(line) => match line.as_str() {
-                "exit" => break,
                 _ => {
-                    let cmd = BlazeCommand::try_parse_from(
+                    let cmd = ReplCommand::try_parse_from(
                         std::iter::once("blaze").chain(line.split_whitespace()),
                     );
                     match cmd {

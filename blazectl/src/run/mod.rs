@@ -1,4 +1,4 @@
-use crate::config::Config;
+use crate::{config::Config, repl};
 use clap::Parser;
 
 mod chpass;
@@ -9,7 +9,24 @@ mod scan;
 pub mod script;
 
 #[derive(Parser)]
-pub enum BlazeCommand {
+pub enum ReplCommand {
+    #[command(about = "Exit REPL.")]
+    Exit,
+    #[command(flatten)]
+    Other(CoreCommand),
+}
+
+#[derive(Parser)]
+pub enum CliCommand {
+    #[command(about = "Start a REPL.")]
+    Repl,
+    #[command(flatten)]
+    Other(CoreCommand),
+}
+
+// Commands that are allowed to be run within the REPL
+#[derive(Parser)]
+pub enum CoreCommand {
     Scan(scan::ScanCommand),
     Rescan(scan::RescanCommand),
     #[clap(alias = "pc")]
@@ -44,27 +61,35 @@ pub enum BlazeCommand {
     Ldap(ldap::LdapCommand),
 }
 
-pub async fn run(cmd: BlazeCommand, cfg: &mut Config) -> anyhow::Result<()> {
+pub async fn run_core(cmd: CoreCommand, cfg: &mut Config) -> anyhow::Result<()> {
     match cmd {
-        BlazeCommand::Scan(cmd) => scan::scan(cmd, cfg).await?,
-        BlazeCommand::Rescan(cmd) => scan::rescan(cmd, cfg).await?,
-        BlazeCommand::PortCheck(cmd) => scan::port_check(cmd, cfg).await?,
-        BlazeCommand::Add(cmd) => config::add_host(cmd, cfg).await?,
-        BlazeCommand::Remove(cmd) => config::remove_host(cmd, cfg).await?,
-        BlazeCommand::List(cmd) => config::list_hosts(cmd, cfg).await?,
-        BlazeCommand::Info(cmd) => config::host_info(cmd, cfg).await?,
-        BlazeCommand::Timeout(cmd) => config::set_timeout(cmd, cfg).await?,
-        BlazeCommand::Export(cmd) => config::export(cmd, cfg).await?,
-        BlazeCommand::Import(cmd) => config::import(cmd, cfg).await?,
-        BlazeCommand::Exclude(cmd) => config::exclude(cmd, cfg).await?,
-        BlazeCommand::Chpass => chpass::chpass((), cfg).await?,
-        BlazeCommand::Script(cmd) => script::script(cmd, cfg).await?,
-        BlazeCommand::Base(cmd) => script::base(cmd, cfg).await?,
-        BlazeCommand::Shell(cmd) => script::shell(cmd, cfg).await?,
-        BlazeCommand::Upload(cmd) => script::upload(cmd, cfg).await?,
-        BlazeCommand::Edit(cmd) => config::edit_host(cmd, cfg).await?,
-        BlazeCommand::Profile(cmd) => profile::profile(cmd, cfg).await?,
-        BlazeCommand::Ldap(cmd) => ldap::ldap(cmd, cfg).await?,
+        CoreCommand::Scan(cmd) => scan::scan(cmd, cfg).await?,
+        CoreCommand::Rescan(cmd) => scan::rescan(cmd, cfg).await?,
+        CoreCommand::PortCheck(cmd) => scan::port_check(cmd, cfg).await?,
+        CoreCommand::Add(cmd) => config::add_host(cmd, cfg).await?,
+        CoreCommand::Remove(cmd) => config::remove_host(cmd, cfg).await?,
+        CoreCommand::List(cmd) => config::list_hosts(cmd, cfg).await?,
+        CoreCommand::Info(cmd) => config::host_info(cmd, cfg).await?,
+        CoreCommand::Timeout(cmd) => config::set_timeout(cmd, cfg).await?,
+        CoreCommand::Export(cmd) => config::export(cmd, cfg).await?,
+        CoreCommand::Import(cmd) => config::import(cmd, cfg).await?,
+        CoreCommand::Exclude(cmd) => config::exclude(cmd, cfg).await?,
+        CoreCommand::Chpass => chpass::chpass((), cfg).await?,
+        CoreCommand::Script(cmd) => script::script(cmd, cfg).await?,
+        CoreCommand::Base(cmd) => script::base(cmd, cfg).await?,
+        CoreCommand::Shell(cmd) => script::shell(cmd, cfg).await?,
+        CoreCommand::Upload(cmd) => script::upload(cmd, cfg).await?,
+        CoreCommand::Edit(cmd) => config::edit_host(cmd, cfg).await?,
+        CoreCommand::Profile(cmd) => profile::profile(cmd, cfg).await?,
+        CoreCommand::Ldap(cmd) => ldap::ldap(cmd, cfg).await?,
+    }
+    Ok(())
+}
+
+pub async fn run_cli(cmd: CliCommand, cfg: &mut Config) -> anyhow::Result<()> {
+    match cmd {
+        CliCommand::Repl => repl::repl(cfg).await?,
+        CliCommand::Other(cmd) => run_core(cmd, cfg).await?,
     }
     Ok(())
 }

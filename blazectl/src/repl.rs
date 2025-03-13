@@ -44,13 +44,15 @@ impl Completer for ClapCompleter {
 impl Highlighter for ClapCompleter {}
 
 // Wrapper for run to not exit when Ctrl + C is pressed
-async fn do_run(cmd: ReplCommand, cfg: &mut BlazeConfig) -> anyhow::Result<()> {
+// Return value signifies whether or not to continue executing
+async fn do_run(cmd: ReplCommand, cfg: &mut BlazeConfig) -> anyhow::Result<bool> {
     match cmd {
-        ReplCommand::Exit => Ok(()),
+        ReplCommand::Exit => Ok(false),
         ReplCommand::Other(cmd) => tokio::select! {
             signal = tokio::signal::ctrl_c() => signal.context("couldn't read ctrl+c handler"),
             result = run_core(cmd, cfg) => result,
-        },
+        }
+        .map(|()| true),
     }
 }
 
@@ -83,9 +85,15 @@ pub async fn repl(cfg: &mut BlazeConfig) -> anyhow::Result<()> {
                             // merges a new config file with the existing one, so it's mostly fine? It's just
                             // going to overwrite stuff like timeout
                             cfg.reload()?;
-                            let res = do_run(cmd, cfg).await.and_then(|_| cfg.save());
-                            if let Err(err) = res {
-                                log::error!("{}", err);
+                            let res = do_run(cmd, cfg)
+                                .await
+                                .and_then(|cont| cfg.save().map(|()| cont));
+                            match res {
+                                // Exit!
+                                Ok(false) => break,
+                                // Keep going
+                                Ok(true) => continue,
+                                Err(err) => log::error!("{}", err),
                             }
                         }
                     }

@@ -24,6 +24,7 @@ async fn main() -> anyhow::Result<()> {
         .log_to_file(FileSpec::default().suppress_timestamp())
         .duplicate_to_stderr(Duplicate::Debug)
         .set_palette("b1;3;2;4;6".into())
+        .append()
         .start()?;
     // Setup rustls for RDP profiling
     default_provider()

@@ -9,33 +9,24 @@ use std::net::IpAddr;
 use std::path::PathBuf;
 use std::time::Duration;
 
+fn parse_octets(host: &str) -> anyhow::Result<Vec<u8>> {
+    Ok(host
+        .split(".")
+        .map(|seg| seg.parse::<u8>())
+        .collect::<Result<_, _>>()?)
+}
+
 pub fn lookup_host<'a>(cfg: &'a Config, host: &str) -> anyhow::Result<&'a Host> {
     match host.parse() {
         Ok(ip) => cfg
             .host_for_ip(ip)
             .with_context(|| format!("no host for ip {}", ip)),
-        Err(_) => match host.parse() {
-            Ok(octet) => cfg
-                .host_for_octet(octet)
-                .with_context(|| format!("no host for octet {}", octet)),
+        Err(_) => match parse_octets(host) {
+            Ok(octets) => cfg
+                .host_for_octets(&octets)
+                .with_context(|| format!("no host for octets {}", host)),
             Err(_) => cfg
                 .host_for_alias(host)
-                .with_context(|| format!("no host for alias {}", host)),
-        },
-    }
-}
-
-pub fn lookup_host_mut<'a>(cfg: &'a mut Config, host: &str) -> anyhow::Result<&'a mut Host> {
-    match host.parse() {
-        Ok(ip) => cfg
-            .host_for_ip_mut(ip)
-            .with_context(|| format!("no host for ip {}", ip)),
-        Err(_) => match host.parse() {
-            Ok(octet) => cfg
-                .host_for_octet_mut(octet)
-                .with_context(|| format!("no host for octet {}", octet)),
-            Err(_) => cfg
-                .host_for_alias_mut(host)
                 .with_context(|| format!("no host for alias {}", host)),
         },
     }
@@ -125,13 +116,14 @@ pub struct EditAliasCommand {
 }
 
 pub async fn edit_host(cmd: EditCommand, cfg: &mut Config) -> anyhow::Result<()> {
-    let host = lookup_host_mut(cfg, &cmd.host)?;
+    let mut host = lookup_host(cfg, &cmd.host)?.clone();
     match cmd.cmd {
         EditCommandEnum::User(cmd) => host.user = cmd.user,
         EditCommandEnum::Pass(cmd) => host.pass = Some(cmd.pass),
         EditCommandEnum::Os(cmd) => host.os = cmd.os,
         EditCommandEnum::Alias(cmd) => _ = host.aliases.insert(cmd.alias),
     }
+    cfg.add_host(&host);
     Ok(())
 }
 

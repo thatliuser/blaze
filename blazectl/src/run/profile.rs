@@ -179,8 +179,8 @@ async fn lookup_domain_on<'a>(
     host: &Host,
     dns: &TokioAsyncResolver,
     domains: &'a HashSet<String>,
-    cidr: &IpCidr,
-) -> Option<&'a str> {
+    cidrs: &HashSet<IpCidr>,
+) -> Option<(&'a str, IpCidr)> {
     for domain in domains {
         // TODO: JoinSet
         let ips = dns.lookup_ip(domain).await;
@@ -189,20 +189,29 @@ async fn lookup_domain_on<'a>(
         let found = ips
             .map(|ips| {
                 ips.iter()
-                    .filter_map(|ip| convert_to_cidr(*cidr, ip).ok())
-                    .filter(|ip| ip == &host.ip)
+                    .flat_map(|ip| {
+                        cidrs.iter().filter_map(move |cidr| {
+                            let ip = convert_to_cidr(*cidr, ip).ok()?;
+                            Some((ip, cidr))
+                        })
+                    })
+                    .filter(|(ip, _)| ip == &host.ip)
                     .next()
             })
             .ok()
             .flatten();
-        if found.is_some() {
-            return Some(domain.as_str());
+        match found {
+            Some((_, cidr)) => {
+                return Some((domain.as_str(), cidr.clone()));
+            }
+            _ => {}
         }
+        if found.is_some() {}
     }
     None
 }
 
-async fn do_ldap(dc: &Host, domain: &str, cidr: IpCidr, cfg: &mut Config) -> anyhow::Result<()> {
+async fn do_ldap(dc: &Host, domain: &str, cidr: &IpCidr, cfg: &mut Config) -> anyhow::Result<()> {
     if let Some(pass) = &dc.pass {
         let mut dc = dc.clone();
         dc.desc.insert(format!("Domain controller for {}", domain));
@@ -234,7 +243,7 @@ async fn do_ldap(dc: &Host, domain: &str, cidr: IpCidr, cfg: &mut Config) -> any
                 .and_then(|ips| ips.iter().next())
                 .and_then(|ip| {
                     log::info!("Computer {} has ip {}", computer.name, ip);
-                    convert_to_cidr(cidr, ip).ok()
+                    convert_to_cidr(*cidr, ip).ok()
                 })
                 .and_then(|ip| cfg.host_for_ip(ip));
             match host {
@@ -269,9 +278,10 @@ async fn do_ldap(dc: &Host, domain: &str, cidr: IpCidr, cfg: &mut Config) -> any
 }
 
 pub async fn ldap(cfg: &mut Config) -> anyhow::Result<()> {
-    let cidr = cfg
-        .get_cidr()
-        .context("no cidr set; have you run a scan?")?;
+    let cidrs = cfg.get_cidrs().clone();
+    if cidrs.len() == 0 {
+        anyhow::bail!("no cidr set; have you run a scan?");
+    }
     let domains = get_domains(cfg);
     log::info!("Found domains {:?}", domains);
     // Find all the DNS servers we've found and create a resolver for them
@@ -294,12 +304,13 @@ pub async fn ldap(cfg: &mut Config) -> anyhow::Result<()> {
         .collect();
     let timeout = cfg.get_short_timeout();
     for (host, server) in servers {
-        match tokio::time::timeout(timeout, lookup_domain_on(&host, &server, &domains, &cidr)).await
+        match tokio::time::timeout(timeout, lookup_domain_on(&host, &server, &domains, &cidrs))
+            .await
         {
             Ok(result) => match result {
-                Some(domain) => {
+                Some((domain, cidr)) => {
                     log::info!("Found domain {} for host {}", domain, host);
-                    if let Err(err) = do_ldap(&host, domain, cidr, cfg).await {
+                    if let Err(err) = do_ldap(&host, domain, &cidr, cfg).await {
                         log::warn!("Error while running LDAP for DC {}: {}", host, err);
                     }
                 }

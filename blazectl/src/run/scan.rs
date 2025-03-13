@@ -22,7 +22,7 @@ pub struct ScanCommand {
 
 pub async fn scan(cmd: ScanCommand, cfg: &mut Config) -> anyhow::Result<()> {
     log::debug!("Subnet: {:?}", cmd.subnet);
-    cfg.set_cidr(cmd.subnet);
+    cfg.add_cidr(cmd.subnet);
     let scan = Scan::new(
         &cmd.subnet,
         &Scan::common_ports(),

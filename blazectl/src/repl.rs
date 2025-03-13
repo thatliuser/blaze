@@ -76,7 +76,7 @@ pub async fn repl(cfg: &mut BlazeConfig) -> anyhow::Result<()> {
                     match cmd {
                         Err(err) => println!("{}", err),
                         Ok(cmd) => {
-                            let res = do_run(cmd, cfg).await;
+                            let res = do_run(cmd, cfg).await.and_then(|_| cfg.save());
                             if let Err(err) = res {
                                 log::error!("{}", err);
                             }

@@ -1,7 +1,6 @@
 // Configuration file shenanigans
 
 use crate::scan::OsType;
-use crate::util::ip::convert_to_cidr;
 use anyhow::Context;
 use cidr::IpCidr;
 use serde::{Deserialize, Serialize};
@@ -50,7 +49,7 @@ impl std::fmt::Display for Host {
 #[derive(Serialize, Deserialize)]
 struct ConfigFile {
     pub hosts: HashMap<IpAddr, Host>,
-    pub cidr: Option<IpCidr>,
+    pub cidr: HashSet<IpCidr>,
     // For long tasks like scripts
     pub long_timeout: Duration,
     // For short tasks like TCP connections
@@ -65,7 +64,7 @@ impl ConfigFile {
     pub fn new() -> Self {
         Self {
             hosts: HashMap::new(),
-            cidr: None,
+            cidr: HashSet::new(),
             long_timeout: Duration::from_secs(15),
             short_timeout: Duration::from_millis(150),
             excluded_octets: vec![1, 2],
@@ -88,12 +87,16 @@ impl Config {
         }
     }
 
-    pub fn set_cidr(&mut self, cidr: IpCidr) {
-        self.file.cidr = Some(cidr);
+    pub fn add_cidr(&mut self, cidr: IpCidr) {
+        self.file.cidr.insert(cidr);
     }
 
-    pub fn get_cidr(&self) -> Option<IpCidr> {
-        self.file.cidr
+    pub fn remove_cidr(&mut self, cidr: IpCidr) {
+        self.file.cidr.remove(&cidr);
+    }
+
+    pub fn get_cidrs(&self) -> &HashSet<IpCidr> {
+        &self.file.cidr
     }
 
     pub fn from(path: &PathBuf) -> anyhow::Result<Config> {
@@ -103,6 +106,15 @@ impl Config {
             file: serde_yaml::from_reader(reader).context("couldn't parse config file")?,
             path: path.clone(),
         })
+    }
+
+    pub fn reload(&mut self) -> anyhow::Result<()> {
+        let file = File::open(self.path.clone()).context("couldn't open config file")?;
+        let reader = BufReader::new(file);
+        let contents: ConfigFile =
+            serde_yaml::from_reader(reader).context("couldn't parse config file")?;
+        self.file = contents;
+        Ok(())
     }
 
     pub fn save(&self) -> anyhow::Result<()> {
@@ -115,66 +127,56 @@ impl Config {
         self.file.hosts.get(&ip)
     }
 
-    pub fn host_for_ip_mut(&mut self, ip: IpAddr) -> Option<&mut Host> {
-        self.file.hosts.get_mut(&ip)
+    fn octets_to_ip(octets: &[u8]) -> Option<(Ipv4Addr, Ipv4Addr)> {
+        if octets.len() > 4 {
+            return None;
+        }
+        let mut ip_arr = [0u8; 4];
+        let len = octets.len().min(4);
+        ip_arr[4 - len..].copy_from_slice(&octets[..len]);
+
+        let mut mask_arr = [255u8; 4];
+        mask_arr[4 - len..].copy_from_slice(&vec![0; len]);
+
+        let ip = Ipv4Addr::from_bits(u32::from_be_bytes(ip_arr));
+        let mask = Ipv4Addr::from_bits(u32::from_be_bytes(mask_arr));
+        Some((ip, mask))
     }
 
     // Note: this only works for IPv4
-    pub fn host_for_octet(&self, octet: u8) -> Option<&Host> {
-        let cidr = self.get_cidr()?;
-        let ip = Ipv4Addr::from_bits(octet as u32);
-        let ip = convert_to_cidr(cidr, ip.into()).ok()?;
-        self.host_for_ip(ip)
-    }
-
-    pub fn host_for_octet_mut(&mut self, octet: u8) -> Option<&mut Host> {
-        let cidr = self.get_cidr()?;
-        let ip = Ipv4Addr::from_bits(octet as u32);
-        let ip = convert_to_cidr(cidr, ip.into()).ok()?;
-        self.host_for_ip_mut(ip)
+    pub fn host_for_octets(&self, octets: &[u8]) -> Option<&Host> {
+        let (ip, mask) = Self::octets_to_ip(octets)?;
+        let mut iter = self.get_cidrs().iter().filter_map(|cidr| {
+            let cidr = match cidr {
+                IpCidr::V4(cidr) => Some(cidr),
+                _ => None,
+            }?;
+            // Get the part of the mask that both IP and CIDR have, to compare them
+            let intersect = !mask & cidr.mask();
+            (intersect & cidr.first_address() == intersect & ip)
+                .then(|| {
+                    // Otherwise, the CIDR matches, so try looking up the host
+                    let ip = (mask & cidr.first_address()) | (!mask & ip);
+                    self.host_for_ip(IpAddr::V4(ip))
+                })
+                .flatten()
+        });
+        // There cannot be multiple hosts matching
+        iter.next()
+            .and_then(|host| iter.next().map_or_else(|| Some(host), |_| None))
     }
 
     // Allows infering an alias by short name (if no conflicts)
     pub fn host_for_alias(&self, alias: &str) -> Option<&Host> {
         let mut iter = self.hosts().iter().filter_map(|(_, host)| {
-            if host
-                .aliases
+            host.aliases
                 .iter()
                 .any(|a| a.to_lowercase().starts_with(&alias.to_lowercase()))
-            {
-                Some(host)
-            } else {
-                None
-            }
+                .then_some(host)
         });
-        iter.next().and_then(|host| {
-            if let Some(_) = iter.next() {
-                None
-            } else {
-                Some(host)
-            }
-        })
-    }
-
-    pub fn host_for_alias_mut(&mut self, alias: &str) -> Option<&mut Host> {
-        let mut iter = self.hosts_mut().iter_mut().filter_map(|(_, host)| {
-            if host
-                .aliases
-                .iter()
-                .any(|a| a.to_lowercase().starts_with(&alias.to_lowercase()))
-            {
-                Some(host)
-            } else {
-                None
-            }
-        });
-        iter.next().and_then(|host| {
-            if let Some(_) = iter.next() {
-                None
-            } else {
-                Some(host)
-            }
-        })
+        // There cannot be multiple hosts matching
+        iter.next()
+            .and_then(|host| iter.next().map_or_else(|| Some(host), |_| None))
     }
 
     pub fn get_excluded_octets(&self) -> &Vec<u8> {
@@ -218,29 +220,26 @@ impl Config {
         &self.file.hosts
     }
 
-    pub fn script_hosts(&self) -> Box<dyn Iterator<Item = (&IpAddr, &Host)> + '_> {
+    pub fn script_hosts(&self) -> impl Iterator<Item = (&IpAddr, &Host)> {
         // Filter out hosts that don't have SSH open
         let runnable = self
             .hosts()
             .iter()
             .filter(|(_, host)| host.open_ports.contains(&22));
-        match self.get_cidr() {
-            Some(cidr) => Box::new(runnable.filter(move |(ip, _)| {
+        runnable.clone().filter(move |(ip, _)| {
+            match ip {
                 // Get all the addresses that are not part of the excluded octets
-                self.get_excluded_octets()
-                    .iter()
-                    .filter_map(|octet| {
-                        let ip = Ipv4Addr::from_bits(*octet as u32);
-                        convert_to_cidr(cidr, ip.into()).ok()
-                    })
-                    .all(|addr| addr != **ip)
-            })),
-            None => Box::new(runnable),
-        }
-    }
-
-    pub fn hosts_mut(&mut self) -> &mut HashMap<IpAddr, Host> {
-        &mut self.file.hosts
+                IpAddr::V4(ip) => {
+                    let octet = ip.octets()[3];
+                    self.get_excluded_octets()
+                        .iter()
+                        .all(|excluded| excluded != &octet)
+                }
+                // IDRC about IPv6 since we haven't encountered it in competition
+                // Keep it in
+                IpAddr::V6(_) => true,
+            }
+        })
     }
 
     pub fn export_compat(&self, filename: &Path) -> anyhow::Result<()> {

@@ -14,7 +14,8 @@ struct Password {
 
 fn get_passwords() -> anyhow::Result<Vec<Password>> {
     let mut passwords = Vec::new();
-    let mut reader = csv::Reader::from_path("passwords.db")?;
+    let mut reader = csv::Reader::from_path("passwords.db")
+        .context("couldn't open password file - have you run passgen yet?")?;
     for result in reader.deserialize() {
         passwords.push(result?);
     }

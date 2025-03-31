@@ -3,6 +3,7 @@
 use crate::scan::OsType;
 use anyhow::Context;
 use cidr::IpCidr;
+use rand::Rng;
 use serde::{Deserialize, Serialize};
 use std::io::{BufRead, Write};
 use std::net::Ipv4Addr;
@@ -15,6 +16,39 @@ use std::{
     net::IpAddr,
     path::{Path, PathBuf},
 };
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Password {
+    pub id: u32,
+    pub password: String,
+}
+
+pub struct Passwords(pub Vec<Password>);
+
+impl Passwords {
+    pub fn from_file() -> anyhow::Result<Self> {
+        let mut passwords = Vec::new();
+        let mut reader = csv::Reader::from_path("passwords.db")
+            .context("couldn't open password file - have you run passgen yet?")?;
+        for result in reader.deserialize() {
+            passwords.push(result?);
+        }
+        Ok(Passwords(passwords))
+    }
+
+    pub fn lookup(&self, password: &str) -> Option<Password> {
+        self.0
+            .iter()
+            .find(|pass| &pass.password == password)
+            .cloned()
+    }
+
+    pub fn random(&mut self) -> Password {
+        let mut rng = rand::thread_rng();
+        let rand = rng.gen_range(0..self.0.len());
+        self.0.remove(rand)
+    }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Host {
@@ -38,6 +72,18 @@ impl Host {
             .cloned()
             .unwrap_or_else(|| self.ip.to_string())
     }
+
+    pub fn merge(&mut self, other: Host) {
+        self.user = other.user;
+        if let Some(pass) = other.pass {
+            self.pass = Some(pass);
+        }
+        self.port = other.port;
+        self.open_ports.extend(other.open_ports);
+        self.aliases.extend(other.aliases);
+        self.os = other.os;
+        self.desc.extend(other.desc);
+    }
 }
 
 impl std::fmt::Display for Host {
@@ -56,6 +102,7 @@ struct ConfigFile {
     pub short_timeout: Duration,
     // Hosts to ignore in script running across all boxes
     pub excluded_octets: Vec<u8>,
+    pub default_passes: HashSet<String>,
     pub linux_root: String,
     pub windows_root: String,
 }
@@ -68,6 +115,7 @@ impl ConfigFile {
             long_timeout: Duration::from_secs(15),
             short_timeout: Duration::from_millis(300),
             excluded_octets: vec![1, 2],
+            default_passes: HashSet::new(),
             linux_root: "root".into(),
             windows_root: "Administrator".into(),
         }
@@ -77,11 +125,18 @@ impl ConfigFile {
     // This assumes the other file has priority and
     // overwrites most of the config in the current instance.
     pub fn merge(&mut self, other: ConfigFile) {
-        self.hosts.extend(other.hosts);
+        for (ip, other) in other.hosts {
+            if let Some(host) = self.hosts.get(&ip) {
+                let mut host = host.clone();
+                host.merge(other);
+                self.hosts.insert(ip, host);
+            }
+        }
         self.cidrs.extend(other.cidrs);
         self.long_timeout = other.long_timeout;
         self.short_timeout = other.short_timeout;
         self.excluded_octets = other.excluded_octets;
+        self.default_passes.extend(other.default_passes);
         self.linux_root = other.linux_root;
         self.windows_root = other.windows_root;
     }
@@ -208,6 +263,14 @@ impl Config {
         self.file.hosts.remove(ip)
     }
 
+    pub fn add_default_pass(&mut self, pass: String) {
+        self.file.default_passes.insert(pass);
+    }
+
+    pub fn get_default_passes(&self) -> &HashSet<String> {
+        &self.file.default_passes
+    }
+
     pub fn add_host_from(
         &mut self,
         scan_host: &crate::scan::Host,
@@ -295,7 +358,7 @@ impl Config {
             let host = Host {
                 ip,
                 user,
-                pass: Some(pass),
+                pass: Some(pass.clone()),
                 port,
                 aliases,
                 open_ports: HashSet::new(),

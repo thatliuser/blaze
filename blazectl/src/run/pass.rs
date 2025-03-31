@@ -27,10 +27,21 @@ pub async fn pass(cmd: PassCommand, cfg: &mut Config) -> anyhow::Result<()> {
 }
 
 async fn check(_cmd: (), cfg: &mut Config) -> anyhow::Result<()> {
-    for (ip, host) in cfg.hosts() {
+    let passwords = Passwords::from_file()?;
+    let defaults = cfg.get_default_passes();
+    for (_, host) in cfg.hosts() {
         let Some(pass) = &host.pass else {
             continue;
         };
+        if defaults.contains(pass) {
+            log::warn!("Host {} has default password {}", host, pass);
+        } else if passwords.lookup(pass).is_none() {
+            log::warn!(
+                "Host {} has password {} that is not in the password database",
+                host,
+                pass
+            );
+        }
     }
     Ok(())
 }

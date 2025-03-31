@@ -1,9 +1,9 @@
 use crate::{config::Config, repl};
 use clap::Parser;
 
-mod chpass;
 mod config;
 mod ldap;
+mod pass;
 mod profile;
 mod scan;
 pub mod script;
@@ -46,9 +46,9 @@ pub enum CoreCommand {
     #[clap(alias = "e")]
     Edit(config::EditCommand),
     Exclude(config::ExcludeCommand),
-    #[clap(alias = "r")]
-    #[command(about = "Change the login credentials of all detected hosts.")]
-    Chpass,
+    #[clap(alias = "pa")]
+    #[command(subcommand)]
+    Pass(pass::PassCommand),
     #[clap(alias = "sc")]
     Script(script::ScriptCommand),
     Base(script::BaseCommand),
@@ -74,7 +74,7 @@ pub async fn run_core(cmd: CoreCommand, cfg: &mut Config) -> anyhow::Result<()> 
         CoreCommand::Export(cmd) => config::export(cmd, cfg).await?,
         CoreCommand::Import(cmd) => config::import(cmd, cfg).await?,
         CoreCommand::Exclude(cmd) => config::exclude(cmd, cfg).await?,
-        CoreCommand::Chpass => chpass::chpass((), cfg).await?,
+        CoreCommand::Pass(cmd) => pass::pass(cmd, cfg).await?,
         CoreCommand::Script(cmd) => script::script(cmd, cfg).await?,
         CoreCommand::Base(cmd) => script::base(cmd, cfg).await?,
         CoreCommand::Shell(cmd) => script::shell(cmd, cfg).await?,

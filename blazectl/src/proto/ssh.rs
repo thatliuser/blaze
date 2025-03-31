@@ -1,14 +1,21 @@
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
+use std::task::{Poll, Waker};
 use std::time::Duration;
 
 use crate::scripts::Scripts;
 use anyhow::{anyhow, Context};
 use async_trait::async_trait;
-use crossterm::terminal;
+use futures::{FutureExt, StreamExt};
 use russh::*;
 use russh_keys::key::PublicKey;
 use russh_sftp::client::SftpSession;
+use termwiz::input::InputEvent;
+use termwiz::terminal::TerminalWaker;
+use termwiz::{
+    caps::Capabilities,
+    terminal::{new_terminal, Terminal},
+};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::{TcpStream, ToSocketAddrs};
 
@@ -36,6 +43,41 @@ impl client::Handler for Handler {
 /// that handles the input/output event loop
 pub struct Session {
     session: client::Handle<Handler>,
+}
+
+pub struct TerminalInputStream<T: Terminal> {
+    terminal: T,
+    waker: Option<Waker>,
+    term_waker: TerminalWaker,
+}
+
+impl<T: Terminal> TerminalInputStream<T> {
+    fn new(terminal: T) -> Self {
+        let term_waker = terminal.waker()
+        Self {
+            terminal,
+            waker: None,
+            term_waker,
+        }
+    }
+}
+
+impl<T: Terminal> futures::Stream for TerminalInputStream<T> {
+    type Item = termwiz::Result<InputEvent>;
+    fn poll_next(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+    ) -> Poll<Option<Self::Item>> {
+        let waker = self.waker.clone();
+        match self.terminal.poll_input(Some(Duration::ZERO)) {
+            Ok(Some(event)) => Poll::Ready(Some(Ok(event.clone()))),
+            Err(err) => Poll::Ready(Some(err.into())),
+            Ok(None) => {
+                //
+                Poll::Pending
+            },
+        }
+    }
 }
 
 impl Session {
@@ -165,35 +207,136 @@ impl Session {
         Ok((code, output))
     }
 
+    pub async fn do_shell(&mut self) -> anyhow::Result<u32> {
+        loop {
+            // let next = events.next().fuse();
+            // Handle one of the possible events:
+            tokio::select! {
+                // There's terminal input available from the user
+                /*
+                update = next => {
+                    match update {
+                        Some(Ok(event)) => {
+                            match event {
+                                Event::Key(key) => {
+                                    match key.code {
+                                        KeyCode::Char(c) => {
+                                            let mut buf = [0; 4];
+                                            c.encode_utf8(&mut buf);
+                                            channel.data(&buf[..]).await?;
+                                        },
+                                        KeyCode::Backspace => {
+                                        },
+                                        // IDRC
+                                        _ => {}
+                                    }
+                                }
+                                // IDRC
+                                _ => continue,
+                            }
+                        },
+                        Some(Err(err)) => return Err(err.into()),
+                        None => {
+                            stdin_closed = true;
+                            channel.eof().await?;
+                        },
+                    }
+                }
+                */
+                update = ev => {
+                    match update {
+                        Some(Ok(ev)) => {
+                            println!("{:?}", ev);
+                            match ev {
+                                Event::Key(key) => {
+                                    match key.code {
+                                        KeyCode::Char(c) => {
+                                        }
+                                        _ => {},
+                                    }
+                                },
+                                _ => {},
+                            }
+                        },
+                        Some(Err(e)) => return Err(e.into()),
+                        None => break,
+                    }
+                }
+                /*
+                r = stdin.read(&mut buf), if !stdin_closed => {
+                    match r {
+                        Ok(0) => {
+                            stdin_closed = true;
+                            channel.eof().await?;
+                        },
+                        // Send it to the server
+                        Ok(n) => {
+                            // Ctrl+Q pressed, escape all further output until esc is pressed
+                            if buf[..n].contains(&17u8) {
+                            }
+                            channel.data(&buf[..n]).await?;
+                        },
+                        Err(e) => return Err(e.into()),
+                    };
+                },
+                */
+                // There's an event available on the session channel
+                Some(msg) = channel.wait() => {
+                    match msg {
+                        // Write data to the terminal
+                        ChannelMsg::Data { ref data } => {
+                            stdout.write_all(data).await?;
+                            stdout.flush().await?;
+                        }
+                        // The command has returned an exit code
+                        ChannelMsg::ExitStatus { exit_status } => {
+                            code = exit_status;
+                            if !stdin_closed {
+                                channel.eof().await?;
+                            }
+                            break;
+                        }
+                        _ => {}
+                    }
+                },
+            }
+        }
+    }
+
     pub async fn shell(&mut self) -> anyhow::Result<u32> {
         let mut channel = self.session.channel_open_session().await?;
 
+        let caps = Capabilities::new_from_env()?;
+        let terminal = new_terminal(caps)?;
+
         // This example doesn't terminal resizing after the connection is established
-        let (w, h) = terminal::size()?;
+        let size = terminal.get_screen_size()?;
 
         // Request an interactive PTY from the server
         channel
             .request_pty(
                 false,
                 "xterm".into(),
-                w as u32,
-                h as u32,
-                0,
-                0,
+                size.cols as u32,
+                size.rows as u32,
+                size.xpixel as u32,
+                size.ypixel as u32,
                 &[], // ideally you want to pass the actual terminal modes here
             )
             .await?;
 
         channel.request_shell(true).await?;
 
-        let code;
+        // TODO: REMOVE THIS!!!
+        let mut code = 0;
         // let mut events = EventStream::new();
         let mut stdout = tokio::io::stdout();
         let mut stdin = tokio::io::stdin();
         let mut buf = vec![0; 1000];
         let mut stdin_closed = false;
+        terminal.stream();
 
-        terminal::enable_raw_mode()?;
+        terminal.set_raw_mode()?;
 
         loop {
             // let next = events.next().fuse();
@@ -230,6 +373,26 @@ impl Session {
                     }
                 }
                 */
+                update = ev => {
+                    match update {
+                        Some(Ok(ev)) => {
+                            println!("{:?}", ev);
+                            match ev {
+                                Event::Key(key) => {
+                                    match key.code {
+                                        KeyCode::Char(c) => {
+                                        }
+                                        _ => {},
+                                    }
+                                },
+                                _ => {},
+                            }
+                        },
+                        Some(Err(e)) => return Err(e.into()),
+                        None => break,
+                    }
+                }
+                /*
                 r = stdin.read(&mut buf), if !stdin_closed => {
                     match r {
                         Ok(0) => {
@@ -246,6 +409,7 @@ impl Session {
                         Err(e) => return Err(e.into()),
                     };
                 },
+                */
                 // There's an event available on the session channel
                 Some(msg) = channel.wait() => {
                     match msg {
@@ -268,7 +432,7 @@ impl Session {
             }
         }
 
-        terminal::disable_raw_mode()?;
+        terminal.set_cooked_mode()?;
 
         Ok(code)
     }

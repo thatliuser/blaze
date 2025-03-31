@@ -2,5 +2,5 @@
 resolver = "3"
 members = [
     "blazectl",
-    "blazecrab", "blazed",
+    "blazecrab", "blazed", "morris",
 ]

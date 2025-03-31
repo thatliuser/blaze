@@ -32,7 +32,9 @@ async fn main() -> anyhow::Result<()> {
         .map_err(|_| anyhow::Error::msg("Failed to initialize rustls"))?;
     let mut cfg = Config::from(&PathBuf::from("blaze.yaml")).unwrap_or_else(|err| {
         log::info!("Error loading config: {:?}, loading default", err);
-        Config::new()
+        let config = Config::new();
+        _ = config.save();
+        config
     });
     Scripts::unpack().await.unwrap_or_else(|err| {
         log::warn!("Error unpacking scripts: {}, continuing", err);

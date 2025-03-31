@@ -6,6 +6,7 @@ use crate::scripts::Scripts;
 use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use crossterm::terminal;
+use russh::client::Msg;
 use russh::*;
 use russh_keys::key::PublicKey;
 use russh_sftp::client::SftpSession;
@@ -165,35 +166,12 @@ impl Session {
         Ok((code, output))
     }
 
-    pub async fn shell(&mut self) -> anyhow::Result<u32> {
-        let mut channel = self.session.channel_open_session().await?;
-
-        // This example doesn't terminal resizing after the connection is established
-        let (w, h) = terminal::size()?;
-
-        // Request an interactive PTY from the server
-        channel
-            .request_pty(
-                false,
-                "xterm".into(),
-                w as u32,
-                h as u32,
-                0,
-                0,
-                &[], // ideally you want to pass the actual terminal modes here
-            )
-            .await?;
-
-        channel.request_shell(true).await?;
-
+    async fn do_shell(&mut self, mut channel: Channel<Msg>) -> anyhow::Result<u32> {
         let code;
-        // let mut events = EventStream::new();
         let mut stdout = tokio::io::stdout();
         let mut stdin = tokio::io::stdin();
         let mut buf = vec![0; 1000];
         let mut stdin_closed = false;
-
-        terminal::enable_raw_mode()?;
 
         loop {
             // let next = events.next().fuse();
@@ -268,12 +246,38 @@ impl Session {
             }
         }
 
-        terminal::disable_raw_mode()?;
-
         Ok(code)
     }
 
-    async fn close(&mut self) -> anyhow::Result<()> {
+    pub async fn shell(&mut self) -> anyhow::Result<u32> {
+        let channel = self.session.channel_open_session().await?;
+
+        // This example doesn't terminal resizing after the connection is established
+        let (w, h) = terminal::size()?;
+
+        // Request an interactive PTY from the server
+        channel
+            .request_pty(
+                false,
+                "xterm".into(),
+                w as u32,
+                h as u32,
+                0,
+                0,
+                &[], // ideally you want to pass the actual terminal modes here
+            )
+            .await?;
+
+        channel.request_shell(true).await?;
+
+        terminal::enable_raw_mode()?;
+        let code = self.do_shell(channel).await;
+        terminal::disable_raw_mode()?;
+
+        code
+    }
+
+    pub async fn close(&mut self) -> anyhow::Result<()> {
         self.session
             .disconnect(Disconnect::ByApplication, "", "English")
             .await?;

@@ -57,13 +57,17 @@ pub async fn chpass(_cmd: (), cfg: &mut Config) -> anyhow::Result<()> {
                     pass
                 );
                 let session = Session::connect(&host.user, pass, (host.ip, host.port)).await;
-                if let Err(err) = session {
-                    log::trace!("Password change seems to have failed, error: {}", err);
-                    failed.push((host.to_string(), err.to_string()));
-                } else {
-                    log::trace!("Success, writing config file");
-                    host.pass = Some(pass.into());
-                    cfg.add_host(&host);
+                match session {
+                    Err(err) => {
+                        log::trace!("Password change seems to have failed, error: {}", err);
+                        failed.push((host.to_string(), err.to_string()));
+                    }
+                    Ok(mut session) => {
+                        log::trace!("Success, writing config file");
+                        host.pass = Some(pass.into());
+                        cfg.add_host(&host);
+                        _ = session.close().await;
+                    }
                 }
             }
             Err(err) => {

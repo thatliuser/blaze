@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+use std::net::IpAddr;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Duration;
@@ -37,6 +39,8 @@ impl client::Handler for Handler {
 /// that handles the input/output event loop
 pub struct Session {
     session: client::Handle<Handler>,
+    sftp: Option<SftpSession>,
+    exec: Option<Channel<Msg>>,
 }
 
 impl Session {
@@ -64,7 +68,11 @@ impl Session {
             anyhow::bail!("Authentication (with password) failed");
         }
 
-        Ok(Self { session })
+        Ok(Self {
+            session,
+            sftp: None,
+            exec: None,
+        })
     }
 
     // Read the first line of the server, which prints the ID
@@ -86,6 +94,18 @@ impl Session {
         tokio::time::timeout(timeout, Self::do_read_server_id(addrs)).await?
     }
 
+    async fn get_sftp_session<'a>(&'a mut self) -> anyhow::Result<&'a mut SftpSession> {
+        if self.sftp.is_none() {
+            let session = self.session.channel_open_session().await?;
+            session
+                .request_subsystem(true, "sftp")
+                .await
+                .context("couldn't request sftp subsystem")?;
+            self.sftp = Some(SftpSession::new(session.into_stream()).await?);
+        }
+        Ok(self.sftp.as_mut().unwrap())
+    }
+
     pub async fn upload(&mut self, file: &Path) -> anyhow::Result<String> {
         let filename = PathBuf::from(file)
             .file_name()
@@ -95,12 +115,7 @@ impl Session {
         let mut src = Scripts::find(file)
             .await
             .ok_or(anyhow!("couldn't find script"))?;
-        let sftp_channel = self.session.channel_open_session().await?;
-        sftp_channel
-            .request_subsystem(true, "sftp")
-            .await
-            .context("couldn't request sftp subsystem")?;
-        let sftp = SftpSession::new(sftp_channel.into_stream()).await?;
+        let sftp = self.get_sftp_session().await?;
         let mut dst = sftp.create(&filename).await?;
         let mut meta = dst.metadata().await?;
         // rwx------
@@ -111,18 +126,24 @@ impl Session {
         tokio::io::copy(&mut src, &mut dst)
             .await
             .context("couldn't copy file to remote location")?;
-        sftp.close().await?;
         Ok(filename.into())
     }
 
+    async fn get_exec_channel<'a>(&'a mut self) -> anyhow::Result<&'a mut Channel<Msg>> {
+        if self.exec.is_none() {
+            self.exec = Some(self.session.channel_open_session().await?);
+        }
+        Ok(self.exec.as_mut().unwrap())
+    }
+
     pub async fn exec(&mut self, command: String, capture: bool) -> anyhow::Result<(u32, Vec<u8>)> {
-        let mut channel = self.session.channel_open_session().await?;
-        channel.exec(true, command).await?;
+        let exec = self.get_exec_channel().await?;
+        exec.exec(true, command).await?;
         let mut code = 0;
         let mut buffer: Vec<u8> = Vec::new();
         loop {
             // There's an event available on the session channel
-            let Some(msg) = channel.wait().await else {
+            let Some(msg) = exec.wait().await else {
                 break;
             };
             match msg {
@@ -166,7 +187,7 @@ impl Session {
         Ok((code, output))
     }
 
-    async fn do_shell(&mut self, mut channel: Channel<Msg>) -> anyhow::Result<u32> {
+    async fn do_shell(&mut self, channel: &mut Channel<Msg>) -> anyhow::Result<u32> {
         let code;
         let mut stdout = tokio::io::stdout();
         let mut stdin = tokio::io::stdin();
@@ -251,7 +272,7 @@ impl Session {
     }
 
     pub async fn shell(&mut self) -> anyhow::Result<u32> {
-        let channel = self.session.channel_open_session().await?;
+        let mut channel = self.session.channel_open_session().await?;
 
         // This example doesn't terminal resizing after the connection is established
         let (w, h) = terminal::size()?;
@@ -272,8 +293,11 @@ impl Session {
         channel.request_shell(true).await?;
 
         terminal::enable_raw_mode()?;
-        let code = self.do_shell(channel).await;
+        let code = self.do_shell(&mut channel).await;
         terminal::disable_raw_mode()?;
+
+        // I think this renders the channel unusable, not sure though
+        _ = channel.close().await;
 
         code
     }
@@ -282,6 +306,16 @@ impl Session {
         self.session
             .disconnect(Disconnect::ByApplication, "", "English")
             .await?;
+        if let Some(sftp) = &mut self.sftp {
+            sftp.close().await?;
+        }
+        if let Some(exec) = &mut self.exec {
+            exec.close().await?;
+        }
         Ok(())
     }
+}
+
+pub struct SessionPool {
+    sessions: HashMap<IpAddr, Session>,
 }

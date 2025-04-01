@@ -225,8 +225,8 @@ impl Session {
                     };
                 },
                 // There's an event available on the session channel
-                Some(msg) = channel.wait() => {
-                    match msg {
+                msg = channel.wait() => match msg {
+                    Some(msg) => match msg {
                         // Write data to the terminal
                         ChannelMsg::Data { ref data } => {
                             stdout.write_all(data).await?;
@@ -241,7 +241,8 @@ impl Session {
                             break;
                         }
                         _ => {}
-                    }
+                    },
+                    None => anyhow::bail!("Shell prematurely exited"),
                 },
             }
         }

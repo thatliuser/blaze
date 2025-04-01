@@ -4,11 +4,12 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Duration;
 
+use crate::config::Host;
 use crate::scripts::Scripts;
 use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use crossterm::terminal;
-use russh::client::Msg;
+use russh::client::{DisconnectReason, Msg};
 use russh::*;
 use russh_keys::key::PublicKey;
 use russh_sftp::client::SftpSession;
@@ -31,6 +32,17 @@ impl client::Handler for Handler {
         _server_public_key: &PublicKey,
     ) -> Result<bool, Self::Error> {
         Ok(true)
+    }
+
+    async fn disconnected(
+        &mut self,
+        reason: DisconnectReason<Self::Error>,
+    ) -> Result<(), Self::Error> {
+        log::trace!("disconected: {:?}", reason);
+        match reason {
+            DisconnectReason::ReceivedDisconnect(_) => Ok(()),
+            DisconnectReason::Error(e) => Err(e),
+        }
     }
 }
 
@@ -303,19 +315,47 @@ impl Session {
     }
 
     pub async fn close(&mut self) -> anyhow::Result<()> {
-        self.session
-            .disconnect(Disconnect::ByApplication, "", "English")
-            .await?;
         if let Some(sftp) = &mut self.sftp {
             sftp.close().await?;
         }
         if let Some(exec) = &mut self.exec {
             exec.close().await?;
         }
+        self.session
+            .disconnect(Disconnect::ByApplication, "", "English")
+            .await?;
         Ok(())
+    }
+
+    pub fn is_closed(&self) -> bool {
+        self.session.is_closed()
     }
 }
 
 pub struct SessionPool {
     sessions: HashMap<IpAddr, Session>,
+}
+
+impl SessionPool {
+    pub fn new() -> Self {
+        Self {
+            sessions: HashMap::new(),
+        }
+    }
+
+    pub async fn try_get<'a>(&'a mut self, host: &Host) -> anyhow::Result<&'a Session> {
+        let reopen = match self.sessions.get(&host.ip) {
+            Some(session) => session.is_closed(),
+            None => true,
+        };
+        if reopen {
+            let Some(pass) = &host.pass else {
+                anyhow::bail!("No password set for host!");
+            };
+            let session = Session::connect(&host.user, &pass, (host.ip, host.port)).await?;
+            self.sessions.insert(host.ip, session);
+        }
+
+        Ok(self.sessions.get(&host.ip).unwrap())
+    }
 }

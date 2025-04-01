@@ -46,7 +46,7 @@ pub enum CoreCommand {
     #[clap(alias = "e")]
     Edit(config::EditCommand),
     Exclude(config::ExcludeCommand),
-    #[clap(alias = "pa")]
+    #[clap(alias = "pw")]
     #[command(subcommand)]
     Pass(pass::PassCommand),
     #[clap(alias = "sc")]

@@ -1,6 +1,5 @@
 target/
-scripts/
-!./scripts/
+*/scripts/
 scan.xml
 blaze.yaml
 passwords.db

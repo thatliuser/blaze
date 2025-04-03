@@ -67,9 +67,9 @@ jobs:
       uses: Swatinem/rust-cache@v2
     - name: Compile
       # Bug with nightly rust action sets default before adding the target, so let's do this instead
-      run: cargo build --release --bin blazectl --target ${{ matrix.target.triple }}
+      run: cargo build --release --target ${{ matrix.target.triple }}
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: blaze-${{ matrix.target.triple }}
-        path: target/${{ matrix.target.triple }}/release/blazectl*
+        path: target/${{ matrix.target.triple }}/release/blaze*

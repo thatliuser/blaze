@@ -1,11 +1,15 @@
 package main
 
 import (
+	"cmp"
+	"flag"
 	"fmt"
 	"os"
 	"os/exec"
 	"regexp"
+	"slices"
 	"strings"
+	"text/tabwriter"
 )
 
 type Proto int
@@ -131,13 +135,29 @@ func parseLine(line string, hasPrefix bool) (*Line, error) {
 
 // Parses firewall logs.
 func main() {
-	dmesg := exec.Command("dmesg", "-t")
+	path := ""
+	flag.StringVar(&path, "path", "dmesg", "Path to dmesg binary")
+
+	regexStr := ""
+	flag.StringVar(&regexStr, "regex", ".*", "Regex to match prefixes against")
+
+	flag.Parse()
+
+	regex, err := regexp.Compile(regexStr)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to compile regex: %v\n", err)
+		os.Exit(1)
+	}
+
+	dmesg := exec.Command(path, "-t")
 	out, err := dmesg.Output()
 	hasPrefix := false
 	if err != nil {
-		dmesg = exec.Command("dmesg")
+		fmt.Fprintf(os.Stderr, "Couldn't run %v -t, falling back to %v: %v\n", path, path, err)
+		dmesg = exec.Command(path)
 		out, err = dmesg.Output()
 		if err != nil {
+			fmt.Fprintf(os.Stderr, "Couldn't run %v: %v\n", path, err)
 			os.Exit(1)
 		}
 		hasPrefix = true
@@ -169,16 +189,39 @@ func main() {
 		counts[key]++
 	}
 
+	writer := tabwriter.NewWriter(os.Stdout, 0, 4, 0, ' ', 0)
 	for prefix, counts := range prefixes {
+		if !regex.MatchString(prefix) {
+			continue
+		}
+		// Sort keys
+		type keyVal struct {
+			key LineKey
+			val int
+		}
+		sorted := []keyVal{}
+
 		for line, count := range counts {
+			sorted = append(sorted, keyVal{key: line, val: count})
+		}
+
+		slices.SortFunc(sorted, func(a keyVal, b keyVal) int {
+			return cmp.Compare(a.val, b.val)
+		})
+
+		for _, pair := range slices.Backward(sorted) {
+			line := pair.key
+			count := pair.val
+
 			src := line.Source
 			dst := line.Dest
 			if line.Protocol == ProtoTCP || line.Protocol == ProtoUDP {
 				// src = fmt.Sprintf("%s:%s", line.Source, *line.SourcePort)
 				dst = fmt.Sprintf("%s:%s", line.Dest, line.DestPort)
 			}
-			key := fmt.Sprintf("%s -> %s:", src, dst)
-			fmt.Printf("%-10s: %-35s  %8d\n", prefix, key, count)
+			key := fmt.Sprintf("%s -> \t %s:", src, dst)
+			fmt.Fprintf(writer, "%s: \t %s \t %d\n", prefix, key, count)
 		}
 	}
+	writer.Flush()
 }
